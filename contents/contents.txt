@@ -1,0 +1,56 @@
+
+Modernes C++ und Qt5: ein praktischer Ansatz
+
+<!--
+    - C++11
+    - nur das, das man benötigt
+    - grundlegende Programmierkenntnisse erforderlich
+    - Graphiken mit TikZ
+-->
+
+- Inhaltsverzeichnis
+- Vorwort
+- Einleitung
+
+Teil C++
+- Start
+    - Minimales Programm mit minimaler Ein/Ausgabe inkl. Übersetzungsmodell
+        - leeres Programm
+        - Übersetzen
+        - Einfache Ausgabe: Hello World-Programm
+            - include, Preprozessor, Option -o
+            - std::cout, std::endl, <<, Stringliterale
+        - Einfache Eingabe: Hello, Sam
+            - std::cin, >>, Variable
+            - cin::getline()
+    - Zahlen und rechnen
+        - Addition zweier Zahlen mittels cin und cout
+        -
+        - Initialisierung
+        - Gültigkeitsbereich und Sichtbarkeit
+        - lokale vs. globale Variable
+
+    - Grundlegende Datentypen
+        - ganze Zahlen
+        - Gleitkommazahlen
+            - Vergleich
+        - Zeichen
+        - Rechnen
+        - Konvertierung
+    - Kontrollstrukturen
+        - Bedingte Anfweisung
+        - Schleifen
+        - Fallunterscheidung
+    - Funktionen
+    - Datentypen 2
+    - Objektorientierte Elemente
+- Qt
+    - Minimales Programm
+    - Vorgefertigte Dialoge
+    - Signale und Slots
+    - Klassenhierarchie
+    - Layout
+- STL und weiteres C++
+- Qt - 2
+    - QML
+- Literaturverzeichnis

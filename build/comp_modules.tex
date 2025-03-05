@@ -1,0 +1,1309 @@
+
+\startcomponent comp_modules
+\product prod_book
+
+\chapter{Modularisierung}
+Ein Programm stellt eine Lösung für ein Problem dar. Bei wachsender
+Problemgröße ergibt sich jedoch, dass der Umfang und die Komplexität der
+Problemlösung ebenfalls größer wird.
+
+Daraus ergeben sich die folgenden Konsequenzen:
+
+\startitemize
+\item
+  Meist kann ein großes Problem nicht in einem Lösungsschritt gelöst
+  werden. Stattdessen wird das Problem sinnvollerweise in Teilprobleme
+  zerlegt, die einzeln gelöst werden. Die Lösung des Gesamtproblems
+  ergibt sich durch Zusammensetzen der Teillösungen.
+\item
+  Selbst wenn eine Lösung in einem Schritt für ein großes Problem
+  möglich wäre, wäre diese Lösung in der Regel ebenfalls groß und damit
+  unübersichtlich. Mit der fehlenden Übersichtlichkeit ergeben sich beim
+  Programmieren mehr Fehlerquellen und die Wartbarkeit des Programmes
+  nimmt ab.
+\item
+  Mit zunehmender Problemgröße kann ein Problem innerhalb eines
+  vorgegebenen Zeitrahmens von einem einzelnen Entwickler nicht gelöst
+  werden. Damit werden mehrere Entwickler benötigt, die sinnvollerweise
+  jeder an einer eigenen Teillösung arbeiten.
+\item
+  Hat man ein Teilproblem einmal gelöst, dann kann man diese Lösung
+  unter Umständen auch in einem anderen Kontext wiederverwenden.
+\stopitemize
+
+Aus diesen Gründen heraus, versucht man ein Programm in kleinere Teile
+aufzuteilen. Jeder kleine Programmteil löst für sich ein Teilproblem des
+gesamten Problems. Solche kleineren Teile werden Module genannt (siehe
+Abschnitt \in[modules]).
+
+Mit zunehmender Anzahl an Modulen wächst auch die Anzahl der Bezeichner,
+die in einem Programm zur Verfügung stehen. Bei einer großen Anzahl an
+Bezeichnern, liegt wiederum eine Unübersichtlichkeit vor und die Gefahr
+von Namenskollisionen steigt. Deshalb gibt es das Konzept des
+Namensraumes, mit dem man eine Strukturierung der Identifier vornehmen
+kann (siehe Abschnitt \in[namespace]).
+
+Ein Programm besteht aus einzelnen Modulen, die miteinander verbunden
+werden und einen gewissen Aufbau aufweisen.
+
+\section[modules]{Module}
+
+Ein Modul stellt seine Funktionalität über eine Schnittstelle zur
+Verfügung, während die Implementierung der Funktionalität dem Benutzer
+verborgen bleibt. Oft verwendet ein Modul andere Module, um die
+geforderte Funktionalität erbringen zu können.
+
+Derzeit bietet \cpp kein eigenes Konzept an, das Module direkt
+unterstützt. Stattdessen wird ein Modul auf der Basis von
+{\em physischer Strukturierung} des Quelltextes und sprachlichen
+Hilfsmitteln gebildet.
+
+\startitemize
+\item
+  In den meisten \cpp Implementierungen stehen uns Dateien zur
+  {\em physischen Strukturierung} des Quelltextes zur Verfügung. An sich
+  geht der \cpp Standard nicht explizit von Dateien als Container für
+  den \cpp Quelltext aus, da der \cpp Standard offen lässt wie
+  \cpp Quelltext repräsentiert und gespeichert wird. Da die meisten
+  \cpp Implementierungen Dateien verwenden, werden wir weiterhin von
+  Dateien sprechen.
+
+  Das heißt, dass ein Modul in \cpp seine Funktionalität in einer
+  \type{.cpp}-Datei ablegt und seine Schnittstelle durch eine
+  Headerdatei (siehe Abschnitt \in[headers]) zur Verfügung stellt.
+  Headerdateien haben in der Regel eine Erweiterung \type{.h},
+  allerdings sind prinzipiell beliebige Erweiterungen möglich.
+\item
+  Als {\em sprachliche Hilfsmittel} stehen prinzipiell Variablen,
+  Funktionen, Klassen und Namensräume zur Verfügung, die in einer
+  Headerdatei angeführt werden und die Schnittstelle beschreiben.
+
+  Als Hilfsmittel für die generische Programmierung stehen Templates zur
+  Verfügung (siehe Abschnitt \in[templatefoundations]).
+
+  Weiters gibt es Spezifizierungssymbole wie \type{inline},
+  \type{extern}, \type{static}, \type{const} und \type{constexpr}, die
+  für eine genauere Schnittstellenbeschreibung herangezogen werden.
+\stopitemize
+
+Nimmt ein Modul andere Module in Anspruch, dann inkludiert es deren
+Schnittstellen wiederum als Headerdateien. Solch eine Headerdatei
+enthält hauptsächlich Funktionen, Klassen und Objekte.
+
+Die Implementierung des Moduls kann man vor dem Benutzer des Moduls
+verbergen, sodass dieser nur die Schnittstelle zu Gesicht bekommt.
+
+\subsection[translationunit]{Übersetzung zu einem Programm}
+
+Der Übersetzungsschritt einer einzelnen Datei sieht so aus, dass der
+Compiler zuerst in einem Vorverarbeitungsschritt den Präprozessor (von
+engl. {\em preprocessor}, Vorverarbeiter) beauftragt, die Quelldatei in
+eine sogenannte Übersetzungseinheit (engl. {\em translation unit}) zu
+übersetzen.
+
+Bei dieser Vorverarbeitung werden zuerst alle Präprozessoranweisungen
+ausgeführt und als Ergebnis entsteht reiner \cpp Quelltext ohne
+Präprozessoranweisungen. Wir erkennen solche Präprozessoranweisungen an
+dem Rautezeichen \type{#}. Mehr dazu im Abschnitt \in[headers].
+
+Danach wird die entstandene Übersetzungseinheit vom eigentlichen
+Compiler in eine Objektdatei übersetzt. Diese enthält nur Objektcode
+(auch Maschinencode genannt), also Anweisungen in der Maschinensprache
+des Prozessors.
+
+Im Zuge dieses Vorganges müssen die Teilergebnisse, wie zum Beispiel die
+Objektdateien, nicht unbedingt als eigenständige Dateien vorliegen.
+
+Sind alle benötigten Schritte vorgenommen worden, dann geht es weiter
+mit dem sogenannten Linken (engl. {\em link}, binden). In diesem
+Schritt, der durch einen Linker (engl. {\em linker} oder {\em link
+editor}) vorgenommen wird, werden alle Bezeichner von Deklarationen mit
+den entsprechenden Definitionen -- unter Umständen in anderen
+Objektdateien vorhanden -- verbunden. Schauen wir uns die folgende
+einfache Anweisung zur Ausgabe eines Textes an:
+
+\startcpp
+cout << "Test" << endl;
+\stopcpp
+
+Hier werden die Bezeichner \type{cout} und \type{endl} verwendet, die in
+der Headerdatei \type{iostream} deklariert worden sind. Allerdings
+verweisen diese Bezeichner auf Objekte, für die es auch eine eindeutige
+Definition geben muss, die in diesem konkreten Fall in der
+Standardbibliothek enthalten ist. Diese Standardbibliothek wird von der
+\cpp Implementierung zur Verfügung gestellt und auch automatisch
+verwendet.
+
+Objektdateien können zu Bibliotheksdateien (engl. {\em library})
+zusammengefasst werden und hiermit gemeinsam verwendet werden.
+
+Prinzipiell können die zu verbindenden Bezeichner in beliebigen
+Objektdateien oder in beliebigen Bibliotheken enthalten sein. Wichtig
+ist nur, dass der Linker diese findet und die Adressen der
+Speicherobjekte den Bezeichnern zuordnen kann. Das heißt, der Linker
+fügt den gesamten benötigten Code in eine Datei zusammen und ersetzt die
+Stellen der Bezeichner mit den Adressen der Speicherobjekte.
+
+Damit haben wir -- vereinfacht ausgedrückt -- ein ausführbares Programm
+erhalten. Üblicherweise ist der Linker in den Compiler integriert!
+
+\subsection[headers]{Headerdateien}
+
+Werfen wir einen genaueren Blick auf den Präprozessor. Bis jetzt haben
+wir uns die \type{#include} Anweisung angesehen, die eine von mehreren
+Präprozessoranweisungen ist. Abgesehen von der \quotation{if} und der
+\quotation{define} Anweisung werden heute jedoch meist keine
+Präprozessoranweisung mehr verwendet.
+
+Verwendet haben wir bis jetzt solche Präprozessoranweisungen nur um
+Headerdateien aus der Standardbibliothek einzubinden, wie zum Beispiel:
+
+\startcpp
+#include <iostream>
+\stopcpp
+
+Diese Anweisung bindet den gesamten Text der Headerdatei \type{iostream}
+anstelle dieser Präprozessoranweisung ein. Unter Umständen enthält eine
+Headerdatei wiederum Präprozessoranweisungen, dann werden diese im Zuge
+der Einbindung vom Präprozessor entsprechend ausgeführt.
+
+Wie schon erwähnt haben die Headerdateien meist die
+Dateinamenerweiterung \type{.h}, dies muss jedoch nicht zwingend so
+sein. Das beste Beispiel sind die Headerdateien der
+\cpp Standardbibliothek, die überhaupt keine Erweiterung aufweisen, wie
+im obigen Beispiel zu sehen ist.
+
+Es gibt zwei Arten wie die \type{#include}-Präprozessoranweisung
+verwendet werden kann:
+
+\startitemize
+\item
+  Einerseits kann diese in der schon bekannten Form
+  \type{#include <iostream>} -- also mit dem Headernamen in spitzen
+  Klammern -- verwendet werden. Dies bedeutet, dass der Präprozessor die
+  angegebene Datei in den Standardverzeichnissen der
+  \cpp Implementierung suchen soll.
+
+  Innerhalb der Standardbibliothek gibt es eine spezielle Notation für
+  Headerdateien, die von der Programmiersprache \type{C} kommen und in
+  \cpp direkt verwendet werden können. Den Namen dieser Headerdateien
+  ist ein kleines \quotation{c} vorangestellt, wie wir dies schon von
+  \type{<cstdint>} kennen. Auch die Bezeichner dieser Headerdateien sind
+  im Namensraum \type{std} enthalten und müssen deshalb zum Beispiel
+  mittels \type{std::} oder \type{using namespace std;} zugreifbar
+  gemacht werden.
+\item
+  Andererseits kann man diese in der Form \type{#include "mathutils.h"}
+  verwenden, also mit doppelten Anführungszeichen anstatt mit spitzen
+  Klammern. Dies bedeutet, dass der Präprozessor die Datei in den
+  Verzeichnissen des aktuellen Projektes suchen soll. Wird nichts weiter
+  angegeben, dann bedeutet dies, dass im aktuellen Verzeichnis gesucht
+  wird.
+\stopitemize
+
+Nehmen wir einmal an, dass wir eine nützliche Funktion \type{squared}
+geschrieben haben, die das Quadrat der übergebenen Zahl berechnet und
+das Ergebnis zurückliefert und wir diese Funktion in mehreren
+Übersetzungseinheiten verwenden wollen. Dann macht es Sinn, diese
+Funktion in eine eigene Datei zu geben:
+
+\startcpp
+// mathutils.cpp
+double squared(double val) {
+    return val * val;
+}
+\stopcpp
+
+Wir können diese Datei übersetzen. Allerdings müssen wir dazu dem
+Compiler mitteilen, dass dieser nur eine Objektdatei erzeugen soll, da
+dieser sonst ein ausführbares Programm generieren will. Dies ist jedoch
+nicht möglich, da die Funktion \type{main} nicht vorhanden ist und im
+Zuge des Bindens die Funktionsdefinition für \type{main} nicht zur
+Verfügung steht.
+
+Verwende deshalb die entsprechenden Optionen deines Compilers oder
+konfiguriere deine Entwicklungsumgebung entsprechend. Für die
+Übersetzung eines Quelltextes in eine Objektdatei ist im Abschnitt
+\in[compilation] die Anleitung für die gebräuchlichen Compiler und
+Betriebssysteme vorhanden. Wir gehen jetzt davon aus, dass eine
+Objektdatei vorliegt.
+
+In einem weiteren Schritt legen wir eine neue Datei an, die diese
+Funktion verwenden soll:
+
+\startcpp
+// main.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    cout << squared(4) << endl;
+}
+\stopcpp
+
+Will man jetzt dieses Programm übersetzen, dann muss man dem Compiler
+(mit Linker) auch alle Quelldateien bekannt geben. Allerdings wirst du
+feststellen, dass eine Übersetzung nicht möglich ist, da der Bezeichner
+\type{squared} dem Compiler nicht bekannt ist. Das ist auch
+verständlich, da wir keine Deklaration und im Speziellen auch keine
+Definition dafür haben.
+
+Die einfachste Möglichkeit dies zu lösen ist, dass die Definition dem
+Compiler bekannt gegeben wird. Modifiziere den Quellcode bezüglich der
+Präprozessoranweisungen folgendermaßen:
+
+\startcpp
+#include <iostream>
+
+#include "mathutils.cpp"
+\stopcpp
+
+Beim Übersetzen braucht nur die Datei \type{main.cpp} angegeben werden.
+Das funktioniert, aber es ist nicht gut, denn es wurde die
+{\em Definition} der Funktion zur Gänze in die Datei \type{main.cpp}
+eingebunden. Das führt in größeren Programmen unweigerlich zu Fehlern
+und dupliziertem Maschinencode. Eigentlich wollten wir, die
+Funktionsdeklaration der Funktion \type{squared()} dem Compiler beim
+Übersetzen der Datei \type{main.cpp} bekanntgeben. Lege deshalb eine
+Headerdatei \type{mathutils.h} mit folgendem Inhalt an, die die
+Schnittstelle unseres Moduls definiert:
+
+\startcpp
+double squared(double val);
+\stopcpp
+
+Ändere weiters in der Datei \type{main.cpp} die Präprozessoranweisung
+für das Einbinden unserer Headerdatei wie nachfolgend ab.
+
+\startcpp
+#include "mathutils.h"
+\stopcpp
+
+Du siehst hier, dass der Name der Headerdatei in doppelte Hochkommas
+eingeschlossen ist und nicht in spitzen Klammern wie bei den
+Headerdateien der Standardbibliothek.
+
+Übersetze nun wiederum nur die Datei \type{main.cpp}. Das Übersetzen
+wird jetzt problemlos funktionieren, aber das Binden wird mit einer
+Fehlermeldung scheitern. Diese Fehlermeldung sagt aus, dass es eine
+undefinierte Referenz zu der Funktion \type{squared(double)} gibt.
+
+Das ist leicht zu beheben, indem du auch die Datei \type{mathutils.cpp}
+dem Compiler mitgibst. Damit wird immer die Datei \type{main.cpp} als
+auch die Datei \type{mathutils.cpp} übersetzt. Es macht natürlich wenig
+Sinn alle Dateien immer zu übersetzen, wenn nur eine Datei verändert
+worden ist. Deshalb können beim Übersetzen anstatt der nicht geänderten
+Quelldateien die Objektdateien angegeben werden, der Compiler (mit
+integriertem Linker) wird nur die abgeänderten Quelldateien übersetzen
+und die Objektdateien binden.
+
+Eine weitere Verbesserung werden wir jetzt einbauen, die uns in Zukunft
+vor (Tipp-)Fehlern schützen kann. Füge die gleiche Präprozessoranweisung
+\type{#include "mathutils.h"} auch an den Anfang der Datei
+\type{mathutils.cpp} ein. Damit kann der Compiler beim Übersetzen der
+Datei \type{mathutils.cpp} die Definitionen gegen die Deklarationen in
+der Datei \type{mathutils.h} prüfen. Damit ist sichergestellt, dass
+diese Deklarationen immer zu den Definitionen passen und beim Einbinden
+der Includedatei in andere Dateien wissen wir, dass die Deklarationen
+richtig sind.
+
+Eigentlich ist es so, dass sogenannte Make-Systeme verwendet werden oder
+die Entwicklungsumgebung nach erfolgter Konfiguration sich selber um das
+Übersetzen und Linken der relevanten Dateien kümmert. Weiters wird es in
+der Regel so sein, dass mehrere zusammenhängende Objektdateien zu einer
+Bibliothek zusammengefasst werden, sodass nur mehr die Bibliothek beim
+Linken angegeben werden muss.
+
+Das ist soweit schon einmal ganz gut, allerdings gibt es noch immer ein
+Problem, dass sich dadurch äußert, dass eine Headerdatei durchaus auch
+mehrmals eingelesen werden kann. Damit dies nicht passiert greift man zu
+folgender Technik, die als Wächter (engl. {\em guard}) bezeichnet wird.
+Dazu wird die Headerdatei so umgebaut, dass der gesamte Inhalt mit einer
+if-Präprozessoranweisung umschlossen wird:
+
+\startcpp
+#ifndef MATHUTILS_H
+#define MATHUTILS_H
+
+double squared(double val);
+
+#endif
+\stopcpp
+
+Das bedeutet, dass der Präprozessor den if-Zweig der \type{#ifndef}
+Anweisung (if not defined) nur betreten wird, wenn das Präprozessormakro
+\type{MATHUTILS_H} noch nicht definiert ist. In diesem Fall wird diese
+im if-Zweig definiert und die eigentlichen Deklarationen folgen.
+Abgeschlossen wird mit einem \type{#endif}. Wird diese Headerdatei ein
+zweites Mal beim Übersetzen eingelesen, dann ist das Präprozessormakro
+\type{MATHUTILS_H} schon definiert und die Deklarationen werden nicht
+beachtet.
+
+Damit verhindern wir auch rekursives Einlesen von Headerdateien! Nehmen
+wir an, dass wir eine Headerdatei \type{a.h} und eine Headerdatei
+\type{b.h} haben. Dann könnte es sein, dass \type{a.h} die Datei
+\type{b.h} inkludieren will und \type{b.h} wiederum \type{a.h}
+inkludieren will. Ohne einen Wächter ergibt sich eine Endlosrekursion.
+
+Im Abschnitt \in[headercontents] wird festgehalten welcher Inhalt in
+Headerdateien enthalten sein darf und welcher nicht.
+
+\section[binden]{Binden}
+
+Wir haben schon gesehen, dass mehrere Übersetzungseinheiten durch den
+Linker gebunden werden. Jetzt werden wir uns ansehen, welche
+Möglichkeiten es gibt, Bezeichner miteinander zu binden.
+
+Es gibt zwei Arten wie in \cpp Bezeichner an Objekte gebunden werden
+können:
+
+\startitemize
+\item
+  Bei der externen Bindung (engl. {\em external linkage}) kann ein
+  Bezeichner einer Übersetzungseinheit auch in anderen
+  Übersetzungseinheiten verwendet werden.
+\item
+  Bei der internen Bindung (engl. {\em internal linkage}) steht der
+  Bezeichner nur innerhalb einer Übersetzungseinheit zur Verfügung.
+\stopitemize
+
+\subsection[externbinding]{Externe Bindung}
+
+Wenn wir uns diese Einteilung ansehen, dann erkennen wir, dass
+Funktionsdeklarationen offensichtlich in die Kategorie
+\quotation{external linkage} fallen, sonst hätte das Binden des
+Funktionsaufrufes \type{squared(4)} zur Definition in der Objektdatei
+von \type{mathutils.cpp} nicht funktioniert.
+
+Der Spezifizierer \type{extern} hat im Zusammenhang mit Funktionen die
+Bedeutung, dass die Funktion eine externe Bindung aufweist. Dies ist
+redundant, da eine Funktion ja automatisch eine externe Bindung
+aufweist.
+
+Ebenfalls in diese Kategorie fallen die globalen Variablen! Erweitern
+wir dazu unser Beispiel um die Variable \type{pi}. In der Datei
+\type{mathutils.cpp} fügen wir eine globale Variable hinzu:
+
+\startcpp
+#include <cmath>
+
+double pi{atan(1)*4};
+\stopcpp
+
+In der zugehörigen Headerdatei fügen wir eine entsprechende Deklaration
+hinzu:
+
+\startcpp
+extern double pi;
+\stopcpp
+
+Dann können wir in der Datei \type{main.cpp} auf \type{pi} zugreifen:
+
+\startcpp
+cout << pi << endl;
+\stopcpp
+
+Das \type{extern} bedeutet, dass es sich hierbei um eine Deklaration
+handelt, die aussagt, dass sich die zugehörige Definition in einer
+anderen Übersetzungseinheit befindet. Ohne \type{extern} würde es sich
+um eine Definition handeln und es sind keine doppelten Definitionen von
+Bezeichnern erlaubt, die auf Speicherobjekte verweisen. Dies würde der
+Linker als Fehler melden.
+
+Etwas komplizierter wird es bei Definitionen von Klassen, Templates und
+inline-Funktionen und dergleichen, denn hier gilt die sogenannte
+\quotation{one-definition rule}.
+
+Prinzipiell ist es so, dass es exakt eine Definition einer Klasse, eines
+Templates,\ldots{} innerhalb eines Programmes geben darf. Eine solche
+Definition darf nicht in mehreren Objektdateien enthalten sein.
+\cpp kann dies in dieser Form allerdings nicht überprüfen.
+
+Aus diesem Grund gibt es die \quotation{one-definition rule} (ODR), die
+besagt, dass zwei Definitionen einer Klasse, eines Templates oder einer
+inline-Funktion als Exemplare einer eindeutigen Definition angesehen
+werden, wenn sich diese in verschiedenen Übersetzungseinheiten befinden
+und aus der Sicht der Programmiersprache \cpp als gleich angesehen
+werden.
+
+Es ist leider so, dass der Compiler diese Regel nicht absolut überprüfen
+kann (bei mehreren Übersetzungseinheiten) und es daher sinnvoll ist,
+seine Headerdateien geschickt zu verwenden sowie Module einzusetzen.
+
+Hier folgt noch ein Beispiel, das diese Situation demonstriert. Nehmen
+wir an, wir schreiben ein Modul, das einen Record beinhalten soll, der
+aus einer \type{id} und \type{name} besteht. Weiters gibt es eine
+Funktion, die für einen Zeiger auf einen Record die \type{id}
+zurückliefert:
+
+\startcpp
+// record.h
+struct Record {
+    T id;
+    char* name;
+};
+
+T get_id(Record* ptr);
+\stopcpp
+
+Wir sehen hier, dass der Typ \type{T} bis jetzt nicht festgelegt wurde.
+Das wird jetzt ausgenutzt, um den \quotation{Fehler} zu demonstrieren.
+Implementieren wir jetzt das Modul:
+
+\startcpp
+#include <iostream>
+
+using T = std::string;
+
+#include "record.h"
+
+T get_id(Record* ptr) {
+    return ptr->id;
+}
+\stopcpp
+
+Wir sehen hier, dass \type{T} als ein \type{std::string} festgelegt
+wurde und die Funktion \type{get_id} gemäß unserer Anforderung
+implementiert wurde.
+
+Jetzt wollen wir dieses Modul verwenden:
+
+\startcpp
+// recorduser.cpp
+#include <iostream>
+
+using namespace std;
+
+using T = char;
+#include "record.h"
+
+int main() {
+    Record rec;
+    rec.id = 'a';
+    cout << get_id(&rec) << endl;
+}
+\stopcpp
+
+Das Programm wird wahrscheinlich fehlerfrei übersetzen, obwohl es die
+ODR verletzt! Allerdings wird das Programm beim Ausführen mit hoher
+Wahrscheinlichkeit mit einem Adressbereichsfehler abstürzen. Teste!
+
+Dies liegt daran, dass wir den Typ \type{T} hier verschieden deklariert
+haben und die \cpp-Implementierung diesen Fehler nicht erkennen konnte.
+Natürlich ist es in diesem Fall einfach, den Fehler zu vermeiden, da man
+lediglich den Typ von \type{T} in der Headerdatei \type{record.h}
+deklarieren hätte müssen.
+
+\subsection[interne-bindung]{Interne Bindung}
+
+\subsubsection[staticfunc]{\type{static}-Variable und
+\type{static}-Funktion}
+
+Globale Variablen, die mittels \type{static} markiert sind, weisen eine
+interne Bindung auf. \type{static} ist in diesem Zusammenhang ein Relikt
+aus der Programmiersprache \type{C} und wird bei globalen Variablen dazu
+verwendet, um die externe Bindung in eine interne Bindung zu wandeln.
+
+\startcpp
+static int num_people;
+\stopcpp
+
+Damit ist die globale Variable \type{num_people} nur mehr in der
+aktuellen Übersetzungseinheit sichtbar und wird vom Linker nicht
+gesehen. In Headerdateien haben solche Definitionen nichts zu suchen!
+
+Funktionen, die mittels \type{static} gekennzeichnet werden, bekommen
+automatisch interne Bindung. Nehmen wir einfach an, dass wir unsere
+Funktion \type{squared} mit einem \type{static} versehen:
+
+\startcpp
+static double squared(double);
+\stopcpp
+
+Die Wirkung ist, dass diese nur in der aktuellen Übersetzungseinheit zur
+Verfügung steht. Damit einhergehend macht es wieder keinen Sinn, so eine
+Funktionsdeklaration in eine Headerdatei zu geben.
+
+\subsubsection[konstante]{Konstante}
+
+Wenn wir uns jetzt das Beispiel mit der Variable \type{pi} noch einmal
+ansehen, dann werden wir sicher feststellen, dass es sich bei \type{pi}
+weniger um eine Variable als mehr um eine Konstante handelt.
+
+In \cpp kann eine Konstante zum Beispiel mit dem Schlüsselwort
+\type{const} definiert werden. Gehen wir also her und fügen an den
+Anfang der Definition von \type{pi} in der Datei \type{mathutils.cpp}
+das Schlüsselwort \type{const} hinzu:
+
+\startcpp
+const double pi{atan(1)*4};
+\stopcpp
+
+Wenn du jetzt das Programm wieder übersetzen willst, dann wirst du mit
+einem Linker-Fehler konfrontiert werden. Das liegt daran, dass eine
+\type{const} Variable in \cpp defaultmäßig interne Bindung aufweist. Es
+gibt prinzipiell zwei Möglichkeiten, wie man dies lösen kann:
+
+\startitemize
+\item
+  Man kann der Konstante bei der Definition explizit mittels
+  \type{extern} eine externe Bindung zuweisen. Das bedeutet, dass vor
+  \type{const} noch ein \type{extern} hinzugefügt werden muss:
+
+  \startcpp
+  extern const double pi{atan(1)*4};
+  \stopcpp
+
+  Durch \type{extern} wird die defaultmäßige interne Bindung von
+  \type{const} auf externe Bindung umgewandelt.
+\item
+  Alternativ dazu kann man die Konstante zur Gänze in die Headerdatei
+  verschieben (ohne Angabe von \type{extern}). Daher gibt es jetzt nicht
+  nur eine Konstante, sondern so viele Exemplare der Konstante wie es
+  Übersetzungseinheiten gibt, die diese Konstante verwenden, also die
+  Headerdatei \type{mathutils.h} einbinden.
+
+  Das hat aber den Nachteil, dass es einerseits die Konstante mehrmals
+  im Objektcode und damit auch im Hauptspeicher gibt. Weiters können
+  sich auch leichter Fehler einschleichen, wenn man Änderungen in der
+  Headerdatei vornimmt, aber \quotation{vergisst} eine oder mehrere
+  Quelldateien zu übersetzen, die diese Headerdatei einbinden. Damit
+  kann es unterschiedliche Werte für die Konstante im laufenden Programm
+  geben.
+
+  Bei einer Verwendung eines korrekt konfigurierten Buildsystems wird
+  dies nicht vorkommen und daher wird es auch nicht zu unterschiedlichen
+  Werten kommen. Trotzdem wird es mehrere Speicherobjekte geben und
+  daher werden wir diesen Ansatz auch nicht weiter betrachten.
+\stopitemize
+
+Als Alternative zu \type{const} kann eine Konstante auch mit dem
+Schlüsselwort \type{constexpr} definiert werden. Bezüglich Bindung
+verhält sich \type{constexpr} wie \type{const} und kann auch so
+verwendet werden. Zwei spezielle Punkte sind jedoch zu beachten:
+
+\startitemize
+\item
+  Im Standard \cppXI und auch in \cppXIV ist die Funktion \type{atan}
+  nicht als \type{constexpr} markiert (zu \type{constexpr}-Funktionen
+  siehe Abschnitt \in[constexprfunc]) und deshalb kann diese Funktion
+  eigentlich nicht zur Berechnung von \pi{} verwendet werden. Es ist
+  allerdings so, dass bestimmte Compiler wie zum Beispiel der GNU
+  \type{g++} in einer aktuellen Version die Funktion \type{atan} sehr
+  wohl als \type{constexpr} deklariert und damit einer Verwendung in der
+  Initialisierung der \type{constexpr} Konstante \type{pi} nichts im
+  Wege steht.
+\item
+  Da eine \type{constexpr} Konstante nicht notwendigerweise eine
+  Speicheradresse besitzt, macht es hier eindeutig mehr Sinn, diese in
+  einer Headerdatei zu platzieren!
+\stopitemize
+
+\subsubsection[inlinefunc]{\type{inline}-Funktionen}
+
+Entwickeln wir das Beispiel wieder ein bisschen weiter. Warum soll für
+die Berechnung des Quadrats, die nur aus einer einzelnen Multiplikation
+besteht, auch zusätzlich ein Funktionsaufruf durchgeführt werden, der
+einen gewissen Overhead erzeugt? Besser wäre es, wenn wir den Compiler
+dazu bewegen könnten, anstatt des Funktionsaufrufes die Berechnung an
+Ort und Stelle durchzuführen.
+
+Dies kann man dadurch erreichen, dass man der Funktionsdefinition ein
+\type{inline} voranstellt, das dem Compiler nahe legt, dass der Inhalt
+der Funktion anstatt des Funktionsaufrufes eingefügt wird. Damit dies
+funktioniert, muss der Compiler bei jedem Übersetzen die Definition der
+Funktion zur Hand haben. Das bedingt, dass die Definition einer
+\type{inline}-Funktion in der Headerdatei vorhanden sein muss.
+
+Verschiebe deshalb die Definition von \type{squared} in die Headerdatei,
+stelle ein \type{inline} voran und lösche die Deklaration. Damit ist in
+der Headerdatei \type{mathutils.h} folgendes bezüglich der Funktion
+\type{squared} enthalten:
+
+\startcpp
+inline double squared(double val) {
+    return val * val;
+}
+\stopcpp
+
+\type{inline} Funktionen weisen eine interne Bindung auf, obwohl es sich
+um eine Funktionsdefinition handelt. Analog dazu verhält es sich mit
+\type{constexpr}-Funktionen.
+
+Der Sinn einer derartigen \type{inline}-Spezifikation liegt darin, dass
+der Aufruf einer Funktion zugunsten einer größeren Codemenge eingespart
+wird. Damit ergibt sich, dass so eine Art von Optimierung nur dann Sinn
+macht, wenn die Funktion relativ klein ist.
+
+\subsubsection[constexprfunc]{\type{constexpr}-Funktionen}
+
+Wie wir uns schon im Abschnitt \in[constants] über \type{constexpr}
+Ausdrücke angesehen haben, kann eine Funktion in einem \type{constexpr}
+Ausdruck normalerweise nicht verwendet werden. Um eine Funktion in einem
+solchen Ausdruck verwenden zu können, muss diese ebenfalls mit
+\type{constexpr} markiert sein.
+
+Schauen wir uns dazu die folgende Funktion \type{digitsum} an, die die
+Quersumme einer dezimalen Zahl berechnet:
+
+\startcpp
+// constexprfunc.cpp
+#include <iostream>
+
+using namespace std;
+
+constexpr unsigned int digitsum(unsigned int number) {
+    return (number > 9) ?
+        (number % 10) + digitsum(number / 10) : number;
+}
+
+int main() {
+    constexpr unsigned int number{digitsum(12345)};
+    cout << number << endl;
+}
+\stopcpp
+
+Die Ausgabe wird in diesem Fall \type{15} sein, da $1+2+3+4+5 = 15$ ist.
+
+In diesem Fall wird die Funktion \type{digitsum} zur Übersetzungszeit
+durch den Compiler ausgewertet und nicht zur Laufzeit! Zur Laufzeit wird
+in diesem konkreten Fall lediglich eine Konstante ausgegeben, aber keine
+Berechnung durchgeführt.
+
+Der Compiler überprüft, ob innerhalb eines \type{constexpr}-Ausdruckes
+nur \type{constexpr}-Konstanten und \type{constexpr}-Funktionen
+vorkommen. Du kannst dies leicht überprüfen, indem du \type{constepxr}
+bei der Definition der Funktion \type{digitsum} entfernst. Der Compiler
+wird eine Fehlermeldung liefern.
+
+\type{constexpr}-Funktionen können auch außerhalb von
+\type{constexpr}-Ausdrücken verwendet werden. Ändere dazu die Funktion
+\type{main} wie folgt ab:
+
+\startcpp
+int main() {
+    unsigned int number{};
+    cin >> number;
+    cout << digitsum(number) << endl;
+}
+\stopcpp
+
+Damit wird die Funktion \type{digitsum} jetzt zur Laufzeit ausgeführt
+und nicht mehr zur Übersetzungszeit.
+
+Allerdings kann eine \type{constexpr} Funktion in \cppXI nur sehr
+einfach aufgebaut sein! Sie muss aus einer einzelnen
+\type{return}-Anweisung bestehen und darf auch keine Schleifen und keine
+lokalen Variablen beinhalten. Weiters darf so eine Funktion keine
+Nebeneffekte bewirken. Das bedeutet, dass eine \type{constexpr}-Funktion
+auf keine Variablen außerhalb schreibend zugreifen darf. Auch
+Veränderungen von Referenz-Parametern sind nicht erlaubt.
+
+So eine Funktion wird an sich als \quotation{pure function} bezeichnet.
+Also keine Änderungen und für die gleichen Argumente wird immer das
+gleiche Ergebnis zurückgeliefert.
+
+\startannotation{\cppXIV}
+
+In \cppXIV wurden diese strengen Auflagen gelockert. Es sind jetzt auch
+Schleifen und lokale Variablen erlaubt, wie du im nächsten Beispiel
+sehen kannst, das die kleinste Zahl aus allen übergebenen Zahlen
+bestimmt.
+\stopannotation
+
+\startcpp
+#include <iostream>
+#include <limits>
+
+using namespace std;
+
+constexpr int min(std::initializer_list<int> numbers) {
+    int min = std::numeric_limits<int>::max();
+    for (int n : numbers)
+        if (n < min) min = n;
+            return min;
+}
+
+int main() {
+    constexpr int min_number = min({5, 1, 8, -3, 9});
+    cout << min_number << endl;
+}
+\stopcpp
+
+Analog zu \type{constexpr}-Konstanten und \type{inline}-Funktionen,
+weisen auch \type{constexpr}-Funktionen interne Bindung auf.
+
+\section[program]{Programm}
+
+Ein Programm ist eine Sammlung kompilierter Übersetzungseinheiten, die
+der Linker zu einer ausführbaren Datei bindet. Jedes Programm muss genau
+eine Funktion \type{main} enthalten, die eine der folgenden Formen
+aufweist:
+
+\startitemize[packed]
+\item
+  \mono{int main() \{ /* ... */ \}}
+\item
+  \mono{int main(int argc, char* argv{[}{]}) \{ /* ... */\}}
+\stopitemize
+
+Der Rückgabewert wird an das aufrufende Programm weitergegeben. Jeder
+Wert ungleich Null wird in der Regel als Fehler interpretiert.
+
+Ein Programm wird durch eine der folgenden Möglichkeiten beendet:
+
+\startitemize
+\item
+  Wenn die Funktion durch die Funktion \type{exit(int)} aus der
+  Headerdatei \type{<cstdlib>} der Standardbibliothek aufgerufen wird.
+  Damit wird das Programm an dieser Stelle beendet.
+
+  Dies wird als normale Beendigung interpretiert und es wird eine ganze
+  Zahl als Argument mitgegeben, die als Rückgabewert an das aufrufende
+  Programm zurückgegeben wird.
+
+  Bei Aufruf der Funktion \type{exit()} werden einige Aufräumarbeiten
+  durchgeführt. Es werden die Destruktoren der \type{static}-Variablen
+  und der thread-lokalen Variablen aufgerufen, jedoch nicht die der
+  lokalen Variablen. Außerdem werden geöffnete Dateien geschlossen.
+
+  Es besteht außerdem die Möglichkeit, dass man Funktionen mittels
+  \type{atexit()} registrieren kann, die durch \type{exit()} zur
+  Ausführung gebracht werden. Damit kann man abschließende Aktionen
+  erzwingen.
+
+  Schauen wir uns vorerst einmal das folgende Programm an:
+
+  \startcpp
+  #include <iostream>
+  #include <cstdlib>
+
+  using namespace std;
+
+  struct Variable {
+      string name;
+      ~Variable() {
+          cout << name << " var destructed" << endl;
+      }
+  };
+
+  int main() {
+      Variable local_var{"local"};
+      static Variable static_var{"static"};
+  }
+  \stopcpp
+
+  Damit wird es zu folgender erwarteter Ausgabe kommen:
+
+  \startsh
+  local var destructed
+  static var destructed
+  \stopsh
+
+  Rufen wir jetzt die Funktion \type{exit()} innerhalb von \type{main}
+  auf:
+
+  \startcpp
+  exit(EXIT_SUCCESS);
+  \stopcpp
+
+  Damit wird der Prozess mit einem implementierungsabhängigen
+  Rückgabewert beendet, der auf der jeweiligen Plattform als Erfolg
+  interpretiert wird.
+
+  Dann werden wir feststellen, dass für die lokale Variable
+  \type{local_var} nicht mehr der Destruktor aufgerufen wird!
+
+  Als Nächstes können wir noch einen \quotation{exit handler} in Form
+  einer Funktion \type{exit_handler} schreiben:
+
+  \startcpp
+  void exit_handler() {
+      cout << "exit handler..." << endl;
+  }
+  \stopcpp
+
+  Diese Funktion muss noch registriert werden, sodass diese beim Beenden
+  des Programmes aufgerufen wird. Füge deshalb den folgenden Code vor
+  den Aufruf der Funktion \type{exit} ein:
+
+  \startcpp
+  int result = atexit(exit_handler);
+
+  if (result != 0) {
+      cout << "exit_handler registration failed" << endl;
+      return EXIT_FAILURE;
+  }
+  \stopcpp
+
+  Damit wird die Funktion \type{exit_handler} als
+  \quotation{exit-handler} registriert und beim Beenden des Programmes
+  aufgerufen. Analog zu \type{EXIT_SUCCESS} gibt es auch ein
+  \type{EXIT_FAILURE}, das in diesem konkreten Fall aufgerufen wird,
+  wenn die Registrierung fehlschlägt.
+
+  Will man, dass überhaupt keine Destruktoren aufgerufen werden, dann
+  kann anstatt \type{exit} die Funktion \type{quick_exit(int)} verwendet
+  werden. Analog zu \type{atexit()} steht in diesem Fall
+  \type{at_quick_exit()} zur Verfügung.
+\item
+  Wenn die Funktion \type{main} beendet mittels der
+  \type{return}-Anweisung und Angabe eines Rückgabewertes oder durch
+  Erreichen des Ende der Funktion erreicht wird. Wird das Ende der
+  Funktion erreicht, dann wird der Rückgabewert 0 zurückgegeben.
+
+  Diese Art der Beendigung ist äquivalent zu der normalen Beendigung
+  einer Funktion und anschließendem Aufruf von \type{exit} mit dem
+  angegebenen Rückgabewert.
+\item
+  Wenn die Funktion \type{abort()} aufgerufen wird. Dies gilt als
+  Abbruch und es werden keinerlei Destruktoren aufgerufen und keine
+  mittels \type{atexit()} oder \type{at_quick_exit()} registrierten
+  Funktionen aufgerufen.
+
+  Ob geöffnete Dateien geschlossen werden, ist von der konkreten
+  Implementierung abhängig.
+
+  Das aufrufende Programm erhält einen implementierungsabhängigen
+  Rückgabewert, der eine fehlerhafte Beendigung anzeigen soll.
+\item
+  Wenn eine Exception aufgetreten ist, die nicht abgefangen wurde.
+  Anders ausgedrückt heißt dies, dass kein Exception-Handler diese
+  Exception behandelt hat. Was dies genau bedeutet werden wir uns noch
+  im Abschnitt \in[exceptionfoundations] ansehen.
+
+  Weiters wird das Programm beendet, wenn eine Exception innerhalb einer
+  Funktion geworfen wird, obwohl die Funktion mit \type{noexcept}
+  deklariert wurde (siehe Abschnitt \in[noexceptfunc]).
+\stopitemize
+
+\section[namespace]{Namensraum}
+
+Die zugrunde liegende Problematik ist, dass mit der Anzahl der
+Bezeichner die Wahrscheinlichkeit steigt, dass sich Bezeichner
+überschneiden und man bei vielen Dateien nicht leicht herausfinden kann,
+wo ein Bezeichner deklariert ist.
+
+In \cpp wird mit einem Namensraum (engl. {\em namespace}) ein
+Geltungsbereich erzeugt, von dem von außerhalb mittels expliziter
+Qualifizierung auf die Bezeichner des Namensraumes zugegriffen werden
+kann.
+
+\subsection[bereichsauflösungsoperator]{Bereichsauflösungsoperator}
+
+Schauen wir uns einmal das folgende Beispiel an, das sich nicht
+übersetzen lässt:
+
+\startcpp
+// scoperesolution.cpp
+#include <iostream>
+
+using namespace std;
+
+double sum(double op1, double op2) {
+    return op1 + op2;
+}
+
+int main() {
+    double sum;
+    sum = sum(1, 2);
+    cout << sum << endl;
+}
+\stopcpp
+
+Der Fehler ist, dass die Definition der lokalen Variable \type{sum} die
+Definition der globalen Funktion überschattet (siehe Abschnitt
+\in[scope]). Daher muss man dem Compiler explizit mitteilen, dass man
+die globale Funktion \type{sum} meint und nicht die lokale Variable mit
+dem gleichen Namen.
+
+Das geht mit dem Bereichsauflösungsoperator (engl. {\em scope resolution
+operator}) \type{::} in der folgenden Art und Weise:
+
+\startcpp
+sum = ::sum(1, 2);
+\stopcpp
+
+Dieser Bereichsauflösungsoperator gibt in dieser Form an, dass auf den
+globalen Namensraum zugegriffen werden soll.
+
+\subsection[definition-eines-namensraums]{Definition eines Namensraums}
+
+Stellen wir uns jetzt einmal vor, dass wir mehrere verschiedene
+Bibliotheken verwenden und jede Bibliothek uns eigene Headerdateien zur
+Verfügung stellt, die von uns alle inkludiert werden. Damit ist die
+Wahrscheinlichkeit relativ hoch, dass es zu Namenskollisionen im
+globalen Namensraum kommt!
+
+Damit dies nicht passiert, könnte jede Bibliothek einen eigenen
+Namensraum definieren, in dem alle dessen Bezeichner verpackt werden.
+Ein Namensraum gruppiert also logisch zusammengehörige Bezeichner und es
+sind die Bezeichner der einzelnen Bibliotheken voneinander unabhängig.
+
+Mit der Definition des folgenden Namensraums ist die Funktion \type{sum}
+nicht mehr im globalen Namensraum vorhanden. Ein Namensraum stellt
+deshalb einen eigenen Scope dar. Die folgende Definition legt einen
+benannten Namensraum an, der vorerst nur eine Funktion \type{sum}
+enthält:
+
+\startcpp
+// namespace.cpp
+#include <iostream>
+
+using namespace std;
+
+namespace MathUtils {
+    double sum(double op1, double op2) {
+        return op1 + op2;
+    }
+}
+\stopcpp
+
+Nur die folgende \type{main}-Funktion zu verwenden funktioniert jetzt
+nicht mehr, da es jetzt keine globale Funktion \type{sum} mehr gibt:
+
+\startcpp
+int main() {
+    double sum;
+    sum = ::sum(1, 2);
+    cout << sum << endl;
+}
+\stopcpp
+
+Auch \type{sum = sum(1, 2)} kann mit der gleichen Begründung natürlich
+nicht verwendet werden.
+
+Um auf die Funktion jetzt zuzugreifen, muss auf eine der im Abschnitt
+\in[using]
+angeführten Möglichkeiten zurückgegriffen werden.
+
+Zusätzlich besteht die Möglichkeit, direkt auf die Funktion \type{sum}
+des Namensraumes \type{MathUtils}, mittels des
+Bereichsauflösungsoperators, zuzugreifen:
+
+\startcpp
+cout << MathUtils::sum(1, 2) << endl;
+\stopcpp
+
+Namensräume sind in \cpp offen. Im folgenden Beispiel sieht man dies
+sehr schön, da mit den beiden \type{namespace}-Deklarationen sowohl die
+Funktion \type{sum} als auch die Funktion \type{mul} im Namensraum
+\type{MathUtils} enthalten sind:
+
+\startcpp
+namespace MathUtils {
+    double sum(double, double);
+}
+
+namespace MathUtils {
+    double mul(double, double);
+}
+\stopcpp
+
+Natürlich können diese Namensraumteile auf verschiedene Dateien verteilt
+werden.
+
+Außerdem können Namensräume verschachtelt werden. Dies macht Sinn, wenn
+ein Namensraum sehr groß wird und sich in logisch zusammenhängende
+Teilnamensräume teilen lässt.
+
+\startcpp
+// namespace_nested.cpp
+#include <iostream>
+
+using namespace std;
+
+namespace MathUtils {
+    namespace Arithmetic {
+        double sum(double op1, double op2) {
+            return op1 + op2;
+        }
+    }
+}
+
+int main() {
+    cout << MathUtils::Arithmetic::sum(1, 2) << endl;
+}
+\stopcpp
+
+Es besteht natürlich auch eine gewisse Gefahr, dass verschiedene
+Bibliotheken die gleichen Bezeichner für ihre Namensräume verwenden.
+Daher ist es sinnvoll, diese Bezeichner relativ lange und aussagekräftig
+zu wählen. Damit einhergehend ist die Verwendung mittels des
+Bereichsauflösungsoperators natürlich mühsam.
+
+Nehmen wir einmal an, dass ein Namensraum
+\type{Com_Musterfirma_MathUtils} heißt. Da hier offensichtlich der
+umgekehrte Domänenname als Anfang des Bezeichners dieses Namensraumes
+gewählt wurde, ist es relativ unwahrscheinlich, dass eine andere
+Bibliothek den selben Bezeichner verwendet hat. Der Nachteil ist, dass
+dieser Bezeichner lange und unhandlich ist.
+
+Es besteht in \cpp die Möglichkeit einen Namensraumalias zu definieren:
+
+\startcpp
+namespace MU = Com_Musterfirma_MathUtils;
+
+cout << MU::Arithmetic::sum(1, 2) << endl;
+\stopcpp
+
+\subsection[adl]{Argument-Dependent Lookup}
+
+Nehmen wir an, dass eine Funktion \type{f} einen Parameter vom Typ
+\type{T} erwartet. Dann ist es meist so, dass diese Funktion im selben
+Namensraum definiert ist wie der Typ \type{T}. Aufgrund dieser
+Überlegung, wird in \cpp eine Funktion \type{f}, wenn diese nicht im
+aktuellen Scope oder den überliegenden Scopes gefunden wird, ebenfalls
+im Scope des Typs \type{T} gesucht. Diese Regel wird als
+\quotation{Argument-Dependent Lookup} (ADL, dt. argumentabhängiges
+nachschlagen) bezeichnet.
+
+Schauen wir uns das anhand eines Beispiels an:
+
+\startcpp
+#include <iostream>
+ 
+int main() {
+  std::cout << "Hello World";
+}
+\stopcpp
+
+In diesem Beispiel haben wir keine \type{using namespace std;} Direktive
+verwendet. Auf das Objekt \type{cout} aus dem Namensraum \type{std} wird
+mittels direkter Qualifizierung zugegriffen. Aus dem Operator \type{<<}
+wird vom Compiler folgender äquivalenter Code erzeugt:
+
+\startcpp
+operator<<(std::cout, "Hello World");
+\stopcpp
+
+Eigentlich ist der Operator \type{<<}, den wir verwenden wollen,
+ebenfalls im Namensraum \type{std} enthalten. Der Compiler kann
+allerdings nicht wissen, welchen Operator wir verwenden wollen. Trotzdem
+funktioniert das Beispiel wie wir uns das vorgestellt haben, da der
+Compiler sich das Argument \type{std::cout} ansieht und auf Grund der
+Zugehörigkeit von \type{cout} zu \type{std} den Operatorfunktionsaufruf
+ebenfalls im Namensraum \type{std} sucht und auch findet.
+
+Die genauen Regeln für ADL sind etwas komplizierter. Im Standard wird
+von {\em associated namespaces} gesprochen, die herangezogen werden, um
+nach der Funktion zu suchen:
+
+\startitemize
+\item
+  Wenn der Parameter ein Mitglied einer Klasse ist, dann besteht der
+  Namensraum aus der Klasse selbst und auch aus den Namensräumen in dem
+  die Klasse enthalten ist.
+\item
+  Wenn der Parameter ein Mitglied eines Namensraumes ist, dann werden
+  die umschließenden Namensräume herangezogen.
+\item
+  Wenn der Datentyp des Parameters ein eingebauter Datentyp ist, dann
+  gibt es keinen Namensraum in dem zusätzlich gesucht wird.
+\stopitemize
+
+ADL ist extrem praktisch, da es eine Menge an Tipparbeit erspart, aber
+es kann auch teilweise zu unerwarteten Ergebnissen kommen. Es ist
+wichtig zu wissen, dass alle über ADL ermittelten Funktionen prinzipiell
+gleichwertig sind und auf Grund des Überladens durchaus auch eine
+Funktion aus einem anderen Namensraum gewählt wird, als man es unter
+Umständen erwartet:
+
+\startcpp
+// adl.cpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+namespace MathUtils {
+    class IntVector {};
+    int size(IntVector, int) {
+        return 1;
+    }
+}
+
+namespace GameEngine {
+    MathUtils::IntVector v;
+
+    int size(MathUtils::IntVector, unsigned) {
+        return 2;
+    }
+
+    int calculate() {
+        return size(v, 10);
+    }
+}
+
+int main() {
+    cout << GameEngine::calculate() << endl;
+}
+\stopcpp
+
+Bei der leeren Klasse \type{IntVector} handelt es sich um die Definition
+eines benutzerdefinierten Datentyps. Wir werden uns benutzerdefinierte
+Datentypen im Abschnitt \in[classdeclaration] noch ansehen.
+
+Wahrscheinlich erwartet man sich, dass dieses Beispiel \type{2} ausgeben
+wird, nicht wahr? In Wirklichkeit wird aber \type{1} ausgegeben werden!
+
+Es ist zwar so, dass es eine Definition
+\type{int size(MathUtils::IntVector, unsigned)} in diesem Namensraum
+gibt, jedoch wird diese in diesem speziellen Fall nicht verwendet. Das
+liegt daran, dass diese nicht die einzige Definition ist, die zur
+Auswahl herangezogen wird. Es exisitiert jedoch auch noch die Definition
+\type{int size(MathUtils::IntVector, int)} im globalen Namensraum,
+wodurch es zu einer Überladung kommt. Da der aktuelle Parameter den Typ
+\type{int} hat, wird die Definition im globalen Namensraum verwendet.
+
+Wäre die Variante mit dem \type{unsigned} Parameter die einzige
+Definition, dann würde die ganze Zahl \type{10} vom Typ \type{int} auch
+implizit in einen \type{unsigned} konvertiert werden und es würde diese
+Funktion des Namensraum \type{GameEngine} ausgeführt werden.
+
+Da es aber über die ADL noch eine Funktion \type{size} gibt, die
+verwendet werden kann, sieht die Sache anders aus. Es gibt zwei
+Funktionen, die gleich heißen und sich durch die Typen der Parameter
+unterscheiden. Also liegt eine Form der Funktionsüberladung vor. Da die
+Funktion \type{size} im Namensraum \type{MathUtils} in diesem Fall keine
+Konvertierung der Argumente erfordert, wird diese für den
+Funktionsaufruf herangezogen.
+
+\subsection[unbenannte-namensräume]{Unbenannte Namensräume}
+
+Es gibt noch eine weitere Form der Definition eines Namensraumes, indem
+der Namensraum selbst keinen Namen erhält. Der Zweck von unbenannten
+Namensräumen liegt darin, dass alle enthaltenen Bezeichner automatisch
+im globalen Namensraum für diese Übersetzungseinheit sind. Allerdings
+stehen diese {\em nicht} zum externen Linken zur Verfügung, da diese
+Bezeichner interne Bindung aufweisen.
+
+Man kann sich das so vorstellen, dass ein unbenannter Namensraum
+äquivalent zu folgendem Konstrukt ist:
+
+\startcpp
+namespace unique_for_scope {
+    /* ... */
+}
+using unique_for_scope;
+\stopcpp
+
+Das Besondere daran ist, dass der Bezeichner vom Compiler eindeutig
+gewählt wird und es daher keinen anderen gleichen Bezeichner gibt.
+
+Das folgende Beispiel -- bei dem es sich um keinen guten Programmierstil
+handelt -- demonstriert auf einfache Weise die Handhabung von
+unbenannten Namensräumen.
+
+\startcpp
+// namespace_unnamed.cpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+namespace {
+    int sum;
+    void count(vector<int> v) {
+        for (auto i : v)
+            sum += i;
+    }
+}
+
+int main() {
+    count({1, 2, 3, 4, 5});
+    cout << sum << endl;
+}
+\stopcpp
+
+\section[headercontents]{Headerdateien}
+
+Aus den Überlegungen des Kapitels ergibt sich, dass nur gewisse
+Deklarationen in Headerdateien sinnvoll sind und deshalb in
+Headerdateien vorkommen dürfen:
+
+\startitemize
+\item
+  Typaliase, also zum Beispiel:
+
+  \startcpp
+  using IntStack = std::vector<int>;
+  \stopcpp
+\item
+  Funktionsdeklarationen, aber keine Funktionsdefinitionen:
+
+  \startcpp
+  void push(IntStack, int);
+  \stopcpp
+\item
+  \type{inline}-Funktionsdefinitionen, wie zum Beispiel:
+
+  \startcpp
+  inline
+  double max(double a, double b) { return (a > b) ? a : b; }
+  \stopcpp
+\item
+  \type{constexpr}-Funktionsdefinitionen:
+
+  \startcpp
+  constexpr double squared(double x) { return x * x; }
+  \stopcpp
+\item
+  Definitionen von Konstanten, also mit \type{const} oder mit
+  \type{constexpr}:
+
+  \startcpp
+  const double pi{atan(1) * 4};
+  constexpr double area2{squared(2) * pi};
+  \stopcpp
+\item
+  Variablendeklarationen, die keine Definitionen sind, wie zum Beispiel:
+
+  \startcpp
+  extern int errno;
+  \stopcpp
+\item
+  Namensräume entweder in einer benannten Form oder in einer
+  inline-Variante, jedoch nicht als unbenannte Namensräume! Hier folgt
+  ein benannter Namensraum:
+
+  \startcpp
+  namespace math {
+  }
+  \stopcpp
+\item
+  Deklarationen und Definitionen von Klassen, Strukturen und
+  Aufzählungen (siehe Abschnitt \in[classdeclaration])
+\item
+  Template-Deklarationen und Template-Definitionen (siehe Abschnitt
+  \in[templatefoundations])
+\stopitemize
+
+Gewisse syntaktische Elemente sollten {\em niemals} in einer Headerdatei
+vorkommen:
+
+\startitemize
+\item
+  Gewöhnliche Funktionsdefinitionen, also solche, die weder
+  \type{inline} noch \type{constexpr} und auch keine Templatefunktion
+  sind, da es sonst mehrfache Definitionen dieser Funktion geben würde.
+  Das würde zu Fehlern beim Linken führen.
+\item
+  Variablendefinitionen dürfen ebenfalls nicht vorkommen, da es sonst zu
+  mehrfachen Vorkommen von Variablen und damit wieder zu Fehlern beim
+  Linken kommen würde.
+\item
+  Unbenannte Namensräume, da diese zwar die Bezeichner im globalen
+  Namensraum der aktuellen Übersetzungseinheit einpflanzen, aber diese
+  interne Bindung aufweisen. Es ist der Sinn und Zweck von unbenannten
+  Namensräumen den Zugriff zu beschränken und haben sie in Headerdateien
+  nichts verloren.
+\item
+  \type{using} Direktiven, wie zum Beispiel \type{using namespace std;},
+  da diese die Gefahr von Namenskollisionen stark erhöhen und zu
+  unübersichtlichen Programmen führen, da man nur schwer eruieren kann,
+  woher ein Bezeichner kommt.
+\stopitemize
+
+\stopcomponent

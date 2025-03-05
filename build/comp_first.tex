@@ -1,0 +1,1732 @@
+
+\startcomponent comp_first
+\product prod_book
+
+\chapter{Einstieg in \type{C++}}
+\startdrawer
+
+Dieses Kapitel gibt einen Überblick über die prozedurale Programmierung
+mit \cpp und führt die wichtigsten syntaktischen Elemente ein. Am Ende
+bist du in der Lage einfache textorientierte Programme zu schreiben.
+
+Folgende Konzepte werden {\em überblicksmäßig} beschrieben:
+
+\startitemize[packed]
+\item
+  Programmgerüst und Kommentare
+\item
+  Einfache Ausdrücke und Anweisungen
+\item
+  Variable und Datentypen: C-Strings und \type{string}, Zeichen, Zahlen,
+  Wahrheitswerte
+\item
+  Präprozessoranweisungen, Namensräume
+\item
+  Verarbeitung der Kommandozeilenargumente
+\item
+  Ein- und Ausgabe über die Standardkanäle
+\item
+  Zusammengesetzte Anweisungen: Bedingte Anweisung, Auswahl- und
+  Schleifenanweisungen
+\item
+  Arrays und Pointer
+\item
+  Klasse \type{vector} und Verwendung von \type{sort}
+\item
+  Definition einer eigenen Funktion
+\stopitemize
+
+\stopdrawer
+
+\section[minimal_program]{Das minimale Programm}
+
+Jedes \cpp Programm muss {\em genau} eine Funktion haben, die
+\type{main} heißt. Diese Funktion \type{main} wird ausgeführt, wenn das
+Programm gestartet wird. Für das kürzeste \cpp Programm sieht diese
+Funktion \type{main} aus wie im nachfolgenden Quelltext zu
+ersehen:\index{main}\index{main+ohne Parameter}
+
+\startcpp
+int main() {
+}
+\stopcpp
+
+Schreibe diesen Text in eine Datei mit dem Namen \type{minimal.cpp} und
+übersetze diese Datei in ein ausführbares Programm \type{minimal}
+bzw.~\type{minimal.exe} unter Windows. Führe danach dieses Programm
+folgendermaßen aus:
+
+\startsh
+$ minimal
+\stopsh
+
+Das Zeichen \type{$} gefolgt von einem Leerzeichen sind meine
+definierten Promptzeichen, die bei dir durchaus anders aussehen können.
+Der Prompt ist das Zeichen deiner Shell, dass sie auf eine Eingabe
+wartet. Oft wird im Prompt auch noch das aktuelle Verzeichnis oder
+zusätzliche Information angezeigt. Bei mir sind es lediglich die beiden
+Zeichen, damit du siehst was eingegeben wird und was die Ausgabe ist.
+
+Du bemerkst, dass es zu keiner Ausgabe kommt. Das ist natürlich klar, da
+keinerlei Anweisungen im Programm enthalten sind.
+
+Eine Funktion ist in \cpp so aufgebaut, dass zuerst der Typ des
+Rückgabewertes angegeben wird, danach der Name der Funktion, gefolgt von
+der Parameterliste in runden Klammern und am Ende folgt der Rumpf der
+Funktion in geschwungenen Klammern.
+
+Wir bezeichnen in weiterer Folge einen Abschnitt, der beliebig viele
+Anweisungen (engl. {\em statements}) enthalten kann und mit einer
+offenen und einer schließenden geschwungenen Klammer eingeschränkt ist,
+als einen Block (engl. {\em block}).
+
+Damit stellt der Funktionsrumpf ebenfalls einen Block dar.
+
+Der Typ des Rückgabewertes der Funktion \type{main} muss \type{int}
+sein. \type{int} ist eine Typangabe für ganze Zahlen (engl.
+{\em integer}) in \cpp. Es ist für die Funktion \type{main} allerdings
+nicht erforderlich, dass sie tatsächlich einen Wert zurückliefert. Wir
+kommen etwas später darauf zu sprechen.
+
+Bei \type{int} handelt es sich weiter um ein Schlüsselwort (engl.
+{\em keyword}, eingedeutscht Keyword). Ein Keyword ist Teil der
+Programmiersprache und kann nicht als Name einer Funktion, einer
+Variable,\ldots{} verwendet werden.
+
+Die Parameterliste ist in dieser von uns derzeit verwendeten Form für
+die Funktion \type{main} leer und auch der Rumpf dieser Funktion ist
+derzeit noch leer. Damit wird dieses Programm bei der Ausführung auch
+überhaupt nichts bewirken.
+
+Ein Programm besteht aus einer Folge von Anweisungen. Anweisungen werden
+in \cpp herangezogen, um die Reihenfolge der Ausführung der einzelnen
+Prozessorinstruktionen anzugeben.
+
+Viele Anweisungen werden in \cpp oft mit einem Strichpunkt (engl.
+{\em semicolon}) abgeschlossen. Die leere Anweisung ist einfach ein
+einzelner Strichpunkt. Das folgende Programm besitzt ebenfalls keine
+Funktionalität, da im Rumpf der Funktion \type{main} nur eine leere
+Anweisung steht:
+
+\startcpp
+int main() {
+    ;
+}
+\stopcpp
+
+Es ist zu erwähnen, dass in \cpp sogenannte Whitespace-Zeichen wie
+einzelne Leerzeichen, Leerzeilen und Tabulatorzeichen ignoriert werden.
+Davon ausgenommen sind natürlich Whitespace-Zeichen in Strings.
+
+Damit im Rumpf der Funktion \type{main} irgendetwas steht, schreiben wir
+zwei Kommentare hinein:
+
+\startcpp
+int main() {
+    // das ist ein einzeiliger Kommentar
+    /* und dieser Kommentar erstreckt sich
+       über mehrere Zeilen.
+    */
+}
+\stopcpp
+
+Einzeilige Kommentare werden mit den Zeichen \type{//} eingeleitet und
+enden mit dem Ende der Zeile. Jedes beliebige Zeichen kann in einen
+einzeiligen Kommentar geschrieben werden.
+
+Mehrzeilige Kommentare beginnen mit \type{/*} und enden mit \type{*/}
+und können mit Ausnahme von \type{*/} jede beliebige Zeichenkombination
+enthalten. \type{*/} darf nicht enthalten sein, da diese
+Zeichenkombination den mehrzeiligen Kommentar beendet. Damit sind keine
+verschachtelten mehrzeiligen Kommentare möglich.
+
+\section[rückgabewert-der-funktion-main]{Rückgabewert der Funktion
+\type{main}}
+
+Jetzt erinnern wir uns daran, dass die Funktion \type{main} einen
+Rückgabewert \type{int} haben muss und dass dieser bei \type{main} nicht
+angegeben werden muss.
+
+Damit stellen sich drei Fragen:
+
+\startitemize
+\item
+  Wie kann man auf den Rückgabewert zugreifen?
+
+  Es hängt davon ab, wie das Programm, das den Rückgabewert
+  zurückliefert gestartet worden ist. Das kann einerseits durch ein
+  \quotation{normales} Programm (z.B. auch in \cpp geschrieben) oder
+  durch eine Shell erfolgen.
+
+  Für unser Ausprobieren ist es am einfachsten den Rückgabewert nach dem
+  Ausführen unseres Programmes durch die Shell abzufragen. Dieses
+  Zugreifen auf den Rückgabewert erfolgt je Betriebssystem und Shell
+  unterschiedlich. Eine Kurzanleitung ist im Anhang im Abschnitt
+  \in[access_exit_code] auf der Seite \at[access_exit_code] zu finden.
+\item
+  Wie kann eine Funktion einen Rückgabewert zurückgeben?
+
+  Eine Funktion kann einen Wert mittels des Schlüsselwortes
+  \type{return} zurückgeben:
+
+  \startcpp
+  int main() {
+      return 0;
+  }
+  \stopcpp
+
+  In diesem Fall wird 0 zurückgegeben. Das bedeutet, dass der Exit-Code
+  in der Shell dann ebenfalls 0 beträgt. Der Wert 0 wird in der Regel
+  als Erfolg gedeutet, während allen anderen Werten je Anwendung
+  unterschiedliche Bedeutung zugewiesen wird.
+\item
+  Welchen Wert erhält man, wenn man keinen Wert von \type{main}
+  zurückgibt?
+
+  Durch Ausprobieren kannst du leicht herausfinden, dass defaultmäßig 0
+  zurückgeliefert wird. \type{main} ist die einzige Funktion, die in
+  \cpp explizit keinen Wert zurückliefern muss (mittels \type{return}),
+  obwohl sie einen Typ als Rückgabewert (nämlich \type{int}) angegeben
+  hat.
+\stopitemize
+
+\section[helloworld]{Hello World}
+
+Jetzt nehmen wir die nächste Hürde und schreiben das klassische
+\quotation{Hello World} Programm in eine Datei \type{hello.cpp}:
+
+\startcpp
+// hello.cpp
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, world!" << std::endl;
+}
+\stopcpp
+
+Nach dem Übersetzen und Linken kommt es zu folgender erwarteter Ausgabe
+bei dem Ausführen des Programmes:
+
+\startsh
+$ hello
+Hello, world!
+\stopsh
+
+Ok, und was passiert eigentlich im Programm?
+
+\startitemize
+\item
+  In Zeile 2 wird eine sogenannte Header-Datei eingebunden. Das
+  bedeutet, dass der Inhalt der angegebenen Datei \type{iostream} an
+  dieser Stelle, an der die \type{#include} Direktive (Befehl) steht
+  eingelesen wird. Damit steht alles was sich in dieser Datei befindet
+  an dieser Stelle zu Verfügung. Dieses Einbinden wird {\em vor} dem
+  eigentlichen Übersetzen durch einen Präprozessor (engl.
+  {\em preprocessor}) durchgeführt. Der Compiler sieht danach sowohl den
+  Inhalt der eingebundenen Datei als auch den Rest der Datei
+  \type{hello.cpp}.
+
+  Der Präprozessor wird in C-basierten Sprachen dazu verwendet,
+  Textersetzungen vorzunehmen, bevor der eigentliche Compiler den
+  Quellcode bekommt. Der Präprozessor liest die Präprozessordirektiven,
+  die immer mit dem Rautezeichen \type{#} (Hashzeichen, Nummernzeichen)
+  beginnen und führt diese aus.
+
+  In Header-Dateien sind Deklarationen enthalten. Eine Deklaration ist
+  zum Beispiel eine Funktionsdeklaration, die den Namen, den
+  Rückgabewert und die Typen der Parameter festlegt. Ein Name einer
+  Funktion (oder Variable, Typ,\ldots{}) wird als Bezeichner (engl.
+  {\em identifier}) bezeichnet.
+
+  Im Fall der Header-Datei \type{iostream} sind unter anderem die
+  Deklarationen von \type{cout} und \type{endl} enthalten. Allerdings
+  sind diese in einem Namensraum (engl. {\em namespace}) \type{std}
+  enthalten auf die hier mittels \type{::} zugegriffen wird.
+
+  Ein Namensraum ist ein Behälter, der Bezeichner beinhalten kann, die
+  unabhängig von Bezeichnern außerhalb dieses Behälters sind. Ein
+  Beispiel aus dem täglichen Leben wären die Vorwahlen von
+  Telefonnummern. Eine Vorwahl dient als Behälter für die nachfolgende
+  Rufnummer, sodass es zu keinem Konflikt mit einer gleichen Rufnummer
+  aber einer anderen Vorwahl kommt.
+
+  Als einfache Regel gilt: Alle Bezeichner der Standardbibliothek von
+  \cpp
+  sind im Namensraum \type{std} enthalten.
+\item
+  In der Zeile 5 wird auf das Objekt \type{cout} im Namensraum
+  \type{std} mittels des Operators \type{::}
+  (Bereichsauflösungsoperator, engl. {\em scope resolution operator})
+  zugegriffen.
+\item
+  In Zeile 5 wird weiters mittels des Operators \type{<<} die
+  C-String-Konstante \type{"Hello, world!"} (engl. {\em C string
+  literal}) ausgegeben. Werte, die direkt im Quellcode geschrieben
+  werden können, bezeichnet man als Literal (engl. {\em literal}).
+  Beispiele sind eben hier das C-String-Literal \type{"Hello, world!"}
+  oder die ganze Zahl \type{3}.
+
+  Bei \type{std::cout} handelt es sich um ein Objekt, das den
+  \type{stdout} Kanal repräsentiert. Alle Daten, die in diesen Kanal
+  geschrieben werden, werden auf der Shell zur Ausgabe gebracht, wenn
+  das Programm mittels einer Shell gestartet worden ist.
+
+  Der Operator \type{::} liefert wieder das ursprüngliche Objekt
+  \type{cout} zurück, sodass wiederum der Operator \type{<<} verwendet
+  werden kann. Dies wird ausgenützt, um einen Zeilenumbruch zu
+  erzwingen, da danach der Manipulator \type{std::endl} ({\em end line},
+  Zeilenende) an die Ausgabe gesendet wird.
+\item
+  Die Zeile 5 beinhaltet genau eine einfache Anweisung, die mit einem
+  Strichpunkt (engl. {\em semicolon}) abgeschlossen sein muss.
+\stopitemize
+
+Weiter oben wurde noch von dem \quotation{Linken} gesprochen, das in
+unserem konkreten Fall \type{std::cout} und \type{std::endl} sowie die
+Operatorfunktion(en) \type{<<} mit den entsprechenden Definitionen
+verbinden muss (siehe Abschnitt \in[declaration] auf Seite
+\at[declaration]). Normalerweise wird die Funktion des Präprozessors,
+das eigentliche Übersetzen und auch das Linken von einem Programm
+übernommen.
+
+\section[greetme_program]{Eingabe und Ausgabe}
+
+Bis jetzt haben wir lediglich Ausgaben getätigt, nun werden wir uns auch
+mit der Eingabe beschäftigen.
+
+Um Daten einzugeben, existiert das Objekt \type{std::cin}, das den Kanal
+\type{stdin} repräsentiert und die Eingabe zur Laufzeit des Programmes
+ermöglicht. Dafür wird ebenfalls die Headerdatei \type{iostram} benötigt
+und die Funktionsweise von \type{std::cin} ist analog zu
+\type{std::cout}. Schreiben wir gleich einmal das nächste Programm, das
+eine Abwandlung unseres \quotation{Hello World} Programmes darstellt. Es
+soll den Benutzer nach seinem Namen fragen und ihn danach nett begrüßen:
+
+\startcpp
+// greetme.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    string name;
+    cout << "Ihr Name bitte: ";
+    cin >> name;
+    cout << "Nett Sie zu sehen, " << name << "!" << endl;
+}
+\stopcpp
+
+Übersetze das Programm wie gewohnt und starte es, du wirst nach deinem
+Namen gefragt und danach wird der Begrüßungstext ausgegeben:
+
+\startsh
+$ greetme
+Ihr Name bitte: Maxima
+Nett Sie zu sehen, Maxima!
+$
+\stopsh
+
+Gut was ist hier Neues zu finden?
+
+\startitemize
+\item
+  Die Zeile 4 legt fest, dass alle Bezeichner aus dem Namensraum
+  \type{std} ab jetzt nicht mehr mit dem Bereichsauflösungsoperator
+  \type{::} qualifiziert werden müssen, sondern einfach verwendet werden
+  können. Das heißt also, dass wir den Namensraum \type{std} von nun an
+  benutzen und dies gilt bis zum Ende der Datei.
+\item
+  In Zeile 7 wird hier zum ersten Mal eine Variable definiert. In Zeile
+  6 wird \type{name} als eine neue Variable definiert, die den Typ
+  \type{string} hat. \type{string} ist ein \cpp Typ, der eine
+  Zeichenkette repräsentiert, aber im Gegensatz zu den C-Strings ein
+  Objekttyp ist.
+
+  In der folgenden Zeile \type{cout << "Ihr Name bitte: ";} siehst du
+  wieder eine C-String-Konstante. Bei einem C-String handelt es sich
+  lediglich um eine Folge von Zeichen im Speicher, die mit einem
+  Nullzeichen (\type{'\0'}, ein Wert mit allen Bits 0) abgeschlossen ist
+  und durch eine Adresse im Speicher referenziert wird. Eine
+  C-String-Konstante ist eine Möglichkeit, wie ein C-String im Quelltext
+  angegeben werden kann.
+
+  Da es sich bei \type{string} um einen Objekttyp handelt, gibt es dafür
+  auch eine Klasse. Die Deklaration dieser Klasse steht in der
+  Headerdatei \type{string}, die wiederum mit \type{#include <string>}
+  eingebunden werden hätte müssen. Allerdings bindet die Headerdatei
+  \type{iostream} diese Headerdatei \type{string} von selber ein und
+  deshalb kann es in diesem Fall unterlassen werden.
+
+  Wir werden uns den Objekttyp \type{string} später genauer ansehen und
+  auch die Unterschiede zu einem C-String herausarbeiten.
+\item
+  Weiters wird diese Variable \type{name} mittels des \type{>>}
+  Operators aus dem Objekt \type{cin} befüllt. Da es sich bei dem Typ
+  von \type{name} um einen \type{string} handelt, werden die
+  eingegebenen Zeichen -- so wie sie sind -- in diese Variable
+  gespeichert.
+\stopitemize
+
+So weit, so gut. Vielleicht hast du es schon ausprobiert einen
+vollständigen Namen mit Vornamen und Nachnamen einzugeben, dann wirst du
+folgendes Verhalten festgestellt haben:
+
+\startsh
+Ihr Name bitte: Maxima Muster
+Nett Sie zu sehen, Maxima!
+\stopsh
+
+Was passiert hier? Der Operator \type{>>} liest maximal bis zum ersten
+Leerzeichen und damit erhalten wir in unserem Fall nur den Vornamen!
+Ändern wir daher das Programm nochmals ab, sodass der Vorname als auch
+der Nachname eingegeben werden kann:
+
+\startcpp
+// greetme2.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    string first_name;
+    string last_name;
+    cout << "Ihr Name bitte: ";
+    cin >> first_name;
+    cin >> last_name;
+    cout << "Nett Sie zu sehen, " << first_name
+         << " " << last_name << "!" << endl;
+}
+\stopcpp
+
+In diesem Programm lesen wir einfach zwei Strings ein und speichern
+diese in zwei Variablen ab, die danach mit einem Leerzeichen getrennt
+ausgegeben werden:
+
+\startsh
+Ihr Name bitte: Max Muster
+Nett Sie zu sehen, Max Muster!
+\stopsh
+
+Diese Lösung hat allerdings den Nachteil, dass nämlich jetzt wirklich
+zwei Namen eingegeben werden müssen. Probiere einfach einmal aus, nur
+den Vornamen einzugeben und du wirst bemerken, dass das Programm nach
+der ersten Eingabe noch auf eine zweite Eingabe wartet!
+
+Was kann man bei der Ausführung dieses Programmes also tun?
+
+\startitemize
+\item
+  Einerseits kann natürlich das Programm abgebrochen werden. Das kann in
+  der Regel mit der Tastenkombination \type{CTRL+C} erreicht werden. In
+  diesem Fall bricht aber das Programm eben ab und es wird zu keiner
+  Ausgabe kommen.
+\item
+  Die zweite Möglichkeit besteht darin, dem Programm mitzuteilen, dass
+  die Eingabe beendet ist, d.h. dass der Eingabekanal für diese
+  Operation geschlossen wird. Das kann unter Linux oder Mac OSX mittels
+  der Tastenkombination \type{CTRL+D} und unter Windows mittels
+  \type{CTRL+Z} erreicht werden. D.h. nach der erfolgreichen Eingabe des
+  ersten Wertes wird die zweite Eingabe mit einem Leerstring versehen.
+\stopitemize
+
+Bei beiden Varianten handelt es sich eigentlich um keine vernünftigen
+Lösungen.
+
+Verändern wir deshalb das Programm nochmals:
+
+\startcpp
+// greetme3.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    string name;
+    cout << "Ihr Name bitte: ";
+    getline(cin, name);
+    cout << "Nett Sie zu sehen, " << name << "!" << endl;
+}
+\stopcpp
+
+In diesem Programm verwenden wir die Funktion \type{getline}, die sowohl
+das Objekt \type{cin} als auch eine Variable vom Typ \type{string}
+mitbekommt. Die Funktionsweise ist, dass eine gesamte Zeile des
+Eingabekanals in die Variable \type{name} eingelesen wird. Beachte, dass
+es in \cpp möglich ist, Parameter zu übergeben, die in der Funktion
+verändert werden, wie dies bei \type{name} zu sehen ist und wie es die
+Funktion \type{getline} handhabt.
+
+Weiters siehst du auch, dass diese Funktion \type{getline} anscheinend
+in der Headerdatei \type{iostream} enthalten ist, da der Compiler keinen
+Fehler meldet.
+
+Durch diese Lösung ist natürlich auch keine Aufteilung in Vorname und
+Nachname mehr möglich, dafür sind aber auch mehrere Namensteile wie
+mehrere Vornamen oder Doppelnamen möglich. Probiere es einfach aus!
+
+\startdrawer
+
+Es könnte sein, dass die Behandlung von Sonderzeichen unter Umständen
+nicht korrekt funktioniert. Das liegt daran, dass dein System
+wahrscheinlich nicht richtig konfiguriert ist. Kontrolliere deine
+Systemeinstellungen!
+\stopdrawer
+
+\section[ganze-zahlen-und-if]{Ganze Zahlen und \type{if}}
+
+Im nächsten Schritt wollen wir uns mit einem weiteren grundlegenden
+Datentyp, nämlich den ganzen Zahlen beschäftigen und als erste
+Kontrollstruktur die \type{if} Anweisung einsetzen.
+
+Schreiben wir jetzt ein Programm, das das Alter des Benutzers abfragt
+und danach eine Altersüberprüfung vornimmt. Ist das Alter unter 18
+Jahren, dann soll ausgegeben werden, dass der Benutzer noch nicht
+volljährig ist, ansonsten, dass er volljährig ist.
+
+Schreibe deshalb folgendes Programm:
+
+\startcpp
+// agetest.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int age;
+
+    cout << "Wie alt sind Sie? ";
+    cin >> age;
+    
+    if (age < 18) {
+        cout << "Sie sind noch minderjährig!" << endl;
+    } else {
+        cout << "Sie sind volljährig!" << endl;
+    }
+}
+\stopcpp
+
+Probiere das Programm jetzt aus und dann werden wir es besprechen.
+
+Fertig? Dann schauen wir uns das einmal an:
+
+\startitemize
+\item
+  Zuerst sehen wir, dass wir eine Variable \type{age} vom Typ \type{int}
+  (Abkürzung für {\em integer}, ganze Zahl) definieren. Das heißt, wir
+  drücken aus, dass wir eine Variable mit dem Bezeichner \quotation{age}
+  wollen, die ganze Zahlen speichern kann.
+\item
+  Weiters sehen wir, dass wir den Operator \type{>>} nicht nur zur
+  Eingabe von Strings, sondern auch zur Eingabe von ganzen Zahlen
+  verwenden können. Der Benutzer gibt eine Zeichenkette ein und
+  \type{>>} wandelt diese in eine ganze Zahl um, wenn dies möglich ist
+  (mehr dazu später).
+
+  Weiters gehen wir davon aus, dass der Benutzer nur erlaubte Eingaben
+  tätigt. Wir werden uns später noch eingehend damit auseinandersetzen,
+  wie man mit fehlerhaften Eingaben umgehen kann.
+\item
+  Außerdem sehen wir danach die erste zusammengesetzte Anweisung,
+  nämlich die Bedingungsanweisung, die die Bedingung nach dem
+  Schlüsselwort \type{if} (zu Deutsch: wenn, falls) in runden Klammern
+  enthält. Ist die Bedingung wahr, dann werden die direkt folgenden
+  Anweisungen des ersten Anweisungsblockes (in den geschwungen Klammern)
+  ausgeführt, anderenfalls die Anweisung nach dem Schlüsselwort
+  \type{else} (dt. anderenfalls).
+
+  Bedingungen setzen sich meist aus Vergleichsoperatoren und logischen
+  Operatoren zusammen.
+
+  An Vergleichsoperatoren stehen uns für Zahlen die üblichen Kandidaten
+  \type{<} (kleiner), \type{<=} (kleiner gleich), \type{!=} (ungleich),
+  \type{==} (gleich), \type{>=} (größer gleich) und \type{>} (größer)
+  zur Verfügung.
+
+  Die logischen Operatoren werden wir später noch besprechen.
+
+  Ein \type{else} Teil ist nicht notwendig. Dieser kann auch weggelassen
+  werden. Damit kann das Programm auch ohne Verwendung von \type{else}
+  Teilen umgeschrieben werden. Dies ist zwar nicht so elegant und
+  lesbar, aber möglich. Die entsprechenden Bedingungsanweisungen sehen
+  danach folgendermaßen aus:
+
+  \startcpp
+  if (age < 18) {
+      cout << "Sie sind noch minderjährig!" << endl;
+  }
+
+  if (age >= 18) {
+      cout << "Sie sind volljährig!" << endl;
+  }
+  \stopcpp
+\item
+  Die Anweisungen in einer zusammengesetzten Anweisung wie der \type{if}
+  Anweisung müssen prinzipiell in geschwungenen Klammern geschrieben
+  werden, wie wir es schon gesehen haben.
+
+  Es gibt allerdings eine Ausnahme: Handelt es sich jeweils nur um eine
+  einzelne Anweisung, dann können die geschwungenen Klammern entfallen,
+  d.h. die Verzweigungsanweisung kann in diesem Fall auch folgendermaßen
+  geschrieben werden:
+
+  \startcpp
+  if (age < 18)
+      cout << "Sie sind noch minderjährig!" << endl;
+  else
+      cout << "Sie sind volljährig!" << endl;
+  \stopcpp
+
+  Das bedeutet, dass Anweisungen innerhalb von geschwungenen Klammern
+  überall dort verwendet werden können wo auch eine einzelne Anweisung
+  steht.
+
+  Ich empfehle diese Vorgangsweise aber {\em nicht}: Fügst du später
+  weitere Anweisungen ein, dann kann man leicht darauf vergessen die
+  geschwungenen Klammern hinzuzufügen und das Programm lässt sich
+  entweder nicht übersetzen oder es wird nicht richtig funktionieren.
+\stopitemize
+
+Wie sieht es aus, wenn wir eine feinere Unterscheidung haben wollen:
+
+\placetable[none]{}
+\starttable[|c|c|c|]
+\HL
+\NC Altersgruppe
+\NC von
+\NC bis
+\NC\AR
+\HL
+\NC Kind
+\NC 0
+\NC <14
+\NC\AR
+\NC Jugendlicher
+\NC 14
+\NC <18
+\NC\AR
+\NC Erwachsener
+\NC 18
+\NC -
+\NC\AR
+\HL
+\stoptable
+
+Mit den uns bekannten Mitteln kann man diese Aufgabenstellung ohne
+Probleme folgendermaßen lösen. Beachte, dass ich jetzt absichtlich keine
+geschwungenen Klammern gesetzt habe:
+
+\startcpp
+if (age < 18)
+    if (age < 14)
+        cout << "Du bist noch ein Kind." << endl;
+    else 
+        cout << "Sie sind ein Jugendlicher!" << endl;
+else
+    cout << "Sie sind volljährig!" << endl;
+\stopcpp
+
+Das ist soweit verständlich und funktionsfähig. Nehmen wir nun einmal
+an, dass uns nicht interessiert, ob jemand jugendlich ist oder nicht.
+Uns interessiert nur, Kind oder Erwachsener. Die naheliegende Lösung
+ist, den entsprechenden \type{else} Zweig einfach zu löschen:
+
+\startcpp
+    if (age < 18)
+        if (age < 14)
+            cout << "Du bist noch ein Kind." << endl;
+    else
+        cout << "Sie sind volljährig!" << endl;
+\stopcpp
+
+Damit funktioniert das Programm nicht mehr gemäß unseren Erwartungen.
+Wir haben zwar sinnvoll eingerückt, aber in \cpp wird Whitespace nicht
+betrachtet. Damit zählt das \type{else} zur zweiten \type{if} Anweisung!
+Das wäre nicht passiert, hätten wird geschwungene Klammern verwendet!
+
+Allerdings sollte man solche Art von verschachtelten Verzweigungen eher
+vermeiden. Schreibt man das Programm um, dann funktioniert es wie
+erwartet und ist auch besser zu lesen:
+
+\startcpp
+if (age < 14) {
+    cout << "Du bist noch ein Kind." << endl;
+} else if (age < 18) {
+    cout << "Sie sind ein Jugendlicher!" << endl;
+} else {
+    cout << "Sie sind volljährig!" << endl;
+}
+\stopcpp
+
+\section[addieren-von-ganzen-zahlen]{Addieren von ganzen Zahlen}
+
+Nehmen wir einmal an, wir wollen ein einfaches Programm schreiben, das
+einfach nur zwei Zahlen einliest, die erste Zahl zu der zweiten Zahl
+addiert und das Ergebnis ausgibt.
+
+Eine sehr einfache Problemstellung, aber trotzdem können wir hier wieder
+einiges über \cpp lernen. Beginnen wir gleich einmal mit dem folgenden
+Programm:
+
+\startcpp
+// add.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int num1;
+    int num2;
+    int res;
+
+    cout << "Die erste Zahl: ";
+    cin >> num1;
+    cout << "Die zweite Zahl: ";
+    cin >> num2;
+
+    cout << "Das Ergebnis ist: " << res << endl;
+}
+\stopcpp
+
+Was gibt es hier wieder Neues? Eigentlich gar nichts. Aber starte einmal
+das Programm, gib beliebige Werte für die beiden Zahlen ein und schaue
+dir die Ausgabe an. Sie wird in {\em etwa} folgendermaßen aussehen und
+wird bei dir vermutlich ein anderes Ergebnis anzeigen.
+
+\startsh
+$ div
+Die erste Zahl: 1
+Die zweite Zahl: 2
+Das Ergebnis ist: -1218654208
+\stopsh
+
+Die Variable \type{res} wurde {\bf nicht} initialisiert, d.h. es wird
+kein Wert in diese Variable geschrieben. Was ist aber der Wert von
+\type{res} nach der Definition? Die Variable enthält den Wert, den der
+Speicherinhalt zu dieser Zeit repräsentiert. Damit ist es vom aktuellen
+Bitmuster des Speicherinhaltes abhängig.
+
+Die Variable \type{res} ist eine lokale Variable, da diese innerhalb der
+Funktion \type{main} definiert wurde. Merke: Lokale Variable, die einen
+fundamentalen Datentyp (eingebaute Datentypen wie ganze Zahlen,
+Gleitkommazahlen,\ldots{}) besitzen werden in \cpp{} {\bf nie}
+automatisch initialisiert. Wir werden später noch auf die fundamentalen
+Datentypen eingehen.
+
+Was können wir also machen? Wir könnten nach der Definition der Variable
+\type{res} dieser einen Wert {\em zuweisen}:
+
+\startcpp
+int res;
+
+res = 0;
+\stopcpp
+
+Ok, das ändert aber nichts daran, dass diese Variable am Beginn noch
+immer nicht initialisiert wurde. Gut, dann lernen wir gleich wie man
+eine Variable in \cppXI korrekt initialisiert:
+
+\startcpp
+int res{0};
+\stopcpp
+
+D.h. der Initialisierungswert wird in geschwungenen Klammern nach dem
+Variablennamen geschrieben. In diesem konkreten Fall ist der Effekt
+gleich wie wenn man die Variable nicht initialisiert und ihr dann einen
+Wert zuweist. Verwendet man jedoch komplexe Objekte, dann kann dies zu
+einem Performanceverlust führen.
+
+\startannotation{Faustregel}
+
+Lokale Variable {\bf immer} initialisieren!
+
+Es gibt eigentlich nur eine Ausnahme von dieser Regel: Hat das zu
+initialisierende Objekt einen hohen Initialisierungsaufwand und wird es
+zuerst beschrieben und erst dann gelesen, kann man die Initialisierung
+weglassen. Im Abschnitt \in[array] findest du auf der Seite
+\at[array] eine Beschreibung der Auswirkung der Initialisierung eines
+Arrays.
+\stopannotation
+
+Allerdings geht es mit der vereinheitlichten Initialisierung in diesem
+Fall noch einfacher:
+
+\startcpp
+int res{};
+\stopcpp
+
+Du siehst, dass du die \type{0} weglassen kannst. In diesem Fall wird
+die Variable mit dem \quotation{Nullwert} initialisiert, falls es sich
+um einen sogenannten fundamentalen Datentyp handelt.
+
+Es besteht auch die Möglichkeit den Wert direkt bei der Definition der
+Variable anstatt der geschwungenen Klammern mit einem \type{=} Zeichen
+zu initialisieren:
+
+\startcpp
+int res = 0;
+\stopcpp
+
+Das hat den gleichen Effekt. Trotzdem empfehle ich die Form mit den
+geschwungenen Klammern, die als einheitliche Initialisierung (engl.
+{\em uniform initialization}) bezeichnet wird und in \cppXI zum
+Sprachstandard hinzugekommen ist. Der Vorteil dieser Form ist, dass
+diese weitgehend {\em überall} in \cpp
+zur Initialisierung verwendet werden kann (im Kontrast zu der Form mit
+\type{=}).
+
+Ändern wir jetzt das Programm so ab, dass es die gewünschte Addition
+durchführt. Füge dazu direkt nach der Eingabe der zweiten Zahl folgende
+Anweisung in das Programm ein:
+
+\startcpp
+res = num1 + num2;
+\stopcpp
+
+Damit wird die erste Zahl zur zweiten Zahl addiert und in das Ergebnis
+der Variable \type{res} zugewiesen. Schaut man sich das Programm jetzt
+an, dann sieht man unschwer, dass die Initialisierung der Variable
+\type{res} jetzt nicht mehr nötig wäre. Wir lassen das Programm trotzdem
+in dieser Form, da wir unsere Faustregel beachten!
+
+Das Zuweisen des Ergebnisses zu der Variable \type{res} geschieht
+mittels des Zuweisungsoperators \type{=}. Es handelt sich hier
+{\bf nicht} um eine Initialisierung, sondern um eine Zuweisung. Das ist
+wichtig für das weitere Verständnis von \cpp.
+
+Als ein Ausdruck (engl. {\em expression}) wird ein syntaktisches
+Konstrukt bezeichnet, das zu einem {\em Wert} ausgewertet werden kann.
+\type{num1 + num2} ist ein Ausdruck. In \cpp ist
+\type{res = num1 + num2} ebenfalls ein Ausdruck, da der Wert dieses
+Ausdruckes das Ergebnis der Addition ist.
+
+Dieser Ausdruck \type{res = num1 + num2} beinhaltet eben einen weiteren
+Ausdruck, nämlich \type{num1 + num2}, der wiederum zwei Ausdrücke
+beinhaltet, nämlich \type{num1} und \type{num2}. Wir sehen, dass ein
+Ausdruck wieder aus (Teil-)Ausdrücken bestehen kann. Als vollständiger
+Ausdruck (engl. {\em full expression}) wird ein Ausdruck verstanden, der
+nicht Teil eines anderen Ausdruckes ist. In unserem konkreten Fall
+handelt es sich bei \type{res = num1 + num2} um einen vollständigen
+Ausdruck und bei \type{num1 + num2} beziehungsweise bei \type{num1} oder
+\type{num2} um {\em keine} vollständigen Ausdrücke.
+
+Hängt man an einen Ausdruck einen Strichpunkt, wird daraus eine
+Anweisung! Damit handelt es sich bei \type{res = num1 + num2;} um eine
+Anweisung. Im Unterschied zu einem Ausdruck hat eine Anweisung
+{\em keinen} Wert.
+
+Die anderen grundlegenden arithmetischen Operatoren sind \type{-}
+(Subtraktion), \type{*} (Multiplikation) und \type{/} (Division).
+\cpp kennt selbstverständlich die üblichen Regeln zur Punkt- und
+Strichrechnung, wobei Klammern gesetzt werden können, um eine beliebige
+Berechnungsreihenfolge herzustellen (z.B. \type{a * (b + c)}).
+
+Jedem Operator ist nicht nur eine Priorität zugewiesen, die die
+Reihenfolge der Berechnung festlegt, sondern auch eine Assoziativität.
+Die Assoziativität bestimmt wie Ausdrücke wie \type{a + b + c}
+ausgerechnet werden. \type{a + b + c} wird von links nach rechts
+ausgerechnet (links assoziativ) und ist damit gleichwertig zu
+\type{(a + b) + c}. Damit muss man die Klammern bei diesem speziellen
+Ausdruck nicht verwenden, sie sind in diesem Fall redundant.
+
+So, übersetze das Programm wieder und probiere es aus:
+
+\startsh
+Die erste Zahl: 1
+Die zweite Zahl: 2
+Das Ergebnis ist: 3
+\stopsh
+
+Das Ergebnis erwartet man sich natürlich. Damit wäre die geforderte
+Funktionalität erfüllt.
+
+Schauen wir uns trotzdem an was passiert, wenn der Benutzer ungültige
+Werte eingibt:
+
+\startitemize
+\item
+  Probiere folgende Interaktion aus:
+
+  \startsh
+  Die erste Zahl: 1
+  Die zweite Zahl: 2a
+  Das Ergebnis ist: 3
+  \stopsh
+
+  Was passiert hier? Die erste Eingabe ist klar, es wird die ganze Zahl
+  1 eingelesen. Bei der zweiten Eingabe sieht es so aus, dass eine 2
+  eingelesen wird und das Zeichen \type{a} weiter im Eingabestrom
+  gelassen wird.
+
+  Schauen wir uns das einmal an, indem wir den folgenden Text hinten als
+  letzte Anweisung im Rumpf von \type{main} schreiben:
+
+  \startcpp
+  string rest;
+  cin >> rest;
+  cout << "Der verbleibende Rest: " << rest << endl;
+  \stopcpp
+
+  \type{cin >> rest} liest genau ein Zeichen in die neue Variable
+  \type{rest} ein und dieses wird danach ausgegeben.
+
+  Probiere jetzt dein Programm mit den Eingaben wieder aus. Du siehst,
+  dass das Zeichen \type{a} als Rest ausgegeben wird. Du siehst, dass
+  die zweite Zahl nur soweit eingelesen wird, bis eine vollständige Zahl
+  erkannt wird. Hier folgt die Ausgabe:
+
+  \startsh
+  Die erste Zahl: 1
+  Die zweite Zahl: 2a
+  Das Ergebnis ist: 3
+  Der verbleibende Rest: a
+  \stopsh
+\item
+  Starte jetzt dieses Programm noch einmal und gib nur gültige Eingaben
+  ein. Du bemerkst, dass die Anweisung \type{cin >> rest} sich jetzt die
+  Eingabe eines Zeichens erwartet und du daher eines eingeben musst.
+  Allerdings wird kein Leerzeichen akzeptiert, da dieses ja überlesen
+  wird.
+
+  Entweder du gibst ein beliebiges Zeichen ein oder du brichst die
+  Eingabe ab. Das geht unter Windows mit der Tastenkombination
+  \type{CTRL-Z} und unter Mac OSX oder Linux mittels \type{CTRL-D}.
+\item
+  Starte jetzt das Programm noch einmal und gib zuerst \type{1a} ein und
+  drücke wie gewohnt die Return-Taste. Die Ausgabe wird folgendermaßen
+  aussehen:
+
+  \startsh
+  Die erste Zahl: 1a
+  Die zweite Zahl: Das Ergebnis ist: 1
+  Der verbleibende Rest: 
+  \stopsh
+
+  Tja, hier sehen wir, dass es überhaupt nicht funktioniert hat. Die
+  erste Zahl wird richtig gelesen, die zweite Zahl kann nicht mehr
+  gelesen werden, da lediglich das Zeichen \type{a} im Eingabestrom
+  vorhanden ist. Damit handelt es sich aus Sicht von \cpp um eine
+  fehlerhafte Eingabe, da eine ganze Zahl erwartet wird. Das bedeutet,
+  die fehlgeschlagene Eingabe bewirkt, dass \type{num2} auf den Nullwert
+  gesetzt wird und der Eingabestrom in einen Fehlermodus versetzt wird.
+  Damit schlägt auch die Eingabe des Rests fehl!
+
+  Wie man mit solchen Situationen umgeht, werden wir uns noch anschauen.
+  Jetzt einmal ist es wichtig zu erkennen, wie in \cpp die Eingabe
+  prinzipiell funktioniert. Hier noch einmal eine Kurzzusammenfassung:
+
+  \startitemize[packed]
+  \item
+    Es werden Leerzeichen prinzipiell überlesen.
+  \item
+    Es werden dann alle Zeichen eingelesen, sodass die Eingabe gültig
+    für den eingesetzten Datentyp ist.
+  \item
+    Kann nicht gültig eingelesen werden, dann wird der Variable der
+    Nullwert zugewiesen und der Eingabestrom in einen Fehlermodus
+    versetzt.
+  \stopitemize
+\stopitemize
+
+\section[minicalc]{Rechnen mit Zahlen}
+
+Nachdem wir jetzt wissen wie die Eingabe und Ausgabe prinzipiell
+funktioniert, und die fundamentalen Datentypen \type{int} und
+\type{char} kennengelernt haben und auch die Anweisung \type{if} kennen,
+wollen wir einen kleinen Rechner entwickeln, der einen arithmetischen
+Ausdruck bestehend aus zwei Operanden und einem der Operatoren \type{+}
+(Addition), \type{-} (Subtraktion), \type{*} (Multiplikation), \type{/}
+Division ausrechnen kann.
+
+Gültige Ausdrücke wären: \type{1 + 2} (wie gehabt), \type{2 - 2},
+\type{2 * 3} oder \type{4 / 2}.
+
+Wir legen fest, dass wir die Eingabe wie gehabt gestalten, also zuerst
+die erste Zahl eingeben, dann die Operation und danach die zweite Zahl.
+Das Ergebnis wird zum Schluss angezeigt.
+
+Ein erster Versuch führt uns zu dem folgenden Quelltext in der Datei
+\type{calc.cpp}, wobei ich in diesem Fall nur mehr den Rumpf von main
+wiedergebe:
+
+\startcpp
+int num1;
+int num2;
+char op;  // eine Abkürzung für operator (keyword in C++!)
+
+cout << "Die erste Zahl: ";
+cin >> num1;
+cout << "Operator [+,-,*,/]: ";
+cin >> op;
+cout << "Die zweite Zahl: ";
+cin >> num2;
+
+if (op == '+') {
+    cout << "Das Ergebnis ist: " << num1 + num2 << endl;
+} else if (op == '-') {
+    cout << "Das Ergebnis ist: " << num1 - num2 << endl;
+} else if (op == '*') {
+    cout << "Das Ergebnis ist: " << num1 * num2 << endl;
+} else if (op == '/') {
+    cout << "Das Ergebnis ist: " << num1 / num2 << endl;
+}
+\stopcpp
+
+Bei diesem Programm verwenden wir einen neuen fundamentalen Datentyp,
+nämlich \type{char}, das für ein einzelnes Zeichen steht. Die Variable
+nennen wir \type{op}, da wir \type{operator} nicht verwenden können, da
+es sich um ein Keyword in \cpp
+handelt. Beachte, dass Zeichenliterale des Typs \type{char} jeweils mit
+einem einfachen Hochkomma eingeschlossen sind.
+
+Probiere das Programm gleich aus. Es funktioniert weitgehend mit
+gültigen Eingaben. Lediglich bei der Division kommt es zu zwei
+Problemen:
+
+\startitemize
+\item
+  Teste das Programm einmal mit der Berechnung von \type{1 / 0}. Es wird
+  in etwa zu folgender Ausgabe kommen:
+
+  \startsh
+  Die erste Zahl: 1
+  Operator [+,-,*,/]: / 
+  Die zweite Zahl: 0
+  fish: Job 1, 'calc' durch Signal SIGFPE (Fliesskomma-Ausnahmefehler) beendet
+  \stopsh
+
+  Das Programm bricht mit einer Fehlermeldung ab, weil die Division
+  durch die Zahl 0 nicht definiert ist. Durch 0 kann man eben nicht
+  dividieren.
+
+  Dieses Problem kannst du relativ leicht beheben, indem du \type{0} als
+  Eingabe für die zweite Zahl nicht zulässt. D.h., du kannst eine
+  Überprüfung einbauen und danach das Programm beenden. Beenden kannst
+  du es in diesem Fall einfach mit einer \type{return} Anweisung. Baue
+  die folgende \type{if} Anweisung direkt vor die Ausgabe des
+  Ergebnisses der Division ein:
+
+  \startcpp
+  if (num2 == 0) {
+      cerr << "Der Divisor darf nicht 0 sein!" << endl;
+      return 1;
+  }
+  \stopcpp
+
+  In diesen Fall wird eine Fehlermeldung auf \type{cerr} ausgegeben.
+  Dabei handelt es sich um ein Objekt, das wie das Objekt \type{cout}
+  funktioniert, nur dass es mit dem Kanal \type{stderr} verknüpft ist.
+  Dieser Kanal wird verwendet, um Fehlermeldungen auszugeben. Die
+  Ausgaben dieses Kanals sind ganz normal in der Shell sichtbar.
+
+  Dann wird die Funktion vorzeitig beendet und der Wert der
+  \type{return} Anweisung wird als Exit-Code an das aufrufende Programm
+  zurückgegeben.
+\item
+  Teste weiters die Division mit den Zahlen \type{1} und \type{2} und du
+  wirst das Ergebnis \type{0} anstatt dem Ergebnis \type{0.5} erhalten.
+  Wie in den meisten Programmiersprachen üblich, wird auch in \cpp zur
+  Trennung der Nachkommastellen von den Vorkommastellen der Punkt
+  verwendet.
+
+  Warum also wird \type{0} angezeigt? Das hat damit zu tun, dass beide
+  Operanden ganze Zahlen sind und \cpp in diesem Fall auch nur mit
+  ganzen Zahlen rechnet. D.h., dass das Ergebnis den gleichen Typ hat
+  wie die beiden Operanden (vorausgesetzt diese haben beide denselben
+  Typ).
+
+  Dieses Problem lässt sich leicht beheben indem der Datentyp der beiden
+  Zahlen zu \type{double} geändert wird. Bei dem fundamentalen Datentyp
+  \type{double} handelt es sich um einen Typ, der Gleitkommazahlen
+  repräsentiert:
+
+  \startcpp
+  double num1;
+  double num2;
+  \stopcpp
+
+  Probiere das Programm wieder aus. Jetzt liefert es auch bei der
+  Division das erwartete Ergebnis!
+
+  In diesem Zusammenhang ist es erwähnenswert, dass die Behandlung der
+  Division durch 0 bei Gleitkommazahlen anders funktioniert als bei
+  ganzen Zahlen. Damit du dieses andere Verhalten sehen kannst, nimm
+  zeitweise die kürzlich hinzugefügte Überprüfung auf die Zahl 0 wieder
+  aus dem Programm. Das geht am besten indem du die Überprüfung mit den
+  Kommentarzeichen \type{/*} und \type{*/} umschließt:
+
+  \startcpp
+  /*
+  if (num2 == 0) {
+      cerr << "Der Divisor darf nicht 0 sein!" << endl;
+      return 1;
+  }
+  */
+  \stopcpp
+
+  Die Ausgabe wird für die Zahlen 1 und 0 folgendermaßen aussehen:
+
+  \startsh
+  Die erste Zahl: 1
+  Operator [+,-,*,/]: /
+  Die zweite Zahl: 0
+  Das Ergebnis ist: inf
+  \stopsh
+
+  Es kommt zu keinem Programmabbruch! Stattdessen ergibt die Division
+  durch 0 einen eigenen Wert, der als \quotation{inf} (für infinity, dt.
+  unendlich) in der Ausgabe erscheint. Bei Division von -1 durch 0
+  ergibt sich \quotation{-inf}.
+
+  Wir sehen, dass es für Gleitkommazahlen einen eigenen Wert gibt, der
+  anzeigt, dass eine Division durch 0 keinen definierten Wert hat. Mehr
+  dazu später.
+\stopitemize
+
+Als Nächstes wollen wir die Struktur unseres Programmes verbessern. An
+sich ist an der \type{if} Anweisung nichts auszusetzen, aber es besteht
+die Möglichkeit, dass wir die nächste Kontrollanweisung, nämlich die
+\type{switch} Anweisung kennenlernen. Ersetze deshalb die gesamte
+\type{if} Anweisung durch folgende Anweisungen:
+
+\startcpp
+switch (op) {
+  case '+':
+    res = num1 + num2;
+    break;
+  case '-':
+    res = num1 - num2;
+    break;
+  case '*':
+    res = num1 * num2;
+    break;
+  case '/':
+    res = num1 / num2;
+    break;
+}
+
+cout << "Das Ergebnis ist: " << res << endl;
+\stopcpp
+
+Hier lernen wir eine neue zusammengesetzte Anweisung kennen, die
+\type{switch} Anweisung. Diese ist dafür gedacht, dass man eine Auswahl
+treffen kann. Hier wird in Abhängigkeit des Inhaltes der Variable
+\type{op} zu einem der Fälle (engl. {\em case}) verzweigt. In diesem
+Fall kommt eine weitere einfache Anweisung, die \type{break}-Anweisung
+vor. Diese bewirkt, dass die Ausführung direkt nach der \type{switch}
+Anweisung weitergeführt wird und nicht die Anweisungen des nachfolgenden
+\type{case} abgearbeitet werden.
+
+Würden die \type{break} Anweisungen entfernt werden, dann würde als
+Ergebnis immer das Ergebnis der Division ermittelt werden. Probiere es
+aus!
+
+Und wie sieht es aus, wenn wir mehrere Berechnungen hintereinander
+ausführen wollen? Wir programmieren eine Schleife und beginnen mit einer
+\type{while} Schleife: Der gesamte Quelltext der Eingabe, der
+\type{switch} Anweisung und auch der Ausgabe kommt in den Rumpf
+folgender \type{while} Anweisung:
+
+\startcpp
+while (true) {
+    // hierher!
+}
+\stopcpp
+
+Übersetze dein Programm und führe es aus. Wichtig ist nur zu wissen wie
+du so ein Programm wieder beenden kannst. Startest du dein Programm in
+einer Shell, dann beendet die Tastenkombination \type{CTRL-C} in der
+Regel das Programm, sonst ist das Programm ganz normal über die
+Möglichkeiten der graphischen Oberfläche zu beenden.
+
+Die \type{while}-Anweisung erwartet sich eine Bedingung (fundamentaler
+Datentyp \type{bool}) in runden Klammern und führt den Rumpf solange aus
+solange diese Bedingung wahr ist. In \cpp gibt es zwei Wahrheitswerte,
+nämlich \type{true} und \type{false}. Da wir in die runden Klammern das
+Literal \type{true} geschrieben haben, das sich nicht ändert, wird die
+Schleife programmgesteuert nie abgebrochen. Das ist auch der Grund, dass
+das laufende Programm letztendlich mittels \type{CTRL-C} abgebrochen
+werden muss.
+
+Da dies natürlich keine benutzerfreundliche Lösung ist, bauen wir das
+Programm folgendermaßen um. Die Zeile mit dem Schlüsselwort \type{while}
+wird durch die folgenden Zeilen ersetzt:
+
+\startcpp
+char proceed{'y'};
+
+while (proceed == 'y') {
+\stopcpp
+
+Direkt nach der Anzeige des Ergebnisses werden die folgenden Zeilen
+eingefügt:
+
+\startcpp
+cout << "Weiter? [y/n] ";
+cin >> proceed;
+cout << endl;
+\stopcpp
+
+Der Benutzer wird gefragt, ob dieser weitermachen will und muss mit dem
+Zeichen \type{y} bestätigen. Gibt er ein beliebiges anderes Zeichen ein,
+dann bricht das Programm ab.
+
+Wiederholen wir: Eine Zeichenkonstante ist in einfachen Hochkommas
+einzuschließen und kann auch nur ein Zeichen beinhalten. Eine
+C-String-Konstante ist in doppelte Hochkommas einzuschließen und kann
+beliebig viele Zeichen beinhalten.
+
+Das funktioniert schon soweit gut, solange der Benutzer nur gültige
+Eingaben tätigt, wenn dieser allerdings falsche Eingaben macht, dann
+kann es bei dieser Art von Programmierung ziemlich unangenehm werden.
+Probiere einmal aus statt einer Zahl zum Beispiel das Zeichen \type{a}
+einzugeben. Zuvor erinnere dich wie du das Programm beenden kannst.
+
+Ich möchte noch einmal die Erklärung für dieses Verhalten liefern: Ist
+das Objekt \type{cin} im Fehlermodus, dann muss dieser Fehlermodus
+wieder verlassen werden, damit die nachfolgenden Operationen
+funktionieren. Das haben wir bis jetzt noch nicht gemacht.
+
+Deshalb werden wir zumindest eine rudimentäre Fehlerbehandlung
+einführen. Ersetze die Eingabeanweisung für die Variable \type{num1}
+durch folgenden Code und verfahre analog für die Variable \type{num2}:
+
+\startcpp
+if (!(cin >> num1)) {
+    cerr << "Keine gültige Zahl. Abbruch" << endl;
+    return 1;
+}
+\stopcpp
+
+Was passiert hier?
+
+\startitemize
+\item
+  Der Operator \type{!} bildet die Negation eines Wahrheitswertes, also
+  aus \type{true} wird \type{false} und aus \type{false} wird
+  \type{true}.
+\item
+  Der Operator \type{>>} liefert wieder das ursprüngliche Objekt zurück
+  auf das er angewendet wird, also in unserem Fall \type{cin}. Da es
+  sich dabei um keinen Wahrheitswert handelt, aber der Operator \type{!}
+  verwendet wird, wird von \cpp
+  eine implizite Konvertierung vorgenommen (mehr dazu später). Konnte
+  die Eingabeoperation nicht erfolgreich durchgeführt werden, dann wird
+  der Operator \type{!} den Wert \type{true} zurückliefern. Damit wird
+  der Programmablauf in den Rumpf der \type{if} Anweisung verzweigen,
+  die Fehlerausgabe tätigen und das Programm beenden.
+\stopitemize
+
+Natürlich ist dies auch noch keine wirklich zufriedenstellende Lösung,
+denn man würde den Benutzer normalerweise auffordern die Eingabe zu
+wiederholen, aber das verschieben wir auf später.
+
+Da wir gerade dabei sind potenzielle Eingabefehler zu behandeln, fehlt
+in diesem Zusammenhang noch die Fehlerbehandlung bei falscher
+Operatoreingabe. Da ein einzelnes Zeichen eingelesen wird, kann der
+Eingabestrom nicht in einen Fehler gelangen, aber es kann sich trotzdem
+um ein falsches Operatorzeichen handeln. D.h., es ist weder ein \type{+}
+noch ein \type{-}, ein \type{*} oder ein \type{/}.
+
+Jetzt müssen wir uns entscheiden wie in solch einem Fall vorgegangen
+werden soll. Konsequenterweise sollten wir das Programm ebenfalls
+beenden. Füge deshalb in der \type{switch} Anweisung vor der letzten
+geschwungenen Klammer folgenden Codeteil ein:
+
+\startcpp
+default:
+  cerr << "Kein gültiger Operator. Abbruch" << endl;
+  return 1;
+\stopcpp
+
+Dieses \type{default:} bewirkt, dass der Programmablauf hier fortgesetzt
+wird, wenn keine der Alternativen zutreffen. Das setzt voraus, dass
+überall \type{break} Anweisungen eingebaut worden sind, da sonst der
+Programmablauf mit dem direkt nachfolgenden \type{case} oder
+letztendlich dem \type{default} fortgeführt wird.
+
+Können wir dieses Programm noch verbessern? Ja, wir können. Schauen wir
+uns doch einmal die Schleife etwas genauer an! Zuerst setzen wir die
+Variable \type{proceed} und darauffolgend fragen wir diese im
+Schleifenkopf der \type{while} Schleife gleich wieder ab. Das müssen wir
+so tun, damit wir die Schleife zumindest einmal betreten. Genau für
+derartige Anwendungsfälle gibt es die \type{do}-\type{while} Anweisung!
+
+Baue das Programm so um, dass aus der ursprünglichen Struktur
+
+\startcpp
+char proceed{'y'};
+
+while (proceed == 'y') {
+    // Inhalt der Schleife
+}
+\stopcpp
+
+die folgende Struktur wird:
+
+\startcpp
+char proceed;
+
+do {
+    // Inhalt der Schleife
+} while (proceed == 'y');
+\stopcpp
+
+Die Bedeutung der \type{do}-Anweisung ist ähnlich der
+\type{while}-Anweisung, nur dass der Schleifenrumpf mindestens einmal
+ausgeführt wird und dies so lange, solange die Bedingung am Ende erfüllt
+ist.
+
+Zwei Dinge solltest du beachten:
+
+\startitemize
+\item
+  Ich habe in der neuen Struktur die Initialisierung der Variable
+  \type{proceed} weggelassen, da dies jetzt nicht mehr notwendig ist.
+  Erinnere dich aber, dass das unserer Regel widerspricht und daher
+  nicht zu empfehlen ist. Hier habe ich dies nur zu
+  Demonstrationszwecken eingebaut.
+\item
+  Am Ende der \type{do} Anweisung ist nach der Bedingung ein Strichpunkt
+  zwingend notwendig!
+\stopitemize
+
+Die normale \type{while} Anweisung wird oft auch als kopfgesteuerte
+Schleife und die \type{do} Anweisung analog dazu als fußgesteuerte
+Schleife bezeichnet.
+
+\section[exasort]{Zählschleife, Container, Funktion}
+
+Als Nächstes wollen wir eine kleine Applikation schreiben, die die
+übergebenen Kommandozeilenargumente sortiert ausgibt. Das Programm soll
+also folgende Funktionsweise haben:
+
+\startsh
+$ sort Wien Amsterdam Paris Berlin Lissabon
+Amsterdam
+Berlin
+Lissabon
+Paris
+Wien
+\stopsh
+
+Bei Wien, Amsterdam, Paris,\ldots{} handelt es sich um die zu
+sortierenden Kommandozeilenparameter, die danach sortiert und
+zeilenweise ausgegeben werden sollen.
+
+Beginnen wir mit dem Auslesen der Kommandozeilenparameter und der
+Ausgabe auf \type{stdout} und schreiben folgenden Code in die Datei
+\type{sort.cpp}:
+
+\startcpp
+#include <iostream>
+
+using namespace std;
+
+int main(int argc, char* argv[]) {
+    for (int i{0}; i < argc; ++i) {
+        cout << argv[i] << endl;
+    }
+}
+\stopcpp
+
+Teste es und du wirst folgendes Ergebnis erhalten, wenn dein
+ausführbares Programm ebenfalls \type{sort} heißt:
+
+\startsh
+$ sort a b c
+sort
+a
+b
+c
+\stopsh
+
+Du siehst, dass hier der eigentliche Programmname und alle übergebenen
+Kommandozeilenargumente zeilenweise ausgegeben werden.
+
+Gut, aber was ist in diesem Programm enthalten?
+
+\startitemize
+\item
+  Zuerst bemerkst du, dass der Funktionskopf von \type{main} jetzt
+  anders ist, da dieser jetzt zwei Parameter enthält.
+
+  \type{argc} ist vom Typ \type{int} und enthält die Anzahl der
+  übergebenen Kommandozeilenargumente. In unserem Fall hat \type{argc}
+  mindestens den Wert 1, da der Programmname ebenfalls enthalten ist.
+
+  \type{argv} ist ein Array (ein Feld), das Elemente vom Typ
+  \type{char*} enthält. \type{char*} bedeutet Pointer (eingedeutscht von
+  engl. {\em pointer}, dt. {\em Zeiger}) auf ein \type{char}. Ein
+  Pointer ist ein Speicherelement -- das die Adresse des referenzierten
+  Speicherelementes, in unserem Fall ein \type{char} -- enthält. Es
+  handelt sich hierbei um die Darstellung wie C-Strings im Speicher
+  abgelegt sind, nämlich ein Pointer, der an den Anfang eines
+  Speicherbereiches -- an die Adresse des ersten Zeichens -- zeigt, der
+  eine Folge von Zeichen (Typ \type{char}) enthält, die mit einem
+  Nullzeichen (\type{\0}) abgeschlossen ist. Das bedeutet, dass keine
+  Länge eines C-Strings gespeichert wird, da das Nullzeichen das Ende
+  kennzeichnet.
+
+  Ein Array ist ein Speicherbereich fester Größe, der hintereinander
+  Elemente eines festgelegten Datentyps beinhaltet. Der Index in einem
+  Array beginnt bei 0 und es wird ebenfalls keine Länge mitgespeichert.
+  Das ist auch der Grund, warum der Parameter \type{argc} mit der Größe
+  des Arrays mitgegeben wird. Die Größe eines Arrays kann sich in
+  \cpp nicht ändern.
+\item
+  Im Rumpf der Funktion \type{main} ist die nächste Kontrollanweisung
+  enthalten. Es handelt sich um die \type{for} Schleife, die in diesem
+  Fall wie eine Zählschleife funktioniert.
+
+  Diese \type{for} Schleife -- in dieser Variante auch Zählschleife
+  genannt -- besteht aus dem Schlüsselwort \type{for}, gefolgt von einem
+  runden Klammernpaar und danach dem eigentlichen Schleifenrumpf in
+  geschwungenen Klammern. Innerhalb des Klammernpaares gibt es genau 3
+  Teile, die jeweils durch einen Strichpunkt voneinander getrennt sind.
+
+  Der erste Teil beinhaltet die Initialisierung, die genau einmal
+  durchgeführt, der zweite Teil beinhaltet eine Bedingung, die vor jedem
+  Schleifendurchgang überprüft wird und der dritte Teil beinhaltet eine
+  Anweisung, die am Ende jedes Schleifendurchganges ausgeführt wird:
+
+  \startitemize[a][stopper=.]
+  \item
+    Bei Beginn der Ausführung der Schleife wird eine Variable \type{i}
+    vom Typ \type{int} angelegt und initialisiert, die nur innerhalb der
+    Schleife gültig ist und zur Verfügung steht. Anstatt \mono{i\{0\}}
+    wird oft auch \type{i=0} geschrieben.
+  \item
+    Danach wird die Bedingung überprüft und wenn diese zutrifft, wird
+    der Schleifenrumpf ausgeführt.
+
+    Der Schleifenrumpf besteht in unserem Fall aus einer bekannten
+    Ausgabe. Neu ist allerdings wie auf die Elemente eines Arrays
+    zugegriffen werden kann: \type{argv[i]} greift auf das Element mit
+    dem Index \type{i} aus dem Array zu. Dabei handelt es sich bei uns
+    um einen \type{char} Pointer. Der Ausgabeoperator \type{<<} von
+    \type{cout} behandelt so einen Pointer indem alle Zeichen ab dem
+    ersten Zeichen ausgegeben werden bis exklusive dem erkannten
+    Nullzeichen.
+  \item
+    Am Ende des Schleifenrumpfes wird die Variable \type{i} um 1 erhöht
+    (inkrementiert). Das kann in \cpp mittels des Inkrementoperators
+    \type{++} erreicht werden. Danach wird bei b. fortgefahren.
+  \stopitemize
+
+  Das bedeutet, dass eine derartige \type{for} Schleife äquivalent zu
+  folgender \type{while} Schleife ist:
+
+  \startcpp
+  {
+      int i{0};
+      while (i < argc) {
+          cout << argv[i] << endl;
+          ++i;
+      }
+  }
+  \stopcpp
+
+  Wir hätten also genauso gut eine \type{while} Schleife programmieren
+  können, aber eine derartige \type{for} Schleife ist kürzer und
+  prägnanter.
+\stopitemize
+
+Das ist soweit erledigt, aber wir bemerken natürlich, dass ebenfalls der
+Programmname ausgegeben wird. Das lässt sich leicht beheben indem die
+Zählvariable mit 1 anstatt 0 initialisiert wird!
+
+Nun fehlt noch das Sortieren. Wir werden das Sortieren am Datentyp
+\type{vector} demonstrieren. Ein \type{vector} funktioniert in der Art
+wie ein Array, unterscheidet sich von einem Array jedoch dadurch, dass
+ein \type{vector} ein Objekttyp ist und außerdem in der Größe
+veränderlich ist.
+
+Ein Datentyp, der prinzipiell mehrere Elemente beinhalten kann wird als
+ein Container bezeichnet. Der Typ \type{vector} stellt also einen
+Container dar.
+
+\startcpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main(int argc, char *argv[]) {
+    vector<string> words;
+    
+    for (int i{1}; i < argc; ++i) {
+        words.push_back(argv[i]);
+    }
+
+    for (int i{0}; i < words.size(); ++i) {
+        cout << words[i] << endl;
+    }
+}
+\stopcpp
+
+Teste es, es sollte funktionieren wie bisher. Und jetzt schauen wir uns
+den Sourcecode einmal genauer an:
+
+\startitemize
+\item
+  Zuerst muss natürlich eine neue Header-Datei eingebunden werden, da ja
+  ein neuer Datentyp aus der Standardbibliothek verwendet wird.
+\item
+  Innerhalb von \type{main} wird am Anfang eine Variable \type{words}
+  angelegt, bei der es sich um einen Vektor handelt, der lauter
+  \type{string} Objekte beinhalten kann.
+
+  Die spitzen Klammern geben den Typ der beinhalteten Objekte an. Es
+  handelt sich hierbei um die Verwendung eines Template - Datentyps
+  \type{vector} für den man bei der Instanziierung des Templates einen
+  spezifischen Datentyp -- hier \type{string} -- mitgeben muss. Wir
+  werden das später noch im Detail besprechen.
+\item
+  Die erste \type{for} - Schleife durchläuft alle
+  Kommandozeilenargumente und hängt diese jeweils hinten mittels der
+  Methode \type{push_back} an den Vektor \type{words} an.
+
+  In \cpp wird -- wie in vielen anderen Programmiersprachen auch -- eine
+  Methode eines Objektes mittels des Punktoperators \type{.} aufgerufen.
+  Daher bedeutet \type{word.push_back(argv[i])}, dass für den Vektor
+  \type{word} die Methode \type{push_back} aufgerufen wird und dieser
+  das Argument \type{argv[i]} als Parameter übergeben wird.
+\item
+  Die zweite Schleife gibt den Inhalt dieses Vektors wie gewohnt aus.
+  Zwei Dinge sind hier zu beachten. Erstens die Verwendung der Methode
+  \type{size}, die die aktuelle Größe des Vektors zurückgibt und die
+  Verwendung der eckigen Klammern, um auf den Inhalt an dem angegebenen
+  Index zuzugreifen. D.h., ein Vektor verhält sich bezüglich des
+  Zugriffes wie ein Array.
+\stopitemize
+
+\startdrawer
+
+Die Schnittstelle, die ein Objekt (oder eine andere Art von Software)
+anbietet, um als Programmierer mit diesem programmieren zu können, wird
+als API (application programming interface) bezeichnet.
+
+Hier haben wir von dem API der Klasse \type{vector} kennengelernt, dass
+wie wir
+
+\startitemize[packed]
+\item
+  einen \type{vector} eines bestimmten Typs anlegen
+\item
+  ein weiteres Element zum \type{vector} hinzufügen
+\item
+  die Größe eines \type{vector}s abfragen
+\item
+  auf ein einzelnes Element des \type{vector}s über seinen Index
+  zugreifen
+\stopitemize
+
+können.
+
+\type{vector} bietet noch viele Methoden an, von denen wir in weiterer
+Folge noch etliche besprechen werden.
+\stopdrawer
+
+Jetzt fehlt nur mehr das Sortieren des Vektors. Dies ist aber einfach,
+da die Standardbibliothek von \cpp sehr durchdacht und umfangreich ist:
+
+\startcpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main(int argc, char *argv[]) {
+    vector<string> words;
+    
+    for (int i{1}; i < argc; ++i) {
+        words.push_back(argv[i]);
+    }
+
+    sort(words.begin(), words.end());
+
+    for (int i{0}; i < words.size(); ++i) {
+        cout << words[i] << endl;
+    }
+}
+\stopcpp
+
+Wir verwenden die vordefinierte Funktion \type{sort}, die mittels der
+Headerdatei \type{algorithm} eingebunden werden kann. \type{sort}
+benötigt zwei Argumente, nämlich den Beginn der zu sortierenden Werte
+und das Ende der zu sortierenden Werte, die jeweils über die
+entsprechenden Methoden vom Vektor \type{words} erhalten werden können
+(\type{begin()} respektive \type{end()}). Bei diesem \quotation{Anfang}
+und dem \quotation{Ende} handelt es sich jeweils um einen sogenannten
+{\em Iterator}, aber das werden wir uns später noch genau ansehen.
+Fertig!
+
+Eine kleine Verbesserung wollen wir trotzdem noch anbringen, da wir den
+Aufruf der Funktion \type{sort} mit den beiden Parametern nicht als
+besonders komfortabel empfinden. Besser wäre es, wenn wir die beiden
+Parameter nicht mitgeben müssten. Also schreiben wir noch eine Funktion,
+die diesen Aufruf kapselt.
+
+Ändere den Quellcode so ab, dass vor der Funktion \type{main} die
+folgende Funktionsdefinition kommt:
+
+\startcpp
+vector<string> sort(vector<string> words) {
+    sort(words.begin(), words.end());
+    return words;
+}
+\stopcpp
+
+Danach ersetze den alten Aufruf der Funktion \type{sort} durch den neuen
+Aufruf der Funktion \type{sort}:
+
+\startcpp
+words = sort(words);
+\stopcpp
+
+Teste! Du solltest wieder das gleiche Ergebnis erhalten, nur hast du
+jetzt den Vorteil, dass du einen einfacheren Funktionsaufruf hast.
+
+Wie funktioniert es?
+
+\startitemize
+\item
+  Zuerst wird eine Funktion definiert. Das funktioniert so ähnlich wie
+  die Funktion \type{main}, nur dass diese Funktion einen Vektor von
+  \type{string} Objekten als Parameter bekommt. In diesem konkreten Fall
+  wird eine Kopie übergeben, die auf gewohnte Weise innerhalb der
+  Funktion sortiert wird. Da es sich um eine Kopie handelt müssen wir
+  diese mittels einer \type{return} Anweisung an den Aufrufer
+  zurückgeben.
+\item
+  In der Funktion \type{main} wird lediglich die Funktion aufgerufen und
+  der Rückgabewert, der wiederum eine Kopie darstellt wird, in der
+  Variable \type{words} abgelegt.
+\stopitemize
+
+So, nun haben wir auch noch eine eigene Funktion definiert und auch
+aufgerufen. Dabei haben wir gelernt, dass Parameter und Rückgabewert in
+\cpp
+standardmäßig als Kopie übergeben werden.
+
+\section[structlambda]{\quotation{foreach}-Schleife, Struktur,
+Lambdafunktion}
+
+Nehmen wir einmal an, dass wir jetzt Personen in unserem Programm
+speichern und sortieren wollen. Eine Person soll bei uns über einen
+Vornamen und einen Nachnamen sowie unter Umständen über weitere
+Attribute verfügen.
+
+Es bietet sich an, diese Daten in einem benutzerdefinierten Datentyp
+\type{Person} abzulegen, der über die entsprechenden Attribute (in
+\cpp{} \quote{member variable}) verfügt:
+
+\startcpp
+// person.cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Person {
+    string first_name;
+    string last_name;
+    int year_of_birth;
+};
+\stopcpp
+
+Bis jetzt handelt es sich noch um kein fertiges Programm. Lediglich der
+benutzerdefinierte Datentyp \type{Person} wurde definiert, der aus drei
+Instanzvariablen besteht. Ein \type{struct} ist in \cpp genau das
+gleiche wie eine Klasse (\type{class}) nur, dass alle Attribute und
+Methoden defaultmäßig öffentlich zugreifbar sind (\type{public}).
+
+Jetzt erweitern wir den bestehenden Code, sodass ein fertiges Programm
+entsteht:
+
+\startcpp
+int main() {
+    Person p1{"Max", "Mustermann", 1990};
+    Person p2{"Otto", "Normalverbraucher", 1950};
+    Person p3{"Susi", "Musterfrau", 1991};
+}
+\stopcpp
+
+In \type{main} werden jetzt drei Personen angelegt. Das Interessante
+daran ist, dass die einheitliche Initialisierung verwendet werden kann,
+um die Attribute jeweils initialisieren zu können.
+
+Zum Speichern werden wir wieder auf unseren bewährten \type{vector}
+setzen:
+
+\startcpp
+vector<Person> persons{p1, p2, p3};
+\stopcpp
+
+Auch hier sehen wir, dass dieser mit der einheitlichen Initialisierung
+sehr elegant mit Anfangswerten versehen werden kann.
+
+Jetzt wollen wir uns an das Sortieren wagen. Aber nach welchem Kriterium
+soll sortiert werden und wie setzt man es um? Wir wollen nach dem
+Geburtsjahr sortieren und die Umsetzung sieht folgendermaßen aus:
+
+\startcpp
+sort(persons.begin(),
+     persons.end(),
+     [](Person p1, Person p2) {
+         return p1.year_of_birth < p2.year_of_birth;
+     });
+\stopcpp
+
+Hier sehen wir, dass unsere Sortierfunktion einen dritten Parameter
+bekommen kann. Es handelt sich hier um eine Lambdafunktion. So eine
+Lambdafunktion ist eine anonyme Funktion, eine Funktion ohne Namen, die
+direkt bei der Verwendung definiert wird.
+
+Ohne jetzt genau auf die Syntax eingehen zu wollen, sehen wir, dass
+diese mit eckigen Klammern beginnt und danach wie eine normale Funktion
+aussieht. Diese Funktion wird von \type{sort} für je zwei Elemente der
+zu sortierenden Datenstruktur aufgerufen, um die Reihenfolge zu
+bestimmen. Liefert die Lambdafunktion \type{true} zurück, dann soll
+\type{p1} vor \type{p2} angeordnet werden, ansonsten umgekehrt.
+
+Die Ausgabe erfolgt über eine \quotation{foreach} Schleife:
+
+\startcpp
+for (auto p : persons) {
+    cout << p.first_name << " " << p.last_name << " "
+         << p.year_of_birth << endl;
+}
+\stopcpp
+
+Schauen wir uns diese Schleife im Detail an:
+
+\startitemize
+\item
+  Der Schleifenkopf beinhaltet ein für uns neues Schlüsselwort
+  \type{auto}, das in Deklarationen verwendet werden kann. Es gibt an,
+  dass der Compiler den Typ in dieser Deklaration selber ermitteln soll.
+  In unserem Fall soll der Typ der Laufvariable \type{p} selbsttätig
+  bestimmt werden.
+
+  Der nachfolgende Doppelpunkt bedeutet hier, dass die Schleife über
+  alle Elemente des nachfolgenden Vektors \type{persons} iterieren soll:
+  In jedem einzelnen Schleifendurchgang nimmt die Variable \type{p} den
+  nächsten Wert an. Da der Typ von \type{persons} der Typ
+  \type{vector<Person>} ist, wird vom Compiler der Typ von \type{p} als
+  \type{Person} bestimmt.
+\item
+  Im Schleifenrumpf steht die Laufvariable \type{p} zur Verfügung.
+  Mittels des Punktoperators kann auf die einzelnen Instanzvariablen von
+  \type{p} zugegriffen werden.
+\stopitemize
+
+\section[zusammenfassung]{Zusammenfassung}
+
+In diesem Kapitel haben wir die grundlegenden syntaktischen Fähigkeiten
+von \cpp kennengelernt, um einfache textorientierte, kleine, prozedurale
+Programme zu erstellen.
+
+\stopcomponent

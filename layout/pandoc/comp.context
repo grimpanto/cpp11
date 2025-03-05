@@ -1,0 +1,7 @@
+
+\startcomponent $comp$
+\product prod_book
+
+$body$
+
+\stopcomponent

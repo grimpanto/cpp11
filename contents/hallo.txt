@@ -1,0 +1,161 @@
+## Hallo, Dienstmann {#hallo_program}
+
+Als nächstes wollen wir ein Programm `hallo` schreiben, das den Benutzer mit
+einem beliebigen Text begrüßt, der über die Kommandozeile mitgegeben wird. D.h.
+das Programm soll folgendermaßen funktionieren:
+
+~~~{.sh}
+$ hallo Dienstmann
+Hallo, Dienstmann
+~~~
+
+Nach Eingabe des Programmnamens wird auf der Kommandozeile ein
+Kommandozeilenparameter mit dem Wert `Dienstmann` dem Programm `hallo`
+mitgegeben. D.h. wir müssen im Programm auf diesen Kommandozeilenparameter
+zugreifen:
+
+~~~{.cpp}
+#include <iostream>
+
+int main(int argc, char* argv[]) {
+    std::cout << "Hallo, " << argv[1] << std::endl;
+}
+~~~
+
+Was passiert hier?
+
+- Die Funktion `main` bekommt jetzt 2 Funktionsparameter mit: Einerseits
+    eine Variable `argc` (*argument count*, Anzahl der Argumente), die
+    die Anzahl der übergebenen Kommanozeilenargumente enthält und andererseits
+    ein Array `argv` (*argument vector*, Array, Vektor oder Feld) von Zeigern
+    auf C-Strings. Wir werden uns dies genauer im Abschnitt XXX ansehen.
+
+- Im Rumpf der Funktion greifen wir jetzt wie gehabt auf das Objekt `std::cout`
+    zu, um zuerst den C-String `"Hallo, "` auszugeben. Danach greifen wir
+    auf das Element mit dem Index 1 vom Array `argv` zu. Arrays beginnen
+    in \cpp wie in der Informatik üblich mit dem Index 0. Warum wir hier
+    den Index 1 verwenden werden wir uns gleich ansehen.
+
+Gut, jetzt ist es Zeit das Programm zu übersetzen und wie in der obigen
+Ausgabe zum Laufen zu bringen. Es sollte genau so funktionieren.
+
+Vielleicht fällt uns auf, dass wir jedes Mal angeben müssen, dass wir
+das Objekt `cout` aus dem Namensraum `std` haben wollen. Wir können
+uns hier das Leben einfacher machen und zum Ausdruck bringen, dass
+wir alles aus dem Namensraum `std` verwenden wollen. Das können wir
+erreichen, indem wir das Programm `hallo.cpp` folgendermaßen anpassen:
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+int main(int argc, char* argv[]) {
+    cout << "Hallo, " << argv[1] << endl;
+}
+~~~
+
+Durch die Anweisung in Zeile 3 geben wir eben an, dass wir alle Bezeichner
+aus dem Namensraum `std` verwenden wollen. Damit ist es in weiterer Folge
+nicht mehr notwendig `std::` vor die Bezeichner aus dem Namensraum `std`
+zu setzen.
+
+Mehrere Fragen sind bis jetzt noch ungeklärt:
+
+1. Was enthält `argc`?
+2. Was enthält `argv[0]`?
+3. Was enthält `argv[1]`, wenn der Benutzer nichts eingibt?
+4. Was enthält `argv[2]`, wenn der Benutzer nichts eingibt?
+
+Wie können wir hier vorgehen? Na, wir erweitern unser Programm, sodass die
+Variablenwerte einfach ausgegeben werden:
+
+Beginnen wir mit der Beantwortung der ersten Frage und schreiben unser
+Programm `hallo.cpp` um:
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+int main(int argc, char* argv[]) {
+    std::cout << argc << std::endl;
+    cout << "Hallo, " << argv[1] << endl;
+}
+~~~
+
+Wird das Programm `hallo` wie gewohnt gestartet kommt es zu folgender
+Ausgabe:
+
+~~~{.sh}
+$ hallo Dienstmann
+2
+Hello, Dienstmann
+~~~
+
+Jetzt stellt sich vermutlich einmal die Frage warum "2" ausgegeben wird und
+nicht "1" wie es zu erwarten wäre? Das liegt daran, dass in diesem Fall
+insgesamt zwei C-Strings im Array `argv` enthalten sind. Wir greifen allerdings
+nur auf das Element mit dem Index 1 zu. Da Arrays immer mit dem Index 0
+beginnen und insgesamt 2 Elemente im Array enthalten sind, muss im Element
+mit Index 0 etwas stehen. Das führt uns direkt zur Beantwortung der zweiten
+Frage. Wir schreiben deshalb ein Programm `hallo.cpp` nochmals um:
+
+~~~{.cpp}
+#include <iostream>
+
+int main(int argc, char* argv[]) {
+    std::cout << argc << std::endl;
+    std::cout << argv[0] << std::endl;
+    std::cout << "Hallo, " << argv[1] << std::endl;
+}
+~~~
+
+Nach dem Übersetzen sieht die Ausgabe des gestarteten Programmes wie
+folgt aus:
+
+~~~{.sh}
+$ hallo Dienstmann
+2
+hallo
+Hallo, Dienstmann
+~~~
+
+Man sieht, dass der String `"hello"` im Element mit dem Index 0 steht. Es
+handelt sich um den Programmnamen des gestarteten Programmes!
+
+Jetzt zur dritten Frage, wie das Element mit dem Index 1 aussieht, wenn
+das Programm ohne Kommandozeilenparameter gestartet wird. Dazu ist einmal
+das Programm nicht zu verändern, sondern nur folgendermaßen zu starten:
+
+~~~{.sh}
+$ hallo
+1
+hallo
+Hallo,
+~~~
+
+Hmm, das sieht so aus als ob gar nichts ausgegeben wird. In Wirklichkeit ist es
+so, dass an dieser Stelle der Wert 0 steht. Dieser Wert 0 wird als Zeichen
+`\0` interpretiert und führt deshalb zu keiner sichtbaren Ausgabe.
+
+<div class="drawer">
+Dieser Wert 0 hat allerdings den Typ eines Zeigers (engl. *pointer*), der auch
+das Ende dieses Array markiert. So ein Zeiger wird Nullzeiger (*null pointer*)
+genannt. Über Zeiger werden wir uns in XXX...
+</div>
+
+Jetzt bleibt noch die Beantwortung der letzten Frage, nämlich wie sieht
+die Ausgabe aus, wenn man auf das letzte Element zugreift. Wir schreiben
+dazu unser Programm weiters um:
+
+~~~{.cpp}
+#include <iostream>
+
+int main(int argc, char* argv[]) {
+    std::cout << argc << std::endl;
+    std::cout << argv[0] << std::endl;
+    std::cout << argv[argc + 1] << std::endl;
+    std::cout << "Hallo, " << argv[1] << std::endl;
+}
+~~~

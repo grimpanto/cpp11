@@ -1,0 +1,234 @@
+
+# Über dieses Buch
+
+## Was ist die Zielsetzung dieses Buches?
+
+Das Ziel dieses Buches ist es, den Leser *schnell* in die *moderne*
+Programmierung mittels \cpp einzuführen, sodass dieser *produktiv* Programme
+entwickeln kann.
+
+Da der Zweck dieses Buches ist, den Leser schnell in die Programmierung von
+modernem \cpp einzuführen, werden die *wesentlichen* Teile von \cpp
+beschrieben.  Das bedeutet lediglich, dass diejenigen Teile weggelassen werden, die für
+die moderne Entwicklung mit \cpp nicht oder nur selten benötigt werden.
+
+Da \cpp eine Programmiersprache ist, deren Wurzeln in die 70er Jahre des
+letzten Jahrhunderts zurückgehen und die permament weiterentwickelt wird,
+hat die Sprache mittlerweile einen großen Umfang und eine hohe Komplexität
+erreicht.  Durch neue Elemente, die hauptsächlich im Jahr 2011 in die
+Programmiersprache als \cppXI eingeflossen sind, wurden Möglichkeiten
+geschaffen *einfacher* zu programmieren, sodass viele ältere syntaktischen
+Elemente nicht mehr benötigt werden. Auch können Programmiertechniken, die
+früher essentiell gewesen sind, heute durch andere, einfachere Konstrukte
+ersetzt werden.
+
+Aus diesem Grund wird auch nicht auf die Maschinen-nahe Programmierung
+eingegangen, die gänzlich andere Anforderungen hat als die Programmierung von
+Entwicklung von Programmen für den Endbenutzer oder für server-seitige
+Programme. In diesem Sinne behandelt dieses Buch high-level \cpp!
+
+Das Buch soll also als eine *gut lesbare* Anleitung zum Erlernen der wesentlichen
+Teile von \cppXI dienen, sodass schnell Programme mittels \cppXI erstellt
+werden können, die produktiv eingesetzt werden können.
+
+
+## Für wen ist dieses Buch geschrieben?
+
+Dieses Buch habe ich für Personen geschrieben, die schon **grundlegende**
+Programmierkenntnisse besitzen. Damit bezeichne ich Personen, die in einer
+objektorientierten Programmiersprache einfache Programme programmieren können.
+
+Da es sich bei diesem Buch um *kein* Buch für Programmieranfänger handelt,
+bitte ich Anfänger in der Programmierung zuerst ein anderes Buch zur Hand zu
+nehmen, das die grundlegenden Begriffe, die Konzepte der Programmierung und die
+tatsächliche Programmierung vermittelt. Dann kommen Sie wieder zu diesem
+Buch zurück!
+
+Es kommt es eigentlich nicht darauf an, in welcher Pogrammsprache die
+Programmiererfahrungen vorhanden sind, wichtiger ist vielmehr, dass Programme
+mit Ein- und Ausgabe, (lokalen und globalen) Variablen, Datentypen,
+Verzweigungen, Schleifen, Funktionen, Exceptions, Klassen mit Methoden und
+Vererbung erstellt werden können. Grundlegende Begriffe wie z.B.\ Algorithmus
+(eine Beschreibung des Lösungsweges eines Problems), der Begriff eines
+Prozesses (gestartetes Programm) oder Zahlensysteme sollten ebenfalls geläufig
+sein.
+
+## Wie ist dieses Buch aufgebaut?
+
+Das Buch ist in Kapitel gegliedert, die jeweils in bestimmte Themen einführen:
+
+Kapitel 1
+  : Im ersten Kapitel wird Grundlegendes zu \cpp erklärt. Hier geht
+    es darum ein Gefühl für die Art dieser Programmiersprache zu erhalten und
+    auch ein wenig über die Bedeutung dieser verbreitenden Programmiersprache
+    zu erahnen. Außerdem wird kurz angerissen wie die Infrastruktur von \cpp
+    aussieht und wie man mit \cpp prinzipiell umgeht.
+
+Kapitel 2
+  : Dieses Kapitel liefert einen Schnelleinstieg in die prozedurale
+    Programmierung mit \cpp. Hier findet sich ein Überblick über den grundlegenden
+    Aufbau eines einfachen \cpp Programmes. Dazu werden eingebaute Datentypen
+    und auch einen Datentyp der Standardbibliothek vorgestellt. Auch die wichtigsten
+    Kontrollstrukturen werden beschrieben und die erste eigene Funktion wird
+    entwickelt.
+
+Kapitel 3
+  : Hier werden die die eingebauten Datentypen im Detail besprochen, sodass
+    diese im echten Einsatz verwendet werden können.
+
+## Wie kann ich das Buch durcharbeiten?
+
+Dieses Buch ist in einzelne Kapitel gegliedert, die so angelegt sind, dass man
+diese hintereinander, möglichst vom Anfang bis zum Ende
+durcharbeitet. Durcharbeitet deshalb, da dieses Buch viele Beispiele enthält,
+die zum Verständnis beitragen sollen. Probiere die Beispiele aus und teste die
+Programme! Das ist wichtig.
+
+Es ist leider so, dass wenige kurze Teile dieses Buches so geschrieben haben
+werden müssen, dass sie sich auf Inhalte beziehen, die erst ein nachfolgenden
+Teile beschrieben sind. Dies habe ich dann jeweils auch vermerkt. Das bedeutet,
+dass diese Teile beim ersten Durcharbeiten nicht (vollständig) verstanden
+werden müssen. Diese Teile sind so verfasst, dass beim Durcharbeiten der
+nachfolgenden Abschnitte darauf zurückgegriffen werden kann.
+
+Da ein Ziel dieses Buches ist, eine gut lesbare Anleitung zu sein, wird auf
+Wiederholungen des Stoffes weitgehend verzichtet. Wenn eine Information in
+einem Kapitel schon dargelegt worden ist, dann wird diese in den weiteren
+Kapitel als bekannt vorausgesetzt. Damit kann man nicht einfach ein Kapitel für
+sich alleine durcharbeiten, wenn man nicht über die Vorinformationen verfügt.
+
+Es geht um modernes \cpp! Daher werde ich nicht explizit darauf hinweisen, dass
+ein Feature unter Umständen erst in \cppXI hinzugekommen ist. Wir gehen davon
+aus, dass wir einen \cppXI kompatiblen Compiler haben. Manche Features, die in
+\cppXIV hinzugekommen sind, erwähne und erkläre ich auch. Diese sind dann
+allerdings klar gekennzeichnet, da die Untertützung durch die Compiler unter
+Umständen noch nicht gegeben ist.
+
+Als Referenz ist das Buch [see @stroustrup2013] vom Erfinder von \cpp zu
+empfehlen. Es behandelt weitgehend alle Aspekte der Sprache.
+
+Benötigt man eine schnelle Referenz, dann rate ich dringend die Online-Hilfe
+unter [see @cppreference] aufzusuchen. Diese enthält wichtige Fakten zur
+Sprache und eine vollständige Referenz zur Standardbibliothek von \cpp!
+
+## Beispielprogramme
+
+Jedes Thema wird an Hand von Beispielprogrammen demonstriert. Der praktische
+Ansatz steht im Vordergrund.
+
+Für jedes Beispielprogramm wird ein Dateiname im Text (in der Kodierung UTF-8)
+angegeben, also könnte eine Datei zum Beispiel `hallo.cpp` heißen.
+
+Diese Beispielprogramme werden in kleinen Schritten entwickelt, wobei für jeden
+relevanten Schritt der Sourcecode in einer eigenen Datei (mit fortlaufenden
+Nummer) auf der Website XXX zur Verfügung steht.  Wenn das Programm
+`hallo.cpp` heißt, dann gibt es unter Umständen weitere Programme, die `hallo2.cpp`,
+`hallo3.cpp`,... heißen können.
+
+Diese Beispielprogramme stehen als Sourcecode unter <http://xxx.com> zur
+Verfügung und sind je Kapitel zusammengefasst. Sie sollen eine Unterstützung
+bieten, wenn einmal etwas nicht so funktioniert, wie man es sich erwartet, weil
+sich Fehler eingeschlichen haben.
+
+Die Ausgaben meiner Programme beziehen sich auf ein 32 Bit Linux System, aber die
+Programme funktionieren auch unter 64 Bit Systemen als auch unter Windows und Mac OSX.
+
+<!--
+## Wie ist dieses Buch aufgebaut? XXX
+
+### Über die Struktur dieses Buches {-}
+
+Ich habe das Buch in zwei große Teile gegliedert:
+
+Der erste Teil beschäftigt sich mit der Entwicklung grundlegender Programme,
+die mit den Standardmöglichkeiten von \cppXI und \cppXIV auskommen. Damit
+lassen sich produktiv einsetzbare Programme mit textbasierter
+Benutzerschnittstelle.
+
+Im zweiten Teil wird gezeigt, wie man mit des plattformübergreifenden
+Frameworks Qt5 Programme mit einer graphischen Benutzerschnittstelle,
+Netzwerkfunktionalität und Datenbankzugriffen entwickeln kann.
+
+### Der Weg durch dieses Buch {-}
+
+Dieses Buch ist dafür ausgelegt, dass es vom Anfang an gelesen wird. Die Syntax
+und auch die Semantik der Programmiersprache \cpp wird nach und nach erklärt.
+Diese Erklärungen bauen aufeinander auf.
+
+Der erste Teil zur Erlernung von \cpp kann als Anleitung verwendet werden
+und unterteilt sich weiters implizit in 5 Levels:
+
+Level 1
+  : Erstellung grundlegend prozeduraler Programme
+
+Level 2
+  : klassen-basierte Programme
+
+Level 3
+  : objekt-orientierte Programme
+
+Level 4
+  : nebenläufige Programme, generische Programme
+
+Level 5
+  : Profi...
+
+Der zweite Teil behandelt die Erstellung von Programmen mit graphischer
+Benutzeroberfläche, mit Datenbankanbindung und Netzwerkfunktionalitäten
+auf der Basis von Qt5.
+-->
+
+## Feedback
+
+Ich freue mich über jedes Feedback zu diesem Buch, das ich mit sehr viel
+Engagement und sehr sorgfältig ausgearbeitet habe. Leider gilt für ein
+Buch genau die gleiche Regel wie für jedes hinreichend großes Programm:
+Es gibt immer noch einen Fehler!
+
+Wenn Sie in diesem Buch noch Fehler finden, eine Verbesserungsmöglichkeit
+sehen, einen Hinweis für Erweiterungen geben können oder einfach nur
+Bemerkungen für mich parat haben, dann bitte ich Sie diese mir per E-Mail
+an `guenter.kolousek@gmail.com` zu senden.
+
+
+## Anrede und Geschlechtsneutralität
+
+Prinzipiell verwende ich in diesem Buch von nun an das informelle "Du" anstatt
+dem formelleren "Sie". Dies hat nichts mit mangelndem Respekt zu tun, den ich
+dir als Leser entgegenbringe, sondern trägt dem Umstand Rechnung, dass wir
+Programmierer doch eine Gemeinschaft sind und in dieser Gemeinschaft ist das
+deutsche "Du" für die Kommunikation üblich.
+
+In diesem Buch wende ich mich an Personen beiderlei Geschlechts, möchte jedoch
+nicht in eine der üblichen "geschlechtsneutralen" Schreibweisen verfallen. Der
+folgende Text gibt ein Beispiel für solch eine Schreibweise an:
+
+> Als Entwickler bzw. Entwicklerin bekommst du vom Auftraggeber bzw.
+> der Auftraggeberin oft nur unklare Angaben bezüglich der Angaben
+> zu den Kunden bzw. den Kundinnen und dessen bzw. deren Bedürfnissen.
+
+Mir ist bewusst, dass es natürlich auch andere geschlechtsneutrale
+Schreibweisen verwendet werden, die meiner Meinung nach auch nicht sonderlich
+lesbarer sind bzw.\ der deutschen Sprache widersprechen.
+
+Schauen wir uns einerseits das Wort "Lehrling" (das österreichische Wort für Azubi)
+an, das grammatikalisch gesehen männlich ist und andererseits das Wort "Koryphäe",
+das in der deutschen Sprache weiblich ist. D.h.\ es heißt "der Lehrling"
+und "die Koryphäe" obwohl es natürlich Personen beiderlei Geschlechts gibt
+auf die diese Begriffe zutreffen.
+
+In diesem Sinne verwende verwende ich, dem einfacheren Lesefluss zuliebe, die
+Form "der Programmierer" und bitte die Leserinnen dieses Buches aus den
+angegebenen Gründen sich ebenfalls angesprochen zu fühlen.
+
+
+## Wer hat maßgeblich an der Entstehung dieses Buches beigetragen?
+
+Hauptsächlich gebührt mein Dank meiner Frau Michaela, dich mich schon über so
+viele Jahre in meinem gesamten Werdegang unterstützt hat. Auch in diesem
+konkreten Fall des Schreibens an diesem Buch hat sie mich wieder einmal mit Tat
+und moralischer Unterstützung zum Gelingen dieses vorliegenden Werkes
+beigetragen. Dafür und auch für das nicht unwichtige Korrekturlesen möchte
+ich mich bei ihr ganz herzlich bedanken.
+
+Weiters möchte ich mich bei (XXX Schüler) bedanken...

@@ -1,0 +1,332 @@
+
+\startcomponent comp_appendix
+\product prod_book
+
+\chapter{Anhang}
+\section[devtools]{Entwicklungswerkzeuge}
+
+Um mit \cpp entwickeln zu können, werden Entwicklungswerkzeuge wie
+Compiler, Linker und Debugger benötigt. Diese sind naturgemäß je
+Betriebssystem unterschiedlich. Prinzipiell steht die Gnu Compiler
+Collection sowohl für Windows als auch für Mac OSX und Linux zur
+Verfügung. Trotzdem macht es durchaus Sinn, eine auf die jeweilige
+Betriebssystemplattform abgestimmte Variante zu wählen:
+
+\startitemize
+\item
+  Unter {\em Windows} wird meist der Compiler Microsoft Visual \cpp
+  verwendet, der in der Entwicklungsumgebung Microsoft Visual Studio
+  enthalten ist. Es wird von Microsoft auch in einer kostenlosen Version
+  angeboten.
+\item
+  Unter {\em Mac OSX} muss die Entwicklungsumgebung XCode von der
+  Entwicklersite von Apple besorgt und installiert werden. Bei der
+  Installation ist zu beachten, dass die {\em command line tools} zu
+  installieren sind. Die aktuelle Version enthält den \cpp Compiler
+  Clang.
+\item
+  Unter Linux sind die Entwicklungswerkzeuge ebenfalls getrennt zu
+  installieren. Hier wird meist der \cpp Compiler \type{g++} der Gnu
+  Compiler Collection verwendet.
+
+  Für Ubuntu sieht der Befehl zur Installation folgendermaßen aus:
+
+  \startsh
+  sudo apt-get install build-essential libgl1-mesa-dev
+  \stopsh
+
+  Verwendest du eine andere oder nicht kompatible Distribution, dann
+  wende dich bitte and die entsprechende Dokumentation.
+
+  Willst du unter Linux mit \cppXIV programmieren, dann benötigst du
+  \type{g++} mindestens in der Version 4.9, falls diese in deiner
+  Distribution angeboten wird oder du installierst den \cpp Compiler
+  Clang. Das kann in Ubuntu folgendermaßen realisiert werden:
+
+  \startsh
+  sudo apt-get install clang-3.4 libc++-dev binutils
+  \stopsh
+\stopitemize
+
+\section[compilation]{Übersetzung eines \cpp Programmes}
+
+Hier geht es nur darum, die Installation zu testen und zu zeigen, wie
+ein \cpp Programm kompiliert wird. Natürlich kann zum Schreiben als auch
+zum Übersetzen und zum Ausführen eine Entwicklungsumgebung verwendet
+werden, aber werden wir hier eine Shell benützen.
+
+\startdrawer
+
+Eine Shell (zu Deutsch: Schale) ist ein Programm, das wie eine Schale
+sich um das Betriebssystem legt und dem Benutzer eine Schnittstelle
+bietet, um mit dem Betriebssystem per Kommandos zu kommunizieren.
+
+Diese Kommandos werden mittels textbasierter Befehle eingegeben und die
+Antworten des Betriebssystem werden als Text wieder angezeigt.
+
+Solch eine Shell wird oft auch als Kommandozeileninterpreter bezeichnet,
+weil es eben ein Programm ist, der Kommandos zeilenweise interpretiert,
+ausführt und die Ergebnisse zeilenweise anzeigt.
+
+Je Betriebssystem gibt es verschiedene derartige Programme.
+\stopdrawer
+
+Erstelle das klassische \quotation{Hello World} Programm mit einem
+Texteditor deiner Wahl. Im Abschnitt \in[helloworld] auf der Seite
+\at[helloworld] wird der gesamte Quellcode detailliert erklärt:
+
+\startcpp
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, world!" << std::endl;
+}
+\stopcpp
+
+Speichere diesen Quelltext in eine Datei \type{hello.cpp}.
+
+Da es sich bei \cpp um eine \quotation{compiled language} handelt, muss
+der Sourcecode zuerst noch in eine ausführbare Datei übersetzt werden,
+bevor das Programm verwendet werden kann.
+
+Jetzt geht es darum diese Quelldatei in eine ausführbare Datei zu
+übersetzen und mit den notwendigen Bibliotheken zu linken.
+
+\subsection[windows]{Windows}
+
+Öffne eine Shell! Unter Windows kannst du \type{cmd} oder die PowerShell
+verwenden.
+
+Wird Visual Studio verwendet, dann sollte der Befehl
+
+\startsh
+cl /clr hello.cpp
+\stopsh
+
+in der Shell eingegeben werden können. Damit wird eine ausführbare Datei
+mit dem Namen \type{hello.exe} erzeugt, die einfach durch Eingabe von
+\type{hello} gestartet werden kann.
+
+Um Warnungen zu sehen, empfehle ich die Option \type{/Wall} mitzugeben.
+
+Will man eine einzelne Datei lediglich in seine Objektdatei übersetzen,
+dann ist die Option \type{/c} (für \quotation{compile}) zu verwenden.
+Die entstehende Datei heißt \type{hello.obj} (für Objektdatei).
+
+Unter Umständen müssen mehrere Dateien angegeben werden, dann sind diese
+einfach in der Kommandozeile hintereinander anzugeben.
+
+\subsection[mac-osx]{Mac OSX}
+
+Öffne eine Shell! Verwende unter Mac OSX die Applikation
+\type{Terminal}, in das die eigentliche Shell läuft.
+
+Aktuelle XCode Versionen verwenden den \cpp Compiler clang. Gib den
+folgenden Befehl in der Shell ein:
+
+\startsh
+clang++ -stdlib=libc++ -std=c++11 -lc++abi -o hello hello.cpp
+\stopsh
+
+Die Option \type{-o} (engl. {\em output}) bewirkt, dass das lauffähige
+Programm mit dem Namen \type{hello} erstellt wird. \type{-std=c++11}
+gibt an, dass die Sprachversion \cppXI verwendet werden soll. Die
+restlichen Parameter geben die zu verwendete Bibliothek an.
+
+Anstatt \type{-std=c++11} kann auch \type{-std=c++1y} verwendet werden,
+wenn eine aktuelle Version von \type{clang} installiert ist. Dies
+ermöglicht dann auch Features von \cppXIV zu verwenden.
+
+Auch \type{clang} kennt die Option \type{-Wall}, um Warnungen
+anzuzeigen.
+
+Für die weiteren Beispiele gehe ich davon aus, dass die
+Umgebungsvariable \type{PATH} so gesetzt ist, dass das aktuelle
+Verzeichnis enthalten ist. D.h., dass der Punkt \type{.} enthalten ist.
+
+Jetzt kann durch Eingabe von \type{hello} einfach das Programm gestartet
+werden.
+
+Will man eine einzelne Datei lediglich in seine Objektdatei übersetzen,
+dann ist die Option \type{-c} (für \quotation{compile}) anzuhängen und
+die Option \type{-o hello} nicht anzugeben. Die entstehende Datei heißt
+\type{hello.o} (für Objektdatei).
+
+Unter Umständen müssen mehrere Dateien angegeben werden, dann sind diese
+einfach in der Kommandozeile hintereinander anzugeben.
+
+\subsection[linux]{Linux}
+
+Öffne eine Shell! Unter Linux kannst du eines der vielen verschiedenen
+Terminalprogramme verwenden. Unter Linux läuft innerhalb des
+Terminalprogrammes die eigentliche Shell.
+
+Für die weiteren Beispiele gehe ich davon aus, dass die
+Umgebungsvariable \type{PATH} so gesetzt ist, dass das aktuelle
+Verzeichnis enthalten ist. D.h., dass der Punkt \type{.} enthalten ist.
+
+Unter Linux sieht der Befehl folgendermaßen aus:
+
+\startsh
+g++ hello.cpp -std=c++11 -o hello
+\stopsh
+
+Die Option \type{-o} (engl. {\em output}) bewirkt, dass das lauffähige
+Programm mit dem Namen \type{hello} erstellt wird. \type{-std=c++11}
+gibt an, dass die Sprachversion \cppXI verwendet werden soll.
+
+Anstatt \type{-std=c++11} kann auch \type{-std=c++14} oder
+\type{-std=c++1y} verwendet werden, wenn eine aktuelle Version von
+\type{g++} installiert ist. Dies ermöglicht dann auch Features von
+\cppXIV zu verwenden.
+
+Will man sich Warnungen anzeigen lassen, dann empfehle ich die Optionen
+\type{-Wconversion} und \type{-Wall} anzugeben. \type{g++} hat sehr
+viele Optionen und diese sollten je Bedarf ausgesucht werden.
+
+Für die weiteren Beispiele gehe ich davon aus, dass die
+Umgebungsvariable \type{PATH} so gesetzt ist, dass das aktuelle
+Verzeichnis enthalten ist. D.h., dass der Punkt \type{.} enthalten ist.
+
+Jetzt kann durch Eingabe von \type{hello} einfach das Programm gestartet
+werden.
+
+Will man eine einzelne Datei lediglich in seine Objektdatei übersetzen,
+dann ist die Option \type{-c} (für \quotation{compile}) anzuhängen und
+die Option \type{-o hello} nicht anzugeben. Die entstehende Datei heißt
+\type{hello.o} (für Objektdatei).
+
+Unter Umständen müssen mehrere Dateien angegeben werden, dann sind diese
+einfach in der Kommandozeile hintereinander anzugeben.
+
+\section[access_exit_code]{Zugreifen auf den Exit-Code eines Programmes}
+
+Will man auf den Exit-Code eines Programmes zugreifen und weiß nicht wie
+dann hilft dieser Abschnitt weiter.
+
+Schreibe zuerst den folgenden Code in eine Datei \type{minimal.cpp} und
+übersetze dieses Programm in eine ausführbare Datei \type{minimal}:
+
+\startcpp
+int main() {
+    return 0;
+}
+\stopcpp
+
+Im folgenden wird erklärt wie auf den Rückgabewert je verwendetem
+Betriebssystem zugegriffen werden kann.
+
+\subsection[windows-1]{Windows}
+
+Unter Windows gibt es je nach verwendeter Shell verschiedene
+Möglichkeiten. Wird eine \type{cmd} Shell verwendet, dann kommt man mit
+folgendem Befehl ans Ziel:
+
+\startsh
+minimum
+echo %ERRORLEVEL%
+0
+\stopsh
+
+Danach wird in unserem konkreten Fall der Wert \type{0} angezeigt.
+
+Wird die PowerShell verwendet, dann sieht der korrekte Befehl
+folgendermaßen aus:
+
+\startsh
+minimum
+echo $LastExitCode
+0
+\stopsh
+
+\subsection[mac-osx-und-linux]{Mac OSX und Linux}
+
+Sowohl für Mac OSX als auch für Linux gibt es eine Vielzahl von
+verschiedenen Shells. Normalerweise kommt eine Shell zum Einsatz, die
+\type{bash} heißt. Viele Shells sind bezüglich der Ermittlung des
+Rückgabewertes kompatibel zu dieser Shell.
+
+Unter Mac OSX und Linux kann man meist auf der Kommandozeile
+folgendermaßen auf diesen Rückgabewert zugreifen:
+
+\startsh
+minimum
+echo $?
+0
+\stopsh
+
+Auch hier wird mit unserem Beispiel natürlich wieder \type{0} angezeigt
+werden.
+
+Verwendest du die sehr gute Shell \type{fish}, dann sieht der Befehl
+folgendermaßen aus:
+
+\startsh
+minimum
+echo $status
+0
+\stopsh
+
+Solltest du eine andere Shell verwenden, die sich diesbezüglich wiederum
+anders verhält, dann bist du wahrscheinlich ein Spezialist und benötigst
+wahrscheinlich keine weitere Hilfe.
+
+\section[literaturhinweise]{Literaturhinweise}
+
+Hier möchte ich sinnvolle Ergänzungen für das weitere Studium in
+\cpp anführen.
+
+Die folgendenden Bücher gelten als \quotation{Standard}:
+
+\startitemize[packed]
+\item
+  Die \quotation{Bibel} ist sicher das Buch des Erfinders Bjarne
+  Stroustrup von \cpp{} \cite[stroustrup2013].
+\item
+  Als das Standardwerk zur Standardbibliothek gilt das Buch
+  \cite[josuttis2012] von Nicolai Josuttis.
+\item
+  Als Online-Quelle hauptsächlich zur Standardbibliothek empfehle ich
+  \cite[cppreference].
+\stopitemize
+
+Bist du mehr an einer Einführung interessiert, dann sind die folgenden
+Werke unter Umständen für dich interessant:
+
+\startitemize[packed]
+\item
+  Ist man mehr an einer eher deutschsprachigen, umfassenden Einführung
+  interessiert, die sich auch an Nicht-Programmierer richtet, dann ist
+  \cite[wolf2014] zu empfehlen.
+\item
+  Ein ebenfalls gutes deutschsprachiges und ebenfalls umfangreiches
+  Buch, das viele praktische Algorithmen enthält ist
+  \cite[breymann2011].
+\item
+  Will man eher ein englischsprachige, gute Einführung, dann ist
+  \cite[deitel2014] zu empfehlen.
+\stopitemize
+
+Hast du schon Erfahrungen mit \cpp und möchtest speziell die neuen
+Features von \cppXI kennenlernen oder möchtest diese kompakt in einem
+Buch nachlesen können,
+
+\startitemize[packed]
+\item
+  dann empfehle ich das Buch \cite[will2012]!
+\stopitemize
+
+Zu guter letzt kann ich noch zwei ausgezeichnete Bücher empfehlen, die
+jedoch eindeutig schon in die Kategorie weiterführende Literatur
+einzuordnen sind:
+
+\startitemize[packed]
+\item
+  Interessiert man sich für parallele Anwendungen, dann empfehle ich
+  \cite[williams2012].
+\item
+  Ist man eher daran interessiert, wie man gute, wiederverwendbare
+  Programme entwickelt, dann ist \cite[reddy2011] sehr zu empfehlen.
+\stopitemize
+
+\stopcomponent

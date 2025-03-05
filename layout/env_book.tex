@@ -1,0 +1,422 @@
+\startenvironment env_book
+
+% in LuaTeX and XeTeX, UTF-8 is on by default, thus not needed
+\enableregime[utf-8]
+
+% language mode: changes typesetting rules, quote signs etc.
+\mainlanguage[de]  % \language[en] to change temporarily
+\language[de]
+
+% === Fonts ===
+
+%\usetypescript[pagella]
+%\setupbodyfont[libertine,12pt]
+\setupbodyfont[pagella,12pt]
+%\setupbodyfont[modern,12pt]
+
+% ConTeXt's default \em is slanted, but italic is better
+% but it makes no difference when using pagella!
+\setupbodyfontenvironment[default][em=italic]
+
+
+% === Modules ===
+
+% http://wiki.contextgarden.net/Units, z.B.: 1.23 \Cubic \Meter \Per \Second
+%\usemodule[units]
+
+% Syntax highlighting
+\usemodule[filter]
+\usemodule[vim]
+
+% Bibliography
+\setupbibtex[database={bibliography},sort=author]
+\setuppublications[alternative=apa]
+\setupcite[left={[},right={]}]
+
+% typesetting algorithms
+%\usemodule[algorithmic]
+
+% Annotations
+\usemodule[annotation]
+
+\define[2]\excerptCommand
+    {\startblockquote%
+    \quotation{\placeannotationcontent}\wordright{\tfx\placeannotationtitle}%
+    \stopblockquote}
+
+\defineannotation[excerpt]
+
+\setupannotation[excerpt]
+    [alternative=command,
+    command=\excerptCommand]
+
+\defineannotation[annotation]
+
+\define[2]\annotationCommand
+    {\textrule{\placeannotationtitle}\placeannotationcontent\blank[small]\textrule}
+
+\setupannotation[alternative=command,
+    command=\annotationCommand,
+    spacebefore=none,
+    before={}]
+
+\setupbackground[
+    backgroundcolor=veryverylightgray,
+    backgroundoffset=1mm,width=local,align=middle,%
+       top={\blank[big]},bottom={\blank[big]}%,backgroundcorner=rectangular,
+    %      %backgroundradius=1mm]
+    ]
+
+\definestartstop
+    [innerdrawer]
+    [%commands={\background},
+     before={\background},
+     after={}]
+
+\definestartstop
+    [drawer]
+    [before={\blank[2*big]\startinnerdrawer\startnarrower},
+     after={\stopnarrower\stopinnerdrawer\blank[2*big]}]
+
+%\definestartstop
+%    [drawer]
+%    [before={\blank\startbackground[%backgroundoffset=3mm,
+%      backgroundcolor=veryverylightgray%,backgroundcorner=rectangular,
+%      %backgroundradius=1mm]},
+%      ]},
+%     after={\stopbackground\blank}]
+
+%\definetextbackground
+%    [drawer]
+%    [ location=text,
+%      background=color,
+%      backgroundcolor=veryverylightgray,
+%      frame=off,
+%      corner=round,
+%      radius=0.8\lineheight,
+%    ]
+
+%\defineannotation[drawer]
+
+%\define[2]\drawerCommand{
+%    \blank\startbackground[backgroundcolor=veryverylightgray,backgroundcorner=rectangular,backgroundradius=1mm]\startframedtext[width=local,frame=off,framecorner=round,frameradius=2mm]\placeannotationcontent\stopframedtext\stopbackground\blank}
+
+%\define[2]\drawerCommand{
+%    \blank\startbackground[backgroundoffset=3mm,backgroundcolor=veryverylightgray,backgroundcorner=rectangular,backgroundradius=1mm]\placeannotationcontent\stopbackground\blank}
+
+
+%\setupannotation[drawer]
+%    [alternative=command,
+%    command=\drawerCommand]%,
+%%    text=Drawer]
+
+% Tikz
+%\usemodule[tikz]
+%\usetikzlibrary[arrows,decorations.pathmorphing,backgrounds,positioning,fit,petri]
+%\usetikzlibrary[graphs]
+%\usetikzlibrary[trees]
+%%\usetikzlibrary[datavisualization]
+%\usetikzlibrary[graphdrawing]
+%\usegdlibrary[trees,layered,force]
+
+% useful symbols
+\usesymbols[mis]
+\setupsymbolset[text]
+
+\usesymbols[mvs]
+\setupsymbolset[europe]
+\setupsymbolset[martinvogel 2]
+
+% can be used in the following way
+
+% eur
+%\euro
+%{\ss\bf \euro}
+%{\tt \euro}
+%
+%% mis
+%\symbol[bullet]
+%\symbol[dash]
+%\symbol[star]
+%\symbol[triangle]
+%\symbol[circle]
+%\symbol[square]
+%\symbol[diamond]
+%
+%\symbol[checkmark]
+%
+%\symbol[S] % section mark like a paragraph sign
+%
+%% mvs
+%\symbol[EUR]
+%\symbol[EURhv]
+%\symbol[EURcr]
+%\symbol[EURtm]
+%
+%\symbol[PointingHand]
+%\symbol[WritingHand]
+%\symbol[CrossedBox]
+%
+%\symbol[Lightning]
+%\symbol[Coffeecup]
+%\symbol[YinYang]
+%
+%\symbol[Info]
+%\symbol[Stopsign]
+%\symbol[Radioactivity]
+%
+%\symbol[Letter]
+%\symbol[Telephone]
+%\symbol[ClockLogo]
+%\symbol[Printer]
+%\symbol[Keyboard]
+%
+%\symbol[Conclusion]
+%\symbol[Equivalence]
+%\symbol[Congruent]
+%\symbol[NotCongruent]
+%
+%\symbol[Frowny]
+%\symbol[Smiley]
+%
+%\symbol[CutRight]
+%\symbol[CutLeft]
+%\symbol[LeftScissors]
+%\symbol[RightScissors]
+
+% Step charts
+%\usemodule[steps]
+
+% === Colors ===
+
+\setupcolors[state=start]  % otherwise grey
+%\definecolor[headingcolor][r=1,b=0.4]
+
+\definecolor[verylightgray][1.05(lightgray)]
+\definecolor[veryverylightgray][1.08(lightgray)]
+\definecolor[typecolor][0.65(blue)]
+\definecolor[filecolor][0.4(blue)]
+\definecolor[linkcolor][0.85(blue)]
+\definecolor[warncolor][0.85(red)]
+
+
+% === Interaction ===
+
+% Enable hyperlinks
+\setupinteraction[state=start,color=middleblue]
+
+\setupurl[color=linkcolor,style=\tf]
+
+
+% === Headers ===
+\setuphead[chapter,section,subsection,subsubsection][numberstyle=bold]
+\setuphead
+    [chapter,title]
+    [style={\ss\bfc},
+     color=headingcolor]
+\setuphead
+    [chapter]
+    [numberstyle=bold,
+     before=\hairline\blank,
+     after=\nowhitespace\hairline\blank,
+     page=yes,continue=no]
+\setuphead[section,subject][style={\ss\bfb}]
+\setuphead[subsection,subsubject][style={\ss\bfa},before={\blank}]
+\setuphead[subsubsection,subsubsubject][style={\ss\bf}]
+\setuphead[subsubsubject][before={}]
+
+% === Misc ===
+
+\definedescription
+    [description]
+
+\setupdescriptions
+    [description]
+    [alternative=hanging,headstyle=bold,width=fit]
+
+\definedescription
+    [concept]
+    [alternative=serried,headstyle=bold,width=broad]
+
+\defineframedtext
+  [framedcode]
+  [%strut=yes,
+   %offset=13mm,
+   %width=\textwidth,
+   width=local,
+   frame=off,
+   %margin=yes,
+   %background=color,
+   backgroundcolor=verylightgray,
+   align=right]
+
+% typesetting code without syntax highlighting
+\definetyping[code][numbering=line,
+    %option=c,
+    before={\startframedcode},
+    after={\stopframedcode}]
+
+\definetyping[minicode][numbering=line,
+    %option=c,
+    before={\startframedcode\tfx},
+    after={\stopframedcode}]
+
+\setuptype[color=typecolor] %, style=bold]
+
+\definedescription[latexdesc][
+    headstyle=bold, style=normal, align=left, location=hanging,
+    width=broad, margin=1cm]
+
+% used for typesetting file names
+\define[1]\file{\color[filecolor]{\tt #1}}
+
+% maybe it is better to use the module annotation
+%\defineframedtext
+%    [note]
+%    [indenting=never,
+%     frame=on,
+%     width=local,
+%     offset=5px]
+
+\definesynonyms[definition][definitions][\infull]
+\setupsynonyms[definition][criterium=all]
+
+% === Highlighting ===
+
+\def\codingtitle#1{#1}
+\definefloat[coding]
+\setupcaption[coding][location=bottom,number=no,align=inner,command=\codingtitle]
+
+%\setupvimtyping[%alternative=blackandwhite,
+%    numbering=yes, % vimtyping
+%    numberdistance=2em, % vimtyping: distance between number and code
+%    %strip=yes, % vimtyping: strip leading spaces
+%    before={\blank[big]\startbackground[backgroundcolor=veryverylightgray,%
+%      backgroundcorner=round,backgroundradius=2mm,backgroundoffset=0mm,%
+%      top={},bottom={}]
+%      \startframedtext[width=local,frame=off]},
+%    after={\stopframedtext\stopbackground\blank[big]}]
+
+\setupvimtyping[%alternative=blackandwhite,
+    numbering=yes,% vimtyping
+    numberdistance=1em, % vimtyping: distance between number and code
+    strip=yes, % vimtyping: strip leading spaces
+    before={\blank[big]%
+      \startframedtext[width=local,frame=on,frameradius=2mm,framecorner=round]},
+    after={\stopframedtext\blank[big]}]
+
+
+%\setupbackground[backgroundoffset=5mm]
+
+%\setupvimtyping[%alternative=blackandwhite,
+%    numbering=yes, % vimtyping
+%    numberdistance=2em, % vimtyping: distance between number and code
+%    %strip=yes, % vimtyping: strip leading spaces
+%    before={\blank\startbackground[%backgroundoffset=3mm,
+%      backgroundcolor=veryverylightgray,backgroundcorner=round,backgroundradius=2mm]},
+%    after={\stopbackground\blank}]
+
+\definevimtyping[python][syntax=python]
+\definevimtyping[cpp][syntax=cpp]
+\definevimtyping[java][syntax=java]
+\definevimtyping[sh][]
+
+% === Figures ===
+\setupexternalfigures[location={local,default}]
+
+
+% === Typography ===
+\setupwhitespace[medium]
+
+% punctation into the margin: http://wiki.contextgarden.net/Protrusion
+\definefontfeature
+  [default]
+  [default]
+  [protrusion=quality,expansion=quality]
+\setupalign[hz,hanging]
+
+% set inter-paragraph spacing
+\setupwhitespace[medium]
+
+% to indent paragraphs
+%\setupindenting[medium, yes]
+
+% to be tolerant for vertical and horizontal typesetting
+% possible values: verystrict (default), strict, tolerant, verytolerant, stretch
+\setuptolerance[horizontal,tolerant]
+%\setuptolerance[vertical,tolerant]
+
+% === Layout ===
+\startmode[screen]
+\setuppapersize[S6][S6]
+\setuplayout[width=fit,
+    height=fit,
+    rightmargin=15mm,
+    leftmargin=15mm,
+    %textwidth=15cm,
+    textdistance=0mm,
+    textmargin=10mm,
+    clipoffset=0mm,
+    leftedgedistance=0mm,
+    leftedge=0mm,
+    %location=left,
+    horoffset=0mm,
+    leftmargindistance=0mm,
+    rightmargindistance=0mm,
+    %topspace=1.8cm,
+    %header=0pt,
+    topspace=1.0cm,
+    header=1.0cm,
+    footer=1.2cm,
+    bottomspace=0.5cm,
+    backspace=2cm,
+    location=singlesided]
+\stopmode
+
+\startmode[print]
+\setuppapersize[A4][A4]
+\stopmode
+
+% table of contents
+
+\unprotect
+\definelistalternative
+  [dotfix]
+  [distance=0pt,
+   width=2em,
+   stretch=10em,
+   filler=\hskip.5em\gleaders\hbox to .5em{\hss.\hss}\hfill\relax,
+   renderingsetup=\??listrenderings:abc]
+ \protect
+
+ \setupcombinedlist
+  [section]
+  [alternative=dotfix]
+
+\setupcombinedlist
+  [subsection]
+  [alternative=dotfix]
+
+%\setuplist[interaction=all]
+
+\setuplist[chapter]
+  [alternative=b,
+   style=sansbold,
+   before={\blank[4*big]}]
+
+\setuplist
+  [section]
+  [width=2em]
+
+\setuplist
+  [subsection]
+  [width=2.7em,margin=2em]
+
+%\setupwhitespace
+%  [medium]
+
+%\startsectionblockenvironment[frontpart]
+%  \setupinterlinespace [line=1.5ex]
+%\stopsectionblockenvironment
+
+\stopenvironment

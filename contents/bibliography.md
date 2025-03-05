@@ -1,0 +1,4 @@
+
+# References
+
+\placepublications[criterium=all]

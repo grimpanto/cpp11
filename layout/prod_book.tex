@@ -1,0 +1,58 @@
+\environment env_book % only mentioned here!
+\startproduct prod_book
+
+\enablemode[print]
+
+\component comp_meta_data
+
+\startfrontmatter
+% http://en.wikipedia.org/wiki/Book_design
+%\component comp_front_cover
+%\component comp_bastard_title
+\component comp_title
+%\component comp_colophon
+\component comp_contents
+%\component comp_forward
+\component comp_preface
+%%\component comp_acknowledgment
+%\component comp_dedication
+%\component comp_introduction
+%%\component comp_epigraph
+%\component comp_prologue
+\component comp_about
+\stopfrontmatter
+
+
+\startbodymatter
+\component comp_introduction
+%\page {\bfd\ss Teil \Romannumerals{1}\blank \cpp}
+\component comp_first
+\component comp_basics_types
+\component comp_fundamental_types
+\component comp_declarator_operators
+\component comp_functions
+\component comp_modules
+\component comp_classes
+\component comp_exceptions
+\component comp_stl1
+\component comp_operators
+\component comp_inheritance
+\component comp_templates
+%\component comp_test
+%\page {\bfd\ss Teil \Romannumerals{1}\blank Qt}
+\stopbodymatter
+
+
+%\startbackmatter
+\startappendices
+\component comp_appendix
+\component comp_glossary
+\component comp_bibliography
+%\component comp_index
+\stopappendices
+%\stopbackmatter
+
+
+%\component comp_spine
+%\component comp_back_cover
+\stopproduct

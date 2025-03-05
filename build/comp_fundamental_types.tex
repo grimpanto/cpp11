@@ -1,0 +1,1690 @@
+
+\startcomponent comp_fundamental_types
+\product prod_book
+
+\chapter{Operatoren und fundamentale Datentypen}
+\startdrawer
+
+In diesem Kapitel wird ein Überblick über Operatoren gegeben und es
+werden die einzelnen fundamentalen Datentypen von \cpp näher
+beschrieben:
+
+\startitemize[packed]
+\item
+  Wahrheitswerte: \type{bool}
+\item
+  Zeichen: \type{char}, \type{wchar_t}, \type{char16_t}, \type{char32_t}
+\item
+  Ganze Zahlen: \type{int}, \type{long}
+\item
+  Gleitkommazahlen: \type{float}, \type{double}
+\item
+  \type{void}
+\stopitemize
+
+\stopdrawer
+
+\section[grundlegendes-zu-operatoren]{Grundlegendes zu Operatoren}
+
+Operatoren können verwendet werden, um eingebaute und benutzerdefinierte
+Datentypen zu verknüpfen.
+
+Man kann Operatoren nach der Anzahl der Operanden einteilen. In
+\cpp gibt es Operatoren, die
+
+\startitemize[packed]
+\item
+  einen Operanden (unär), wie z.B. \type{++i} oder \type{*p}
+\item
+  zwei Operanden (binär), wie z.B. \type{a + b}
+\item
+  drei Operanden (ternär)
+\stopitemize
+
+benötigen.
+
+\subsubject[assoziativität]{Assoziativität}
+
+Operatoren kann man weiter einteilen in linksassoziative und
+rechtsassoziative Operatoren.
+
+Bei linksassoziativen Operatoren erfolgt die Abarbeitung der
+Teilausdrücke von links nach rechts. Das bedeutet, dass bei dem
+linksassoziativen Operator \type{+} und dem Ausdruck \type{a + b + c}
+die Berechnung so durchgeführt wird, als ob der Ausdruck folgende
+Gestalt hätte: \type{(a + b) + c}. Das entspricht auch dem natürlichen
+Verhalten des Operators $+$, wie dieser aus der Mathematik bekannt ist.
+
+Natürlich ist \type{a + b + c} gleich dem Ergebnis von
+\type{a + (b + c)}, aber bei der Subtraktion ist dies bekannterweise
+nicht so:
+
+\startcpp
+// operators.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int i{1};
+    int j{2};
+    int k{3};
+
+    cout << "i = " << i << ", j = " << j
+         << ", k = " << k << endl;
+    cout << "i - j - k = " << i - j - k << endl;
+    cout << "(i - j) - k = " << (i - j) - k << endl;
+    cout << "i - (j - k) = " << i - (j - k) << endl;
+}
+\stopcpp
+
+Teste und betrachte das Ergebnis:
+
+\startsh
+i = 1, j = 2, k = 3
+i - j - k = -4
+(i - j) - k = -4
+i - (j - k) = 2
+\stopsh
+
+Bei rechtsassoziativen Operatoren wird die Berechnung von rechts nach
+links vorgenommen. Betrachten wir den Zuweisungsoperator (engl.
+{\em assignment operator}) und füge folgende Codezeilen an:
+
+\startcpp
+i = j = k;
+cout << "i = j = k;" << endl;
+cout << "i = " << i << ", j = " << j << ", k = "
+     << k << endl << endl;
+
+i = 1; j = 2; k = 3;
+i = (j = k);
+cout << "i = (j = k);" << endl;
+cout << "i = " << i << ", j = " << j << ", k = "
+     << k << endl << endl;
+
+i = 1; j = 2; k = 3;
+(i = j) = k;
+cout << "(i = j) = k;" << endl;
+cout << "i = " << i << ", j = " << j << ", k = "
+     << k << endl << endl;
+\stopcpp
+
+Dann kommt es zu folgender Ausgabe:
+
+\startsh
+i = j = k;
+i = 3, j = 3, k = 3
+
+i = (j = k);
+i = 3, j = 3, k = 3
+
+(i = j) = k;
+i = 3, j = 2, k = 3
+\stopsh
+
+Man sieht hier deutlich den Unterschied: Beim expliziten Setzen von
+Klammern um \type{(i = j)} wird dies zuerst abgearbeitet und \type{i}
+erhält den Wert von \type{j}. Der Wert von \type{(i = j)} ist eine
+Referenz auf \type{i}, das zu diesem Zeitpunkt den Wert \type{2}
+enthält. Danach wird \type{i} mit dem Wert von \type{k} überschrieben
+und \type{j} behält den alten Wert!
+
+Unäre Operatoren und der Zuweisungsoperator sind rechtsassoziativ, alle
+anderen Operatoren sind linksassoziativ.
+
+\subsubject[operatorreihenfolge]{Operatorreihenfolge}
+
+Wenn verschiedene Operatoren innerhalb eines Ausdrucks verwendet werden,
+dann hängt die Abarbeitung von der Priorität (Vorrang) der Operatoren
+ab. Es ist in der Mathematik selbstverständlich, dass die
+\quotation{Punktoperatoren}, wie Multiplikation und Division, vor den
+\quotation{Strichoperatoren}, wie Addition und Subtraktion, ausgerechnet
+werden. In \cpp ist es genauso, aber da es eine Vielzahl von Operatoren
+gibt, sind diese Operatoren in einer Prioritätsfolge geordnet, die eben
+die Reihenfolge der Abarbeitung festlegt. Die
+\quotation{Punktoperatoren} haben eine höhere Priorität als die
+\quotation{Strichoperatoren}.
+
+Die folgende Liste gibt die Operatorreihenfolge {\em ausgewählter}
+Operatoren in absteigender Prioritätenreihenfolge an:
+
+\startitemize[n,packed][stopper=.,width=2.0em]
+\item
+  Klammerung \type{()}, Lambda-Ausdrücke \mono{{[}{]}\{\}}
+\item
+  Bereichsauflösung \type{::}
+\item
+  Zugriff auf Mitglieder \type{.}, \type{->}
+\item
+  Index \type{[]}, Funktionsaufruf \type{()}, Postfixinkrement
+  \type{++}, Postfixdekrement \type{--}
+\item
+  Größenoperator \type{sizeof}, Präfixinkrement \type{++},
+  Präfixdekrement \type{--}, Komplement \type{~}, Negation \type{!},
+  Unäres Minus \type{-}, Unäres Plus \type{+}, Adresse \type{&},
+  Dereferenzierung \type{*}, Objekterzeugung \type{new}, Objektlöschung
+  \type{delete}
+\item
+  Multiplikation \type{*}, Division \type{/}, Modulo \type{%}
+\item
+  Addition \type{+}, Subtraktion \type{-}
+\item
+  Verschiebung links \type{<<} und rechts \type{>>}
+\item
+  Vergleich: \type{<}, \type{<=}, \type{>=}, \type{>}
+\item
+  Gleichheit \type{==} und Ungleichheit \type{!=}
+\item
+  Bitweises UND \type{&}
+\item
+  Bitweises exklusives ODER \type{^}
+\item
+  Bitweises ODER \type{|}
+\item
+  Logisches UND \type{&&}
+\item
+  Logisches ODER \type{||}
+\item
+  Bedingungsoperator \type{?:}
+\item
+  Liste \mono{\{\}}, Werfen einer Exception \type{throw}, Zuweisung
+  \type{=} \letterbar{}
+\item
+  Sequenzoperator \type{,}
+\stopitemize
+
+Schauen wir uns die Funktionsweise der Prioritäten einmal mittels eines
+Beispiels an:
+
+\startcpp
+// precedence.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int i{1};
+    int j{2};
+    int k{3};
+    
+    cout << i + j * k << endl;
+}
+\stopcpp
+
+Die Ausgabe ist -- vermutlich wie erwartet -- \type{7}, da der
+Multiplikationsoperator eine höhere Priorität hat als der
+Additionsoperator.
+
+So weit -- so gut, schauen wir uns jetzt den Inkrementoperator \type{++}
+in der Präfixvariante an. Analog dazu funktioniert der Dekrementoperator
+\type{--}.
+
+Hänge die beiden folgenden Anweisungen an dein Programm an:
+
+\startcpp
+cout << i + ++j * k << endl;
+cout << "j = " << j << endl;
+\stopcpp
+
+Die Ausgabe wird jetzt folgendermaßen aussehen:
+
+\startsh
+7
+10
+j = 3
+\stopsh
+
+Der Präfixoperator \type{++} hat eine höhere Priorität als die anderen
+Operatoren und wird deshalb zuerst ausgewertet. Außerdem bewirkt der
+Präfixoperator, dass der inkrementierte Wert auch sofort im Ausdruck
+verwendet wird. Das schlägt sich auch in der Ausgabe von \type{10}
+wieder.
+
+Als Nächstes wollen wir die Funktion des Postfixoperators \type{++}
+kennenlernen. Füge deshalb die beiden folgenden Zeilen zu deinem
+Programm hinzu:
+
+\startsh
+cout << i + j++ * k << endl;
+cout << "j = " << j << endl;
+\stopsh
+
+Es wird zu folgender Ausgabe kommen:
+
+\startsh
+7
+10
+j = 3
+10
+j = 4
+\stopsh
+
+Du siehst, dass das Ergebnis noch immer 10 ist, obwohl der Wert von
+\type{j} mittlerweile \type{4} beträgt und somit auch wirklich
+inkrementiert wurde. Allerdings ist der Unterschied der
+Postfixschreibweise zur Präfixschreibweise der, dass der alte Wert von
+der Variable für die Auswertung des Ausdruckes verwendet wird und nicht
+der inkrementierte Wert.
+
+Ok, das Prinzip hast du verstanden, aber eine kleine Erweiterung zu
+unserem bestehenden Programm wollen wir noch vornehmen. Probieren wir
+einmal eine Kombination von der Präfixvariante und der Postfixvariante
+von \type{++}. Hänge nochmals die folgenden Zeilen an und übersetze das
+Programm:
+
+\startcpp
+cout << i + ++j++ * k << endl;
+cout << "j = " << j << endl;
+\stopcpp
+
+Es geht nicht? Der Compiler meldet, dass er sich einen lvalue (L-Wert)
+als Operanden erwartet! Es gibt noch einen weiteren Unterschied zwischen
+der Präfixvariante und der Postfixvariante: Der Präfixoperator liefert
+einen lvalue zurück und der Postfixoperator liefert einen rvalue!
+
+Damit sehen wir schön, dass der Postfixoperator \type{++} eine höhere
+Priorität hat als die Präfixvariante. Er liefert einen rvalue, der
+jedoch natürlich nicht als Operand für den Präfixoperator dienen kann,
+da der Präfixoperator den Wert einer Variable inkrementieren will und
+ein einfacher Wert keine Variable ist.
+
+Die Lösung besteht darin, dass Klammern gesetzt werden, sodass wir eine
+höhere Priorität für den Präfixoperator erzwingen. Ändere deshalb die
+entsprechende Codezeile folgendermaßen ab:
+
+\startcpp
+cout << i + (++j)++ * k << endl;
+\stopcpp
+
+Die Ausgabe erscheint jetzt folgendermaßen:
+
+\startsh
+7
+10
+j = 3
+10
+j = 4
+16
+j = 6
+\stopsh
+
+Hier siehst du, dass die runden Klammern eine höhere Priorität haben,
+wie wir uns das natürlich erwarten und wie es auch aus der
+Prioritätsreihenfolge herauszulesen ist.
+
+In der Ausgabe erkennen wir auch sehr schön das zweimalige
+Inkrementieren der Variable \type{j}!
+
+Es ist sinnvoll folgende Faustregel zu beachten: Verwende, wenn immer es
+geht, die Präfixvariante der Inkrement- oder Dekrementoperatoren, da bei
+diesen kein temporäres Speicherobjekt angelegt werden muss!
+
+\subsubject[auswertungsreihenfolge]{Auswertungsreihenfolge}
+
+Unabhängig von der Assoziativität, die die Reihenfolge der Abarbeitung
+bei gleichen Operatoren betrifft und der Operatorpriorität, die die
+Abarbeitung unterschiedlicher Operatoren regelt, ist die
+{\em Auswertung} der Teilausdrücke eines Ausdruckes. Diese Reihenfolge
+bei der Auswertung der Teilausdrücke ist allerdings nicht definiert!
+
+Schauen wir uns das anhand eines Beispiels an:
+
+\startcpp
+#include <iostream>
+
+using namespace std;
+
+int f() {
+    cout << "f()" << endl;
+    return 1;
+}
+
+int g() {
+    cout << "g()" << endl;
+    return 2;
+}
+
+int h() {
+    cout << "h()" << endl;
+    return 3;
+}
+
+int main() {
+    int i{};
+
+    i = f() + g() * h();
+}
+\stopcpp
+
+Bei mir sieht die Ausgabe folgendermaßen aus:
+
+\startsh
+f()
+g()
+h()
+\stopsh
+
+Die Auswertung erfolgt aufgrund der höheren Priorität des
+Multiplikationsoperators, sodass zuerst das Ergebnis von \type{g()} mit
+dem Ergebnis von \type{h()} multipliziert wird und danach das Ergebnis
+von \type{f()} addiert wird.
+
+Die Auswertungsreihenfolge der Teilausdrücke ist aber offensichtlich
+eine andere. Das muss allerdings nicht so sein, da ein anderer Compiler
+die Auswertung so wie die Abarbeitung der Teilausdrücke vornehmen
+könnte. Die Auswertungsreihenfolge ist in \cpp eben nicht definiert und
+man kann sich auch nicht darauf verlassen, dass diese von links nach
+rechts erfolgt, wie dies bei mir in diesem konkreten Fall ist.
+
+Das Ergebnis von \type{i} ist in diesem Fall jedoch unabhängig von der
+Auswertungsreihenfolge richtig. Die Funktionen \type{f()}, \type{g()}
+und \type{h()} haben jedoch den Nebeneffekt (engl. {\em side effect}),
+dass sie jeweils eine Ausgabe tätigen und über die Reihenfolge dieser
+Ausgaben kann eben keine Aussage getroffen werden.
+
+Der eigentliche Sinn einer Funktion ist, dass diese einen Rückgabewert
+liefert. Hat eine Funktion, jedoch eine zusätzliche Auswirkung auf ihre
+Umgebung, dann wird das als Nebeneffekt bezeichnet.
+
+Man kann argumentieren, dass die Aufrufreihenfolge einer Funktion, die
+keine Nebeneffekte hat, kein Problem darstellt. Daher sollte man
+Funktionen so schreiben, dass diese keine Nebeneffekte aufweisen.
+
+Allerdings tritt das Problem der Auswertungsreihenfolge von
+Teilausdrücken auch in anderen Zusammenhängen auf. Hänge folgende Zeilen
+wieder an deine Datei:
+
+\startcpp
+int v[]{9,9,9,9,9};
+i = 1;
+v[i] = i++;
+cout << "v[1] = " << v[1] << endl;
+cout << "v[2] = " << v[2] << endl;
+\stopcpp
+
+Bei mir kommt es zu folgender Ausgabe:
+
+\startsh
+v[1] = 9
+v[2] = 1
+\stopsh
+
+Die Anweisung \type{v[i] = i++;} besitzt die beiden Teilausdrücke
+\type{v[i]} und \type{i++}, deren Auswertungsreihenfolge wiederum nicht
+definiert ist! \type{v[i]} liefert wiederum einen lvalue auf das Element
+des Arrays zurück, das verändert werden soll und \type{i++}
+inkrementiert einfach die Variable \type{i}. Aus diesem Grund kann es --
+je nach Reihenfolge der Auswertung der Teilausdrücke -- zu den beiden
+verschiedenen Ergebnissen \type{v[1] == 1} und \type{v[2] == 1} kommen.
+
+Die Quintessenz ist, dass man innerhalb eines Ausdruckes keine
+Teilausdrücke verwenden sollte, die eine (oder mehrere) gemeinsame
+Variable verändern.
+
+Es gibt allerdings drei Fälle in denen die Auswertungsreihenfolge von
+Teilausdrücken klar definiert ist:
+
+\startitemize
+\item
+  Für die booleschen Operatoren \type{&&} und \type{||} ist die
+  Auswertungsreihenfolge von links nach rechts festgelegt, denn diese
+  funktionieren nach dem Kurzschlussprinzip (engl. {\em short-circuit
+  evaluation}). Das bedeutet, dass der zweite Operand nicht mehr
+  ausgewertet wird, wenn dies nicht mehr notwendig ist. Eine
+  Beschreibung dieser Operatoren samt Beispielen befindet sich im
+  Abschnitt \in[booleanop] auf der Seite \at[booleanop].
+\item
+  Der Bedingungsoperator ist der einzige Operator mit drei Operanden in
+  \cpp. Er hat den folgenden Aufbau \type{(cond) ? expr1 : expr2}. Der
+  Wert eines derartigen Ausdruckes ist der Wert des Teilausdruckes
+  \type{expr1}, wenn die Bedingung \type{cond} wahr ist und anderenfalls
+  der Wert des Teilausdruckes \type{expr2}.
+
+  Zuerst wird \type{cond} ausgewertet und danach \type{expr1} oder
+  \type{expr2}, nie jedoch beide.
+
+  Schreibe folgendes kleines Testprogramm und teste:
+
+  \startcpp
+  // condop.cpp
+  #include <iostream>
+
+  using namespace std;
+
+  int main() {
+      int age{};
+
+      cout << "Alter? ";
+      cin >> age;
+      cout << ((age >= 18) ? "Erwachsen" :
+                             "Nicht erwachsen");
+  }
+  \stopcpp
+\item
+  Der Sequenzoperator findet oft im Schleifenrumpf einer
+  \type{for}-Schleife Verwendung, sonst wird dieser nicht oft verwendet.
+  Das Prinzip ist Folgendes: Der Gesamtausdruck besteht aus mehreren
+  Teilausdrücken, die durch je ein Komma voneinander getrennt sind. Die
+  einzelnen Teilausdrücke werden streng von links nach rechts
+  abgearbeitet und der Wert des Gesamtausdruckes ist der Wert des
+  letzten Teilausdruckes.
+
+  Hier ein Beispiel:
+
+  \startcpp
+  // commaop.cpp
+  #include <iostream>
+
+  using namespace std;
+
+  int main() {
+      int i{1};
+      int res{};
+
+      res = i++, i /= 2, i + 2;
+      cout << res << endl;
+  }
+  \stopcpp
+
+  Teste! Stimmt die Ausgabe meiner Beschreibung überein? Nein? Dann muss
+  man sich wiederum die Operatorprioritäten ansehen! Der
+  Zuweisungsoperator \type{=} hat eine höhere Priorität als der
+  Sequenzoperator \type{,}. Das bedeutet, dass die Sequenzanweisung aus
+  den 3 Teilausdrücken \type{res = i++}, \type{i /= 2} und \type{i + 2}
+  besteht. Der Wert des gesamten Ausdruckes ist 3, der jedoch nicht
+  verwendet wird. Natürlich macht dies keinen Sinn!
+
+  Wenn man solch eine Konstruktion wirklich verwenden will (und ich rate
+  davon wirklich ab), dann ist der gesamte Teil rechts des \type{=} in
+  runde Klammern zu setzen! In diesem Fall wirst du \type{3} als
+  Ergebnis in der Ausgabe erhalten. Damit sieht man auch sehr schön,
+  dass der Sequenzoperator streng von links nach rechts auswertet und
+  den letzten Teilausdruck als Wert des Gesamtausdruckes nimmt.
+\stopitemize
+
+\section[überladen-von-operatoren]{Überladen von Operatoren}
+
+Schauen wir uns einmal das folgende uns schon bekannte Beispiel jetzt
+aus dem Gesichtspunkt der Operatoren genauer an:
+
+\startcpp
+cout << 42 << endl;
+\stopcpp
+
+Unter Umständen stellst du dir jetzt die Frage wie das funktionieren
+kann, da der Operator \type{<<} ja den Verschiebeoperator für integrale
+Datentypen darstellt. In \cpp ist es möglich, dass man weitgehend jeden
+Operator überladen kann.
+
+Dieses Überladen (engl. {\em overloading}) bedeutet, dass ein Operator
+für verschiedene Typen verwendet werden kann. Zum Beispiel ist der
+Operator \type{+} von Haus aus überladen, da dieser sowohl mit dem Typ
+\type{int} als auch mit \type{double} umgehen kann.
+
+Dieses Überladen kann auch auf benutzerdefinierte Datentypen vorgenommen
+werden, wie wir es gerade bei dem Operator \type{<<} im Zusammenhang mit
+der Ausgabe von Daten auf die Standardausgabe gesehen haben. Der
+Operator \type{<<} ist ein binärer Operator und erwartet sich daher zwei
+Operanden. In der überladenen Variante sind dies zum Beispiel der
+benutzerdefinierte Datentyp \type{ostream} und der fundamentale Datentyp
+\type{int}.
+
+Man kann die meisten Operatoren in \cpp überladen, jedoch nicht deren
+Anzahl der Parameter verändern noch deren Assoziativität oder Priorität
+abändern.
+
+Wie man Operatoren selbst überlädt, werden wir uns später noch genau
+ansehen.
+
+\section[booleanop]{Boolescher Datentyp}
+
+Der boolesche Datentyp \type{bool} kann nur einen der beiden Werte
+\type{true} und \type{false} annehmen.
+
+Das folgende Programm zeigt die Verwendung von \type{bool}:
+
+\startcpp
+// bool.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    bool ready{};
+    char answer{};
+
+    while (!ready) {
+        cout << "[y/n] ";
+        cin >> answer;
+        ready = (answer == 'y' || answer == 'n');
+    }
+
+    cout << "Antwort: " << answer << endl;
+}
+\stopcpp
+
+Das Programm wartet auf eine Antwort, die entweder \type{y} oder
+\type{n} sein muss und diese Antwort ausgibt. Es gibt lediglich ein paar
+interessante Aspekte:
+
+\startitemize
+\item
+  Die Initialisierung von \type{ready} ist notwendig und wird in dieser
+  Form mit \type{false} vorgenommen, da \type{false} der
+  \quotation{Nullwert} von \type{bool} ist.
+\item
+  Die Bedingung der \type{while}-Anweisung verwendet den Operator
+  \type{!}, der der Negationsoperator ist und aus dem Wert \type{false}
+  den Wert \type{true} macht und aus \type{true} den Wert \type{false}.
+
+  In eine sprachliche Form gebracht bedeutet diese \type{while}
+  Anweisung: Solange die Eingabe noch nicht \quotation{ready} ist, wird
+  der Schleifenrumpf ausgeführt.
+\item
+  Nachdem die Eingabe des einzelnen Zeichens vorgenommen worden ist,
+  wird diese überprüft, ob die Eingabe dem Wert \type{y} oder dem Wert
+  \type{n} entspricht. Der Operator \type{||} ist der \quotation{ODER}
+  Operator, der genau dann \type{true} als Ergebnis liefert, wenn
+  mindestens einer der beiden Operanden den Wert \type{true} hat.
+
+  Wie schon besprochen hat der Operator \type{||} die Eigenschaft, dass
+  die Operanden von links nach rechts ausgewertet werden. Hat der linke
+  Operand schon den Wert \type{true} ergeben, dann wird der zweite
+  Operand nicht mehr ausgewertet und das Ergebnis der Operation ist
+  \type{true}. Im vorhergehenden Beispiel bedeutet das, dass der rechte
+  Teil des \type{||} nicht mehr überprüft wird, wenn die Variable
+  \type{answer} den Wert \type{y} hat.
+
+  Zusätzlich zu dem \type{!} und dem \type{||} Operator gibt es auch
+  noch den \type{&&} Operator, der genau dann den Wert \type{true} als
+  Ergebnis liefert, wenn beide Operanden den Wert \type{true} haben.
+  Auch hier werden die Operanden von links nach rechts ausgewertet.
+  Ergibt der linke Operand den Wert \type{false}, dann wird der rechte
+  Operand nicht mehr ausgewertet und das Ergebnis ist \type{false}.
+\stopitemize
+
+\subsection[konvertierungen]{Konvertierungen}
+
+Aufgrund der Möglichkeit des Mixens verschiedener arithmetischer
+Datentypen werden in arithmetischen und logischen Ausdrücken
+\type{bool}s immer zu \type{int}s konvertiert, dann die Operationen mit
+den konvertierten Werten durchgeführt und anschließend die Werte wieder
+zurück zu \type{bool}s konvertiert. Dabei gelten die nachfolgenden
+Regeln:
+
+\startitemize[packed]
+\item
+  \type{true} bekommt den Wert \type{1}, wenn es zu einem Integer
+  konvertiert wird und \type{false} bekommt den Wert \type{0}.
+\item
+  Jeder Integer mit dem Wert \type{0} wird zu \type{false} konvertiert,
+  wenn ein \type{bool} erwartet wird, jeder Wert ungleich \type{0}
+  bekommt den Wert \type{true}.
+\stopitemize
+
+Schauen wir uns dazu das folgende Beispiel an:
+
+\startcpp
+// bool_convert.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int i{9};
+    bool a{i != 0};
+    bool b{true};
+    cout << "a = " << a << endl;
+    cout << "b = " << b << endl;
+    
+    int c{};
+    c = a + b;
+    cout << "a + b = " << c << endl;
+    c = a - b;
+    cout << "a - b = " << c << endl;
+    c = a && b;
+    cout << "a && b = " << c << endl;
+}
+\stopcpp
+
+Die Ausgabe wird folgendermaßen aussehen:
+
+\startsh
+a = 1
+b = 1
+a + b = 2
+a - b = 0
+a && b = 1
+\stopsh
+
+Was passiert?
+
+\startitemize[packed]
+\item
+  Die beiden booleschen Variablen \type{a} und \type{b} werden beide mit
+  \type{true} initialisiert.
+\item
+  Die Ausgabe erfolgt allerdings jeweils als \type{1}. Das liegt daran,
+  dass standardmäßig die Ausgabe eines booleschen Wertes mittels des
+  \type{<<} Operators in Form einer ganze Zahl erfolgt. Da \type{1} dem
+  Wert \type{true} entspricht wird eben dieser ausgegeben.
+\item
+  Die fragwürdige Addition von booleschen Werten wird im Bereich der
+  ganzen Zahlen durchgeführt. Daher kommt es zur Ausgabe von \type{2}.
+  Genauso sieht es mit der Subtraktion aus.
+\item
+  Bei \type{&&} handelt es sich wieder um den logischen short-circuit
+  Operator \quotation{UND}, aber auch bei diesem wird jeder Operand in
+  eine ganze Zahl gewandelt, dann das bitweise \quotation{UND}
+  vorgenommen. Auch aus diesem Grund kommt es zur Ausgabe von \type{1}.
+\stopitemize
+
+Ändere jetzt den Typ von \type{c} in einen \type{bool} um und starte das
+Programm nochmals. Es wird zu folgender Ausgabe kommen:
+
+\startsh
+a = 1
+b = 1
+a + b = 1
+a - b = 0
+a && b = 1
+\stopsh
+
+Wieso? Die Konvertierungen von \type{bool} zu \type{int} und das
+anschließende Rechnen im Bereich der ganzen Zahlen funktioniert wie
+vorher, nur wird jetzt jeweils das Ganzzahlergebnis in einen booleschen
+Wert umgewandelt. Damit wird jeder Wert ungleich \type{0} zu \type{true}
+umgewandelt, anderenfalls zu \type{false}. Die Ausgabe erfolgt durch den
+\type{<<} Operator, der standardmäßig den booleschen Wert jedoch als
+ganze Zahl ausgibt.
+
+Die Ausgabe als \type{true} oder \type{false} lässt sich jedoch leicht
+erreichen, indem man einen weiteren Manipulator bei der Ausgabe
+verwendet. Den ersten Manipulator, den wir bis jetzt kennengelernt
+haben, ist \type{std::endl}, der einen Zeilenvorschub in den
+Ausgabestrom einfügt. Jetzt benötigen wir den \type{std::boolalpha}
+Manipulator, der bewirkt, dass nicht \type{1} respektive \type{0},
+sondern \type{true} respektive \type{false} ausgegeben wird.
+
+Füge vor der ersten Ausgabeanweisung die folgende Anweisung ein und
+teste:
+
+\startcpp
+cout << boolalpha;
+\stopcpp
+
+In \cpp handelt es sich bei \type{std::boolalpha} um einen Manipulator,
+der die folgende Wirkung hat:
+
+\startsh
+a = true
+b = true
+a + b = true
+a - b = false
+a && b = true
+\stopsh
+
+Dieser Manipulator hat seine Wirkung so lange, bis dieser wieder
+zurückgesetzt wird. Dies kann mittels des Manipulators
+\type{std::noboolalpha} erreicht werden. Manipulatoren müssen nicht in
+einer eigenen Anweisung verwendet werden, sondern können auch direkt in
+eine Ein- oder Ausgabeoperation eingefügt werden. Du könntest auch die
+Ausgabeoperationen:
+
+\startcpp
+cout << boolalpha;
+cout << "a = " << a << endl;
+\stopcpp
+
+durch
+
+\startcpp
+cout << "a = " << boolalpha << a << endl;
+\stopcpp
+
+ersetzen. Dies wiederum liegt daran, dass der Operator \type{<<} auch
+bei einem Manipulator wieder das eigentliche Objekt zurückliefert. In
+unserem Fall eben \type{cout}.
+
+In weiterer Folge wollen wir die Werte der Variable \type{a} und
+\type{b} durch den Benutzer eingeben lassen. Ersetze die Definitionen
+der Variablen \type{i}, \type{a} und \type{b} durch:
+
+\startcpp
+bool a{};
+bool b{};
+
+cout << "a = ";
+cin >> a;
+cout << "b = ";
+cin >> b;
+\stopcpp
+
+Übersetze und teste jetzt dein Programm mit verschiedenen Werten für
+\type{a} und \type{b}. Beachte, dass du für \type{a} und \type{b} die
+Zahlen \type{0} oder \type{1} eingeben kannst.
+
+Auch wenn es sicher nicht sinnvoll ist, ist es wahrscheinlich immer noch
+benutzerfreundlicher, den Benutzer \type{true} oder \type{false} anstatt
+\type{1} oder \type{0} eingeben zu lassen. Auch das kann leicht erreicht
+werden indem du folgende Zeile vor der ersten Eingabeanweisung einfügst:
+
+\startcpp
+cin >> boolalpha;
+\stopcpp
+
+Damit wird der Manipulator \type{boolalpha} auch für die Eingabe
+verwendet. Der Manipulator kann auch direkt in die Anweisung zur Eingabe
+des ersten Wertes -- analog zur Ausgabe -- eingefügt werden.
+
+Teste das Programm gleich mit verschiedenen Werten für \type{a} und
+\type{b}. Du kannst auch die Operation \type{&&} durch \type{||}
+ersetzen, um den \quotation{ODER}-Operator zu testen.
+
+Es gibt auch den Operator \type{^}, der bitweises \quotation{XOR} von
+ganzen Zahlen durchführt. Da boolesche Werte in \type{int}s gewandelt
+werden, kann \type{^} auch für \type{bool}s verwendet werden. Das
+Ergebnis einer \quotation{XOR} von zwei Operanden ist genau dann
+\type{true}, wenn genau ein Operand \type{true} ist, anderenfalls
+\type{false}. Dieser Operator hat {\em kein} Kurzschlussverhalten, was
+auch keinen Sinn ergeben würde.
+
+Jetzt folgt noch ein Beispiel, das die implizite Konvertierung eines
+\type{bool}, einen neuen Operator für ganze Zahlen, als auch die
+Schlüsselwörter \type{break} und \type{continue} präsentiert, die in
+Schleifenanweisungen verwendet werden können:
+
+\startcpp
+// countdown.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    cout << "Startwert: ";
+    int cnt{};
+    cin >> cnt;
+
+    if (cnt)
+        cout << cnt << endl;
+
+    while (cnt > 1) {
+        --cnt;
+        if (cnt > 5 && cnt % 2)
+            continue;
+        cout << cnt << endl;
+    }
+}
+\stopcpp
+
+Übersetze und teste das Programm! Dieses Programm implementiert
+offensichtlich einen \quotation{Countdown}, wobei die genaue Funktion
+folgendermaßen beschrieben ist:
+
+\startitemize[a,packed][stopper=.]
+\item
+  Der eingegebene Startwert wird ausgegeben.
+\item
+  Dann wird in geraden Schritten heruntergezählt, solange der aktuelle
+  Stand des Countdown größer als Fünf ist.
+\item
+  Ab der Zahl Fünf wird jede Zahl ausgegeben bis Eins erreicht ist.
+\stopitemize
+
+Wie ist es implementiert?
+
+\startitemize
+\item
+  Die erste \type{if} Anweisung hat eine Bedingung, die nur \type{cnt}
+  enthält. An sich ist \type{cnt} allerdings vom Typ \type{int}.
+  Aufgrund der impliziten Konvertierung wird diese Zahl allerdings als
+  \type{bool} betrachtet und genau jeder Wert ungleich \type{0} wird als
+  \type{true} interpretiert. Das bedeutet, dass der eingegebene
+  Startwert nur ausgegeben wird, wenn dieser ungleich \type{0} ist.
+\item
+  Danach folgt die \type{while} Schleife, deren Bedingung aussagt, dass
+  \type{cnt} größer als \type{1} sein muss.
+\item
+  Die erste Anweisung im Rumpf der \type{while} Anweisung dekrementiert
+  (erniedrigt um \type{1}) den Wert von \type{cnt}.
+\item
+  In der Bedingung der darauffolgenden \type{if} Anweisung wird
+  überprüft, ob \type{cnt} größer als \type{5} {\em und} \type{cnt}
+  ungerade ist.
+
+  Die erste Teilbedingung überprüft, ob \type{cnt} größer als \type{5}
+  ist, wobei \type{true} oder \type{false} als Wert auftreten kann. Da
+  dieser boolesche Wert weiterverwendet wird, wird dieser als \type{int}
+  aufgefasst und im \type{&&} Ausdruck weiterverwendet.
+
+  Der Operator \type{%} der zweiten Teilbedingung ist der Restoperator
+  (auch Modulooperator genannt), der den ersten Operanden durch den
+  zweiten Operanden dividiert und den Rest ermittelt. Dieser Rest ist
+  wiederum eine ganze Zahl.
+
+  Diese beiden Werte werden gemäß UND verknüpft. Wenn die Bedingung
+  erfüllt ist, dann wird die Anweisung \type{continue} ausgeführt, die
+  zur Folge hat, dass der Programmablauf bei der geschlossenen
+  geschwungenen Klammer der direkt umschließenden Schleife -- auch bei
+  einer \type{for} Schleife -- fortgesetzt wird.
+\stopitemize
+
+Damit ist das Programm, so wie wir es uns vorgestellt haben, auch
+funktionstüchtig. Nur damit ich hier eine weitere Anweisung zeigen kann,
+wollen wir das Programm ein wenig verändern. Ersetze den Schleifenkopf
+durch folgenden Quelltext:
+
+\startcpp
+while (true) {
+    if (cnt <= 1)
+        break;
+\stopcpp
+
+Das Programm sollte wieder genauso funktionieren. Die Bedingung des
+Schleifenkopfes ist immer wahr, also benötigen wir eine andere
+Möglichkeit die Schleife abzubrechen. Hier kommt die \type{break}
+Anweisung ins Spiel, die die direkt umschließende Schleife abbricht und
+direkt {\em nach} der geschlossenen geschwungenen Klammer im
+Programmablauf fortsetzt. Man sieht natürlich, dass dies hier zu keiner
+Verbesserung geführt hat, da das Programm länger und nicht mehr so
+leicht zu lesen geworden ist.
+
+Wir setzen gleich in diesem Sinne fort und verändern das Programm
+nochmals zu demonstrativen Zwecken. Ändere den Schleifenkopf nochmals
+ab:
+
+\startcpp
+while (1 != 2) {
+\stopcpp
+
+Es ist klar, dass \type{1} immer ungleich als \type{2} ist und damit die
+Bedingung ebenfalls immer wahr ist. Abgesehen von der schlechteren
+Lesbarkeit hat dies allerdings keine Auswirkung auf die Laufzeit des
+Programmes, da der Compiler diesen Ausdruck auswertet und die Bedingung
+intern auf \type{true} abändert. Damit ist dies äquivalent zu
+\type{while (true)}.
+
+\subsection[boolesche-operatoren]{Boolesche Operatoren}
+
+Aufgrund der impliziten Konvertierung zu \type{int} können für boolesche
+Werte alle arithmetischen und bitweisen Operatoren verwendet werden, die
+im Abschnitt \in[arithmeticops] auf Seite \at[arithmeticops] beschrieben
+sind.
+
+An eigenen booleschen Operatoren stehen \type{||}, \type{&&} und
+\type{!} zur Verfügung.
+
+Weiters gibt es diese Operatoren \type{||} und \type{&&} auch als
+Zuweisungsoperatoren \type{||=} und \type{&&=}. Zuweisungsoperatoren
+werden im Abschnitt \in[arithmeticops]
+beschrieben.
+
+\section[zeichentypen]{Zeichentypen}
+
+In \cpp gibt es mehrere verschiedene Datentypen für einzelne Zeichen,
+deren Einteilung sich prinzipiell auf die Größe bezieht:
+
+\startitemize[packed]
+\item
+  Der grundlegende Datentyp für Zeichen ist \type{char}, der in weiterer
+  Folge noch genauer behandelt wird.
+\item
+  Es gibt einen Datentyp \type{wchar_t}, der für Unicode-Zeichen ist. Es
+  ist keine Größe explizit im \cpp Standard für diesen Datentyp
+  festgehalten. Dies ist abhängig von der Implementierung des Compilers
+  und der vorhandenen Zeichensätze am jeweiligen System. Es ist
+  lediglich definiert, dass ein \type{wchar_t} mindestens so groß wie
+  ein \type{char} sein muss.
+\item
+  Meist werden UTF-16 kodierte Unicode-Zeichen für mehrsprachige
+  Anwendungen verwendet. \cppXI unterstützt dies durch einen Datentyp,
+  der in der Lage ist genau ein Zeichen aus UTF-16 abzuspeichern. Der
+  Typ heißt \type{char16_t}.
+\item
+  Um alle definierten Unicode-Zeichen in einer Kodierung mit fester
+  Größe abspeichern zu können, benötigt man UTF-32. \cppXI bietet dafür
+  den Datentyp \type{char32_t}.
+\stopitemize
+
+Viele Anwendungen verwenden als Datentyp einfach \type{char}. Dieser ist
+allerdings im Standard nicht detailliert definiert und ist von der
+jeweiligen Implementierung des Compilers am jeweiligen System abhängig:
+
+\startitemize
+\item
+  Es ist nicht definiert, ob es sich bei diesem Datentyp um einen
+  vorzeichenbehafteten oder einen vorzeichenlosen Datentyp handelt. Wie
+  bitte? Wieso Vorzeichen? Es handelt sich doch um einen
+  Zeichendatentyp! Ja, schon, aber erinnere dich, dass auch die
+  Zeichentypen zu den integralen Datentypen gehören und deshalb in
+  arithmetischen Operationen verwenden können. Daher muss man wissen,
+  wie diese als Zahlen interpretiert werden.
+
+  Aus diesem Grund gibt es auch noch die Möglichkeit, dass man explizit
+  mit \type{signed char} ein Vorzeichen angeben kann oder explizit mit
+  \type{unsigned char} kein Vorzeichen fordert. Das sind zwei weitere
+  Zeichentypen, die exakt dieselbe Größe wie ein \type{char} haben.
+
+  Wie kann man jetzt die eigentliche Größe eines Datentyps herausfinden?
+  Es gibt hierzu die Header-Datei \type{limits}, das ein Template
+  \type{numeric_limits::is_signed} zur Verfügung stellt. Erstelle den
+  folgenden Code und teste auf deinem System:
+
+  \startcpp
+  // characters.cpp
+  #include <iostream>
+  #include <limits>
+
+  using namespace std;
+
+  int main() {
+      cout << "char hat Vorzeichen: " << boolalpha
+          << numeric_limits<char>::is_signed
+          << endl;
+  }
+  \stopcpp
+
+  Bei mir wird \type{true} ausgegeben. Und bei dir?
+\item
+  Es ist keine Größe definiert. Es gibt lediglich eine Mindestgröße und
+  die ist mit 8 Bits im Standard angegeben. Mehr wird über die Größe
+  nicht ausgesagt. Das bedeutet, dass es auch Systeme geben kann, bei
+  denen ein \type{char} 16 Bits oder unter Umständen auch 32 Bits lang
+  sein kann.
+
+  Wie schon im Abschnitt \in[implementationaspects] auf der Seite
+  \at[implementationaspects] beschrieben, wird diese Größe als
+  Grundeinheit zur Bestimmung der Größe der anderen Datentypen
+  herangezogen. Das bedeutet natürlich auch, dass es sich um die
+  kleinste Einheit handelt!
+
+  Du kannst die aktuelle Größe eines eingebauten Datentyps mit dem
+  Template \type{numeric_limits::digits} bestimmen, das die Anzahl der
+  Binärstellen ermittelt. Hänge dazu folgenden Code an das Programm an:
+
+  \startcpp
+  cout << "char hat Vorzeichen: " << boolalpha
+       << numeric_limits<char>::digits << endl;
+  \stopcpp
+
+  Teste dein Programm! Und wie sieht es aus? Du erhältst wahrscheinlich
+  \type{7} und nicht \type{8}. Das liegt daran, dass
+  \type{numeric_limits::digits} die Anzahl der Bits (Binärstellen)
+  {\em ohne} dem Vorzeichenbit zurückliefert! Wenn dein \type{char} Typ
+  vorzeichenbehaftet ist, dann musst du noch \type{1} hinzuaddieren!
+\item
+  Diese beiden vorherigen Einschränkungen -- nämlich die Mindestgröße
+  eines \type{char} von 8 Bits und die Unbestimmtheit des Vorzeichens --
+  haben Auswirkungen über die Annahme des vorhandenen Zeichenvorrats.
+  Damit verbleiben 128 verschiedene Zeichen, womit man sinnvollerweise
+  nur davon ausgehen kann, dass die Ziffern, die 26 lateinischen
+  Buchstaben und etliche Satzzeichen zur Verfügung stehen, wenn man
+  allgemein portable Programme schreiben will.
+
+  Daher nehmen wir für die weiteren Betrachtungen einfach an, dass wir
+  auf einem System sind, das einen \type{char} Typ mit genau 8 Bit hat,
+  der zumindest ASCII unterstützt.
+
+  In der ASCII Kodierung sind sowohl die Buchstaben als auch die Ziffern
+  jeweils hintereinander angeordnet. Wir nutzen dies jetzt aus, um unser
+  Programm um die Bestimmung und Ausgabe aller Dezimalziffern, mittels
+  einer Schleife zu erweitern:
+
+  \startcpp
+  for (int i{0}; i < 10; ++i) {
+      cout << '0' + i << endl;
+  }
+  \stopcpp
+
+  Hier nehmen wir wiederum eine Zählschleife her, die wir von \type{0}
+  bis \type{9} zählen lassen. Im Schleifenrumpf nutzen wir aus, dass ein
+  \type{char} ein integraler Datentyp ist, der zu einem \type{int}
+  konvertiert wird. Dann zählen wir unsere Schleifenvariable hinzu und
+  geben das Ergebnis aus. Teste!
+
+  Na ja, das ist nicht das Ergebnis, das wir gerne hätten: 48, 49,
+  50,\ldots{} Wieso das? In der ASCII Kodierung hat die Ziffer \type{0}
+  eben den dezimalen Wert 48 und von dort aufsteigend folgen die
+  restlichen Ziffern. Aufgrund der Promotion wird \type{char} in einen
+  \type{int} gewandelt. Zu 48 wird 0,1,2\ldots{} addiert und deshalb
+  werden die Zahlen 48, 49,\ldots{} ausgegeben.
+
+  Deshalb müssen wir den Typ von \type{int} wieder in ein \type{char}
+  zurückwandeln. Dazu verwenden wir den Konvertierungsoperator
+  \type{static_cast}. Ersetze dazu die Ausgabe im Schleifenrumpf durch
+  die folgende Zeile:
+
+  \startcpp
+  cout << static_cast<char>('0' + i) << endl;
+  \stopcpp
+
+  Dies gibt an, dass der \type{int}-Wert in einen \type{char}-Wert
+  konvertiert werden soll. Ein \type{static_cast} konvertiert zwischen
+  verwandten Typen. Kann nicht konvertiert werden, dann wird der
+  Compiler eine Fehlermeldung liefern.
+\stopitemize
+
+Das klingt jetzt alles sehr umständlich (was es auch ist), aber das ist
+der Preis, den man zu zahlen hat, wenn man eine Programmiersprache
+verwenden will, die von der kleinsten Prozessoreinheit bis zum
+Superrechner einsetzbar ist. Üblicherweise stehen die Zielplattformen
+fest und damit kennt man auch die Rahmenbedingungen. Damit ist die
+Verwendung auch schon wieder definiert und einfach.
+
+\subsection[characterliterals]{Zeichenliterale}
+
+Wie schon gesehen, werden Zeichenliterale durch Zeichen, die in
+einfachen Hochkommas eingeschlossen sind angeschrieben. Innerhalb dieser
+einfachen Hochkommas hat das Zeichen \type{\} (engl. {\em backslash})
+eine spezielle Bedeutung. Es wird als Escape-Zeichen verwendet, wodurch
+das folgende oder die folgenden Zeichen eine spezielle Bedeutung
+erhalten.
+
+Das folgende Beispiel gibt fünf Wörter mit einem anschließenden
+Zeilenumbruch aus, der durch \type{'\n'} angegeben ist:
+
+\startcpp
+cout << "Danach beginnt eine neue Zeile!" << '\n';
+\stopcpp
+
+Beachte bitte die Unterschiede zwischen dem C-String-Literal mit den
+doppelten Hochkommas und dem Zeichenliteral mit den einfachen
+Hochkommas.
+
+Hier eine Liste der häufiger verwendeten Zeichenliterale:
+
+\startdescription{\type{\n}}
+  Newline: Zeilenvorschub (engl. {\em line feed}).
+\stopdescription
+
+\startdescription{\type{\r}}
+  Carriage return: zurück an die erste Position der Zeile
+\stopdescription
+
+\startdescription{\type{\t}}
+  Horizontal tabulator: ein Tabulator
+\stopdescription
+
+\startdescription{\type{\\}}
+  Ein einzelner Backslash
+\stopdescription
+
+\startdescription{\type{\'}}
+  Ein einzelnes Hochkomma
+\stopdescription
+
+\startdescription{\type{\ooo}}
+  Der oktale Wert für das Zeichen, wobei die oktale Zahl 1, 2 oder 3
+  oktale Ziffern \type{o} umfassen kann.
+\stopdescription
+
+\startdescription{\type{\xhhh}}
+  Der hexadezimale Wert für das Zeichen, wobei die hexadezimale Zahl
+  eine beliebige Anzahl an hexadezimalen Ziffern \type{h} umfassen kann.
+\stopdescription
+
+Besonders \type{\n} wird oft verwendet, da man es auch anstatt des
+Manipulators \type{endl} verwenden kann:
+
+\startcpp
+cout << "Hello \n";  // als Teil des C-String-Literals
+cout << "World!" << '\n';  // als eigenes Zeichen
+\stopcpp
+
+Sowohl die Verwendung von \type{\n} als auch der Einsatz von \type{endl}
+bewirken in beiden Fällen einen Zeilenumbruch, wenn der Stream im
+Textmodus geöffnet ist. Dabei wird vom Compiler für die Plattform, für
+die übersetzt wird, das richtige Zeilenumbruchszeichen eingesetzt. Das
+ist insofern interessant als zum Beispiel unter Windows ein
+Zeilenumbruch durch die ASCII-Zeichenfolge \type{\r\n} und unter Unix
+nur \type{\n} verwendet wird.
+
+Der Unterschied von \type{\n} zu \type{endl} ist, dass mittels
+\type{endl} auch der Puffer des Streams geleert wird (engl.
+{\em flush}), in den die Zeichen geschrieben werden, während bei
+\type{\n} nur ein Zeilenumbruch erzeugt wird. Dieser Unterschied ist
+wichtig, wenn in Dateien geschrieben wird, da in diesem Fall das Leeren
+eines Puffers die Laufzeit durchaus erhöhen kann.
+
+Da es in \cppXI auch die Möglichkeit gibt, Zeichen aus dem Unicode
+Standard in verschiedenen Kodierungen darzustellen, gibt es auch eine
+syntaktische Möglichkeit, diese anzugeben. Schaue dir die folgenden
+Beispiele an:
+
+\startcpp
+u'\xC0DE'
+u'\uC0DE'
+U'\UDEADC0DE'
+\stopcpp
+
+Du siehst, dass es dazu einerseits ein Präfix vor dem ersten Hochkomma
+gibt und andererseits innerhalb der Hochkommas analog zu \type{\ooo} und
+\type{\xhhh} eine weitere Notation angibt, um durch 4 oder 8
+hexadezimale Ziffern ein einzelnes Zeichen aus dem Unicode Standard
+anzugeben. Die Form mit den 4 hexadezimalen Ziffern wie z.B.
+\type{u'\uC0DE'} ist eine Abkürzung für \type{U'\U0000C0DE'}.
+
+\section[ganze-zahlen]{Ganze Zahlen}
+
+Ganze Zahlen gibt es ebenfalls in verschiedenen Größen. Im Abschnitt
+\in[implementationaspects] auf der Seite
+\at[implementationaspects] wurde schon prinzipiell auf die
+Speichergrößen eingegangen. Es ist wichtig zu wissen, dass zwar die
+absoluten Speichergrößen nicht fixiert sind, sehr wohl aber die
+Größenverhältnisse:
+
+\startdescription{\type{short int}}
+  Das ist im Bereich der ganzen Zahlen die prinzipiell kleinste Größe.
+  Anstatt \type{short int s;} kann man einfach \type{short s;}
+  schreiben. Dieser Datentyp sollte nur verwendet werden, wenn es ein
+  API erfordert oder wenn man bezüglich der Speichergröße ganz bestimmte
+  Anforderungen hat. Das bedeutet, dass man im Zweifelsfall die Finger
+  davon lässt.
+\stopdescription
+
+\startdescription{\type{int}}
+  Das ist der Standarddatentyp für ganze Zahlen! Es ist sichergestellt,
+  dass dieser Typ mindestens die gleiche Größe hat wie ein \type{short}.
+\stopdescription
+
+\startdescription{\type{long int}}
+  Das ist die nächste Größe und kann einfach als \type{long} verwendet
+  werden. Der Standard schreibt vor, dass ein \type{long} mindestens die
+  Größe eines \type{int} haben muss.
+\stopdescription
+
+\startdescription{\type{long long int}}
+  Die größte Variante kann man abgekürzt als \type{long long} schreiben
+  und muss mindestens die Größe eines \type{long} haben.
+\stopdescription
+
+Ganze Zahlen sind im Gegensatz zum Zeichendatentyp immer
+vorzeichenbehaftet. Will man das Vorzeichen explizit angeben, dann kann
+man dies mit den Schlüsselwörtern \type{signed} beziehungsweise
+\type{unsigned} erreichen. Anstatt \type{signed int si;} kann auch nur
+\type{signed si;} und analog dazu kann anstatt \type{unsigned int ui;}
+auch nur \type{unsigned ui;} verwendet werden.
+
+Es ist dringend zu empfehlen immer bei den vorzeichenbehafteten Typen zu
+bleiben, da es zu weniger Fehlern bei den Berechnungen kommen kann.
+Verwende einen \type{unsigned} Typ nur, wenn ein API es direkt verlangt
+oder wenn bitweise Operationen ausgeführt werden müssen!
+
+Werden Typen mit einer definierten Größe benötigt, dann kann man Typen
+aus der Headerdatei \type{<cstdint>} verwenden wie zum Beispiel
+\type{int64_t} (genau 64 Bits), \type{int_least32_t} (mindestens 32
+Bits), \type{uint16_t} (vorzeichenlos, genau 16 Bits) oder
+\type{int_fast16_t} (mindestens 16 Bits, der schnellste Ganzzahltyp mit
+mindestens 16 Bits).
+
+Ein Ganzzahltyp, der nicht zum Rechnen verwendet wird, aber extrem
+wichtig ist, ist \type{size_t}, der ein implementierungsabhängiger,
+vorzeichenloser Typ ist, der die Größe jedes beliebigen Objektes
+annehmen kann. Aus diesem Grund wird dieser Typ oft verwendet, wenn die
+Größe eines Objekts anzugeben ist. Der Operator \type{new} (siehe
+später) erwartet sich zum Beispiel einen Wert vom Typ \type{size_t} und
+der Operator \type{sizeof} liefert einen Wert dieses Typs zurück.
+
+\subsection[arithmeticops]{Arithmetische Operatoren}
+
+Für die arithmetischen Datentypen, also für alle integralen Typen und
+die Gleitkommazahlen, stehen die schon bekannten Operatoren \type{+},
+\type{-}, \type{*}, \type{/}, \type{%} und \type{++}, \type{--} zur
+Verfügung.
+
+Weiters gibt es für die arithmetischen Datentypen noch die
+Zuweisungsoperatoren \type{+=}, \type{-=}, \type{*=}, \type{/=} und
+\type{%=}. \type{a += 2;} ist äquivalent zu \type{a = a + 2;}, wobei
+\type{a} jedoch nur ein Mal ausgewertet wird! Vollständig äquivalent zu
+\type{a++;} zu \type{a += 1;}.
+
+Diese einmalige Auswertung ist im folgenden Beispiel zu sehen, wobei das
+Konstrukt \type{int&} schon im Abschnitt \in[values] prinzipiell
+besprochen worden ist. Im Zusammenhang mit dem Rückgabewert von
+Funktionen werden wir uns dies detailliert im Abschnitt
+\in[functionarguments] auf der Seite \at[functionarguments] ansehen:
+
+\startcpp
+// arithmeticops.cpp
+#include <iostream>
+
+using namespace std;
+
+int i;
+
+int& f() {
+    cout << "f()" << endl;
+    return i;
+}
+
+int main() {
+    cout << "i == " << i << endl;
+    f() = f() + 1;
+    cout << "i == " << i << endl;
+    f() += 1;
+    cout << "i == " << i << endl;
+    f()++;
+    cout << "i == " << i << endl;
+}
+\stopcpp
+
+Die Ausgabe dazu sieht folgendermaßen aus und lässt klar erkennen, wann
+die Funktion \type{f} zweimal aufgerufen wird, d.h. der Ausdruck
+\type{f()} zweimal ausgewertet wird:
+
+\startsh
+i == 0
+f()
+f()
+i == 1
+f()
+i == 2
+f()
+i == 3
+\stopsh
+
+Beachte, dass die Funktion \type{f} eine Referenz zu einer globalen
+Variablen zurückliefert. Das bedeutet, dass es sich bei \type{f()} um
+einen lvalue handelt!
+
+Das Zurückliefern von Referenzen ist in den wenigsten Fällen sinnvoll
+und sollte nur verwendet werden, wenn man sich ganz sicher ist. Hätte
+man eine Funktion \type{g()} so definiert, dann lässt sich das Programm
+zwar übersetzen und ausführen, wobei das Verhalten undefiniert ist:
+
+\startcpp
+#include <iostream>
+
+using namespace std;
+
+int& g() {
+    int i;
+    return i;
+}
+
+int main() {
+    cout << g() << endl;
+}
+\stopcpp
+
+Bei mir liefert das Programm folgende Ausgabe, wobei das Verhalten in
+\cpp
+wie gesagt nicht definiert ist:
+
+\starttyping
+-1073792860
+\stoptyping
+
+Das liegt daran, dass eine Referenz auf die lokale Variable \type{i}
+zurückgeliefert wird, die am Stack liegt und am Ende der Funktion der
+Speicher von \type{i} wieder freigegeben wird.
+
+Die Situation verschärft sich, wenn man dieser lvalue - Referenz einen
+Wert zuweist:
+
+\startcpp
+g() = 1;
+\stopcpp
+
+Damit beschreibt man einen Speicherbereich, der einem nicht mehr zur
+Verfügung steht. Das Verhalten ist undefiniert, aber im besten Fall wird
+lediglich der Wert eines anderen Speicherobjektes überschrieben.
+
+\subsection[bitweise-operatoren]{Bitweise Operatoren}
+
+Für ganze Zahlen gibt es auch die bitweisen Operatoren \type{~},
+\type{|}, \type{&} und \type{^}:
+
+\startitemize
+\item
+  \type{~} bezeichnet für die Negation. Die bitweise Negation wandelt
+  jedes \type{0}-Bit in ein \type{1}-Bit und jedes \type{1}-Bit in ein
+  \type{0}-Bit und liefert diesen Wert zurück.
+\item
+  \type{|} steht für das inklusive Oder. Das inklusive Oder liefert ein
+  \type{1}-Bit an der entsprechenden Bitstelle, wenn eines der Bits der
+  beiden Operanden an dieser Bitstelle den Wert \type{1} aufweist,
+  ansonsten wird das \type{0}-Bit für diese Stelle als Ergebnis
+  produziert.
+\item
+  \type{&} bezeichnet das Und. Beim Und wird an der entsprechenden
+  Bitstelle des Ergebnisses nur dann ein \type{1}-Bit produziert, wenn
+  beide Operanden an dieser Stelle ein \type{1}-Bit aufweisen, ansonsten
+  ein \type{0}-Bit.
+\item
+  \type{^} ist der Operator für das exklusive Oder. Ein exklusives Oder
+  liefert nur dann ein \type{1}-Bit an der entsprechenden Bitstelle,
+  wenn genau ein Bit der beiden Operanden an dieser Bitstelle den Wert
+  \type{1} aufweist, ansonsten wird das \type{0}-Bit für diese Stelle
+  als Ergebnis produziert.
+\stopitemize
+
+Das folgende Beispiel demonstriert diese Operatoren:
+
+\startcpp
+// bitops.cpp
+#include <iostream>
+#include <bitset>
+
+using namespace std;
+
+int main() {
+
+    unsigned int u1{0x0F};
+    unsigned int u2{0x3C};
+
+    cout << "u1 = " << bitset<8>{u1} << endl;
+    cout << "u2 = " << bitset<8>{u2} << endl;
+    cout << "u1 | u2 = " << bitset<8>{u1 | u2} << endl;
+    cout << "u1 & u2 = " << bitset<8>{u1 & u2} << endl;
+    cout << "u1 ^ u2 = " << bitset<8>{u1 ^ u2} << endl;
+    cout << "~u1 = " << bitset<8>{~u1} << endl;
+}
+\stopcpp
+
+In der Headerdatei \type{<bitset>} ist der Typ \type{bitset} enthalten,
+der hier lediglich verwendet wurde, um auf einfache Art und Weise den
+Wert als Bitmuster {\em auszugeben}. Ansonsten ist dies hier nicht
+wichtig und es hätte genauso ein \type{int} verwendet werden können.
+
+Es kommt zu folgender Ausgabe:
+
+\startsh
+u1 = 00001111
+u2 = 00111100
+u1 | u2 = 00111111
+u1 & u2 = 00001100
+u1 ^ u2 = 00110011
+~u1 = 11110000
+\stopsh
+
+Dieses Beispiel zeigt sehr schön die bitweisen Operationen! Achte aber
+immer auf die Prioritäten der Operatoren oder, besser noch, setze
+explizit Klammern. Das folgende Beispiel zeigt dies deutlich:
+
+\startcpp
+if (u1 & 0x07 == 1) {
+    cout << "Bit 0 oder 1 oder 2 von u1 ist gesetzt!";
+} else {
+    cout << "Keines der Bits 0, 1, 2 von u1 ist gesetzt!";
+}
+\stopcpp
+
+Die diesbezügliche Ausgabe wird folgendermaßen aussehen:
+
+\startsh
+Keines der Bits 0, 1, 2 von u1 ist gesetzt!
+\stopsh
+
+Diese Aussage ist jedoch falsch, da das niederwertigste Bit (mit der
+Position 0), also das am weitesten rechts stehende Bit, in \type{u1}
+eindeutig \type{1} ist! Das liegt daran, dass der Gleichheitsoperator
+eine höhere Priorität als der Operator \type{&} hat. Damit wird
+festgestellt, dass \type{0x7} (also die drei niederwertigsten Bits)
+ungleich \type{1} ist und daher zu \type{false} evaluiert. Infolge einer
+impliziten Konvertierung wird \type{false} zu \type{0} gewandelt und
+bitweise UND verknüpft mit \type{u1}, womit nur \type{0} als Ergebnis
+entstehen kann. Dieses Ergebnis \type{0} entspricht in weiterer Folge
+dem booleschen Wert \type{false} und hiermit folgt die entsprechende
+Ausgabe!
+
+Zusätzlich gibt es auch noch Verschiebeoperatoren, die in einem
+integralen Datentyp den enthaltenen Wert um eine bestimmte Anzahl von
+Bits nach links oder nach rechts verschieben und den resultierenden Wert
+zurückliefern. Handelt es sich um einen vorzeichenlosen Typ, dann werden
+rechts beziehungsweise links \type{0}-Bits nachgeschoben. Bei einem
+vorzeichenbehafteten Typ wird bei einem Rechtsverschieben das
+Vorzeichenbit (das höchstwertigste Bit) nachgeschoben.
+
+Erweitere die Datei um die folgenden Zeilen und teste wiederum:
+
+\startcpp
+cout << "u1 << 2 = " << bitset<8>{u1 << 2} << endl;
+cout << "u1 << 3 = " << bitset<8>{u1 << 3} << endl;
+cout << "u1 >> 2 = " << bitset<8>{u1 >> 2} << endl;
+
+int8_t i1{-127};
+cout << "i1 = " << static_cast<int>(i1) << " = "
+     << bitset<8>{static_cast<uint8_t>(i1)} << endl;
+cout << "i1 >> 2 = "
+     << bitset<8>{static_cast<uint8_t>(i1 >> 2)} << endl;
+\stopcpp
+
+Die Ausgabe dieser Anweisungen sieht folgendermaßen aus:
+
+\startsh
+u1 << 2 = 00111100
+u1 << 3 = 01111000
+u1 >> 2 = 00000011
+i1 = -127 = 10000001
+i1 >> 2 = 11100000
+\stopsh
+
+In der letzten Zeile ist auch sehr schön zu sehen, wie das Vorzeichenbit
+zweimalig von links nachgeschoben wurde!
+
+Zusätzlich gibt es diese Art von Operatoren auch als
+Zuweisungsoperatoren: \type{|=}, \type{&=}, \type{^=}, \type{<<=} und
+\type{>>=}.
+
+\subsection[literale-für-ganze-zahlen]{Literale für ganze Zahlen}
+
+An sich sind die Literale für ganze Zahlen in ihrer Grundform einfach:
+Die Ziffern werden hintereinander angeschrieben, optional mit einem
+Vorzeichen als Präfix. Der Typ des Literals wird von \cpp automatisch
+bestimmt, wobei je nach Größe entweder ein \type{int}, ein \type{long}
+oder ein \type{long long} verwendet wird.
+
+Allerdings gibt es abgesehen von dieser Grundform viele verschiedene
+Möglichkeiten, wie Zahlenliterale angeschrieben werden können:
+
+\startdescription{Oktale und hexadezimale Notation}
+  Mit dem Präfix \type{0} kann eine oktale Zahl angeschrieben werden und
+  mit dem Präfix \type{0x} eine hexadezimale Zahl. In diesem Fall
+  funktioniert die Typbestimmung wie in der Grundform, nur wird
+  ebenfalls versucht, den Typ in eine \type{unsigned} Form zu bringen.
+
+  Schreibe den folgenden Quellcode:
+
+  \startcpp
+  // integers.cpp
+  #include <iostream>
+
+  using namespace std;
+
+  int main() {
+      cout << 377 << endl;
+      cout << 0377 << endl;
+  }
+  \stopcpp
+
+  Als Ausgabe wirst du erhalten:
+
+  \startsh
+  377
+  255
+  \stopsh
+
+  In der ersten Ausgabe sieht man, dass diese gleich ist mit dem
+  dezimalen Literal im Quellcode. Bei der zweiten Zahl handelt es sich
+  eben um das dezimale Äquivalent der oktalen Zahl $377_8$. Das
+  bedeutet, dass eine führende Null eine Bedeutung hat!
+\stopdescription
+
+\startdescription{Notation für vorzeichenlose Zahlen}
+  Mittels dem Suffix \type{U} (auch \type{u} möglich) kann explizit eine
+  vorzeichenlose ganze Zahl angegeben werden.
+\stopdescription
+
+\startdescription{Notation für \type{long} und \type{long long} Zahlen}
+  Weiters können Zahlenliterale mittels dem Suffix \type{L} als
+  \type{long} und mit \type{LL} als \type{long long} ausgezeichnet
+  werden. Alternativ können anstatt \type{L} und \type{LL} auch die
+  Kleinbuchstaben \type{l} und \type{ll} verwendet werden. Allerdings
+  rate ich davon ab, da diese im Quelltext schlechter zu erkennen sind.
+
+  Diese Angabe kann auch noch mit der Angabe für vorzeichenlose Zahlen
+  kombinierbar, wie zum Beispiel \type{UL} oder \type{ULL}.
+\stopdescription
+
+\startannotation{\cppXIV}
+
+Es besteht auch die Möglichkeit binäre Literale anzugeben, indem man das
+Präfix \type{0b} verwendet, also z.B. \type{0b1001} entspricht dem
+dezimalen Literal \type{9}.
+
+Weiters kann man Zahlenliterale mittels dem einfachen Hochkomma
+gliedern, sodass eine bessere Lesbarkeit gegeben ist. Die ganze Zahl für
+eine Million kann als \type{1'000'000} angeschrieben werden. Die
+einfachen Hochkommas haben für \cpp in diesem Fall keine Bedeutung und
+können beliebig gesetzt werden.
+\stopannotation
+
+\startannotation{\cppXIV}
+
+Eine weitere Erweiterung ist, dass Zahlenliterale zum Zwecke der
+besseren Lesbarkeit mittels dem Trennzeichen \type{'} beliebig
+unterteilt werden können:
+
+\starttyping
+// digitseps.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    cout << 1'000'000 << endl;
+    cout << 0644'711 << endl;
+    cout << 0xFF'00 << endl;
+    cout << 1'234.5 << endl;
+    cout << 0b1111'0000 << endl;
+}
+\stoptyping
+
+\stopannotation
+
+\section[gleitkommazahlen]{Gleitkommazahlen}
+
+Es gibt insgesamt drei verschiedenen Typen für Gleitkommazahlen, wobei
+auch hier die absoluten Größen von der Implementierung abhängig sind:
+
+\startdescription{\type{float}}
+  kennzeichnet eine Gleitkommazahl mit einfacher Genauigkeit. Diese
+  sollte nur verwendet werden, wenn man genau weiß warum man diese
+  einsetzen will.
+\stopdescription
+
+\startdescription{\type{double}}
+  gibt doppelte Genauigkeit an und ist der Standard für
+  Gleitkommazahlen. Alle Literale sind ohne weitere Kennzeichnung von
+  diesem Typ. Ein \type{double} ist mindestens so groß wie ein
+  \type{float}.
+\stopdescription
+
+\startdescription{\type{long double}}
+  steht für erweiterte Genauigkeit. Es ist definiert, dass
+  \type{long double} mindestens so groß ist wie \type{double}.
+\stopdescription
+
+Du solltest am besten immer \type{double} verwenden.
+
+Achtung, es gibt keine Promotion von \type{float} auf \type{double}, wie
+du im folgenden Beispiel sehen kannst!
+
+\startcpp
+// floatings.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    cout << sizeof(2.5F) << endl;
+    cout << sizeof(2.5) << endl;
+    cout << sizeof(2.5L) << endl;
+}
+\stopcpp
+
+Die Ausgabe auf meinem System ist:
+
+\startsh
+4
+8
+12
+\stopsh
+
+Konvertierungen auf den gemeinsamen größeren Datentyp in Ausdrücken
+finden sehr wohl statt. Hänge folgende Anweisungen an:
+
+\startcpp
+cout << sizeof(f + d) << endl;
+cout << sizeof(ld + d) << endl;
+\stopcpp
+
+Die Ausgabe dieser beiden Anweisungen sieht dann folgendermaßen aus:
+
+\startsh
+8
+12
+\stopsh
+
+Damit siehst du deutlich, dass die implizite Konvertierung zum größeren
+Datentyp von \cpp vorgenommen wird.
+
+\subsection[literale-für-gleitkommazahlen]{Literale für
+Gleitkommazahlen}
+
+Gleitkommazahlen können in der üblichen Form angeschrieben werden, wie
+z.B. \type{-2.5} oder \type{.1e-3} ($0.1 \cdot 10^{-3}$). Der Datentyp
+eines solchen Literals ist per Default \type{double}.
+
+Auch hier gibt es Suffixe für die beiden anderen Gleitkommazahltypen:
+
+\startdescription{Einfache Genauigkeit}
+  Mit dem Suffix \type{F} (oder alternativ \type{f}) kann ein Literal
+  als \type{float} angeschrieben werden, wie zum Beispiel \type{1.2F}.
+\stopdescription
+
+\startdescription{Erweiterte Genauigkeit}
+  Um Literale als \type{long double} zu kennzeichnen, wird das Suffix
+  \type{L} (oder \type{l}) verwendet, wie zum Beispiel \type{1.5L}.
+\stopdescription
+
+\section[void]{void}
+
+Der Datentyp \type{void} wird in zwei verschiedenen Arten gebraucht:
+
+\startitemize
+\item
+  Einerseits wird \type{void} als Rückgabetyp einer Funktion gebraucht,
+  wenn diese {\em keinen} Wert zurückliefert. Solch eine Funktion wird
+  in der Informatik oft auch als Prozedur (engl. {\em procedure})
+  genannt.
+
+  Die folgende Funktion liefert keinen Rückgabewert zurück und hat auch
+  keine formalen Parameter:
+
+  \startcpp
+  void say_hello() {
+      cout << "hello" << endl;
+  }
+  \stopcpp
+
+  In diesem Fall wird die Funktion beendet, wenn der Programmablauf bei
+  der geschwungenen Klammer angekommen ist. Alternativ kann auch eine
+  \type{return} Anweisung ohne Wert verwendet werden:
+
+  \startcpp
+  void say_hello() {
+      cout << "hello" << endl;
+      return;
+  }
+  \stopcpp
+\item
+  Im Zusammenhang mit Zeigern (siehe Abschnitt \in[pointer] auf Seite
+  \at[pointer]) wird \type{void*} verwendet, um einen Zeiger auf einen
+  Wert unbekannten Typs anzugeben. In high-level \cpp ist dies zu
+  vermeiden.
+\stopitemize
+
+\stopcomponent

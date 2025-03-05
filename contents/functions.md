@@ -1,0 +1,1361 @@
+
+# Funktionen {#functions}
+
+Die prinzipielle Deklaration und Definition einer Funktion in \cpp haben wir
+schon kennengelernt. In diesem Kapitel geht es darum, Funktionen im Detail
+kennenzulernen.
+
+In \cpp werden Methoden einer Klasse ebenfalls als Funktionen, und zwar genauer
+als *member functions* (dt. so viel wie Mitgliedsfunktionen) bezeichnet. Wir
+werden diese entweder als Methoden oder als Member-Funktionen
+bezeichnen. Dieses Kapitel beschränkt sich auf "normale" Funktionen, während
+Methoden im Abschnitt \in[memberfunctions] auf der Seite \at[memberfunctions]
+behandelt werden.
+
+
+## Deklaration und Definition {#functiondeclaration}
+
+Den Aufbau einer Deklaration haben wir schon im Abschnitt
+\in[structureofdeclarations] kennengelernt. Hier werden wir uns jetzt dem
+genauen Aufbau einer Funktionsdeklaration und einer Funktionsdefinition widmen.
+
+Eine Funktionsdeklaration spezifiziert in jedem Fall zumindest den Typ des
+Rückgabewertes, den Namen der Funktion und die Reihenfolge und Typen der
+Parameter. Damit schauen einfache Beispiele folgendermaßen aus:
+
+~~~{.cpp}
+// functions.cpp
+#include <iostream>
+
+using namespace std;
+
+double squared(double);
+void print(string msg);
+int one();
+
+int main() {
+}
+~~~
+
+Die erste Deklaration legt als Typ eine Funktion `squared` an, die einen `double`
+als Parameter hat und einen `double` als Rückgabewert zurückliefert. Der Name
+der Parameter muss in einer Deklaration nicht zwingend angegeben werden.
+
+Die Funktionsdeklaration `print` legt fest, dass die Funktion einen Parameter
+vom Typ `string` bekommt, der den Namen `msg` hat und keinen Wert
+zurückliefert, da `void` angegeben worden ist und `void` in diesem Fall
+bedeutet, dass es keinen Rückgabewert gibt.
+
+Die letzte Deklaration legt eine Funktion `one` fest, die keine Parameter erhält
+und einen Wert vom Typ `int` zurückliefert. Beachte, dass hier *keine* Variable
+vom Typ `int` angelegt wird, die mit dem Nullwert initialisiert wird! Eine
+solche Variable hätte besser mit `int one{};` angelegt werden sollen. Damit
+sieht man wieder, dass man besser nur die einheitliche Initialisierung verwenden
+sollte.
+
+So eine Funktionsdeklaration wird in \cpp auch als Prototyp oder
+Funktionsprototyp (engl. *prototype*) bezeichnet.
+
+Sonst tut dieses Programm natürlich nichts, da die Definition von `main`
+keinerlei Anweisungen enthält. Das Aufrufen der Funktionen wird allerdings
+nicht funktionieren, da die Funktionsdefinitionen noch fehlen. Das bedeutet,
+dass die nachfolgende Funktion `main` zwar vom Compiler korrekt übersetzt
+werden kann, aber der Linker die Adressen der Funktionen nicht kennt und
+deshalb eine Fehlermeldung generieren wird:
+
+~~~{.cpp}
+int main() {
+    print("2^2 - 1 = ");
+    cout << squared(2) - one() << endl;
+}
+~~~
+
+Im Link-Vorgang, dem Verbinden der Bezeichner mit den eigentlichen
+Speicherobjekten, wird eine Fehlermeldung generiert werden, die besagt, dass es
+undefinierte Referenzen zu den Funktionen gibt. Probiere es aus!
+
+Deshalb werden wir die folgenden Funktionsdefinitionen *nach* den
+Deklarationen aber *vor* dem Beginn der Funktion `main` einfügen:
+
+~~~{.cpp}
+double squared(double val) {
+    return val * val;
+}
+
+void print(string message) {
+    cout << message;
+}
+
+int one() {
+    return 1;
+}
+~~~
+
+Hier sehen wir, dass Funktionsdefinitionen nicht mit einem Strichpunkt
+abgeschlossen werden. Weiters bemerken wir, dass der Name des Parameters der
+Funktion `print` sich von dem entsprechenden Namen in der Deklaration
+unterscheidet. Das ist kein Problem, da der Name der Parameter nicht zum Typ
+der Funktionsdeklaration gehört.
+
+Jetzt können wir unser Programm wieder testen!
+
+Allgemein gilt, dass es für eine Funktionsdeklaration genau eine Definition
+geben muss, die mit dem Typ der Deklaration übereinstimmt. Allerdings darf es
+mehrere Deklarationen zu einer Definition geben, die jedoch alle übereinstimmen
+müssen (siehe Abschnitt \in[declaration]).
+
+In unserem obigen Beispiel hätten wir die Deklaration einfach weglassen können,
+da eine Definition ja eine spezielle Art der Deklaration ist. Da ein Bezeichner
+ab dem Zeitpunkt der Deklaration zur Verfügung steht, sind wir in der Lage die
+Funktionsdefinitionen von `squared`, `print` und `one` *hinter* `main`
+anzuordnen:
+
+~~~{.cpp}
+double squared(double);
+void print(string msg);
+int one();
+
+int main() {
+    // wie vorher
+}
+
+double squared(double val) {
+    return val * val;
+}
+
+// restliche Funktionsdefinitionen folgen hier
+~~~
+
+Damit funktioniert unser Beispiel wie zuvor, da der Compiler innerhalb von
+`main` den Typ der Bezeichner `squared`, `print` und `one` kennt und den
+entsprechenden Code für den Funktionsaufruf generieren kann. Nach `main` findet
+der Compiler die Funktionsdefinitionen, vergleicht diese mit den Deklarationen
+und generiert den Funktionscode. Normalerweise verbindet der Linker der
+Compilersuite im Link-Vorgang auch gleich den Funktionsaufruf mit der
+Funktionsdefinition.
+
+Natürlich wäre es in diesem Fall einfacher, die Funktionsdefinitionen vor der
+Funktion `main` anzuschreiben und keine extra Funktionsdeklarationen
+anzuschreiben. Allerdings benötigt man diese Funktionsdeklarationen sehr wohl
+in größeren Programmen. Wir werden dies im Abschnitt \in[headers] besprechen.
+
+Es besteht die Möglichkeit den Typ des Rückgabewertes einer Funktion durch den
+Compiler bestimmen zu lassen. Das macht vor allem bei der Verwendung von
+Templates einen Sinn, aber wir wollen uns hier die entsprechende Möglichkeit
+ansehen:
+
+~~~{.cpp}
+// sum.cpp
+#include <iostream>
+
+using namespace std;
+
+auto sum(int a, int b) -> decltype(a + b) {
+    return a + b;
+}
+
+int main() {
+    cout << "Die Summe von 3 und 5 ist " << sum(3,5) << endl;
+}
+~~~
+
+Hier wird das Schlüsselwort `auto` für den Rückgabewert der Funktionsdefinition
+verwendet und weiters nach der Parameterliste mittels `->` der Typ angegeben.
+Zwar könnte man in diesem speziellen Fall auch direkt `-> int` schreiben, aber
+das macht keinen Sinn. `decltype()` ermittelt den Typ des übergebenen
+Ausdruckes und in unserem konkreten Fall ergibt sich der Rückgabewert als der
+Typ des Ausdruckes `a + b`. Da sowohl `a` als auch `b` den Typ `int` aufweisen, ist
+der Typ von `a + b` ebenfalls `int`.
+
+<div class="c++14">
+In \cppXIV geht es sogar noch einfacher! Hier kann man nämlich den Teil `->`
+weglassen, wie das nachfolgende Beispiel zeigt.
+</div>
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+auto sum(int a, int b) {
+    return a + b;
+}
+
+int main() {
+    cout << "Die Summe von 3 und 5 ist " << sum(3,5) << endl;
+}
+~~~
+
+Wichtig ist lediglich, dass bei mehrfachen Vorkommen einer `return` Anweisung
+alle Ausdrücke der `return` Anweisungen den gleichen Typ haben müssen. Auch
+rekursive Funktionen sind auf diese Art möglich, nur muss die
+`return`-Anweisung mit einem rekursiven Funktionsaufruf die letzte
+`return`-Anweisung innerhalb der Funktionsdefinition sein.
+
+Hier muss allerdings aufgepasst werden, dass `auto` bei
+Forward-Deklaration durchaus eingesetzt werden kann, aber die Funktion kann
+erst dann verwendet werden, wenn diese *definiert* ist:
+
+~~~{.cpp}
+auto sum(int a, int b);
+~~~
+
+Damit haben wir den grundlegenden Aufbau einer Funktionsdeklaration und einer
+Funktionsdefinition kennengelernt.
+
+Zu erwähnen ist, dass Funktionen innerhalb von anderen Funktionsdefinitionen
+deklariert, aber nicht definiert werden dürfen. Eine Funktionsdefinition
+innerhalb einer Funktionsdefinition ist also syntaktisch nicht möglich.
+
+Weiters gibt es noch weitere Spezifikationssymbole (engl. *specifier*), die für
+eine Funktion verwendet werden können, die an den Anfang einer
+Funktionsdeklaration gestellt werden können.
+
+Für "normale" Funktionen, die nicht Methoden sind, gibt es die folgenden
+Spezifikationssymbole, die am Beginn der Funktion angegeben werden können:
+
+- Mit `inline` wird dem Compiler mitgeteilt, dass er den Funktionsrumpf direkt
+    einfügen soll. Dies ist im Abschnitt \in[inlinefunc] beschrieben.
+- `constexpr` gibt an, dass diese Funktion in einen einem Ausdruck verwendet
+  werden kann, der selbst als `constexpr` gekennzeichnet ist. Dies ist im
+  Abschnitt \in[constexprfunc] beschrieben.
+- Mittels `static` wird angegeben, dass eine Funktion interne Bindung hat. Das
+    werden wir uns im Abschnitt \in[staticfunc] ansehen.
+- `extern` gibt an, dass die Funktion externe Bindung aufweist. Dies ist im
+    Abschnitt \in[externbinding] beschrieben.
+
+Weiters gibt es `noexcept`, das an das Ende der Funktion gesetzt werden kann
+und angibt, dass die Funktion keine Exception wirft. Dies wird im Abschnitt
+\in[noexceptfunc] beschrieben.
+
+
+## Funktionsaufruf
+
+Der Aufruf einer Funktion ist je nach verwendetem System unterschiedlich.
+Meist werden die Argumente am Stack übergeben und der Rückgabewert entweder
+ebenfalls mittels dem Stack an den Aufrufer zurückgegeben oder in einem
+Register zurückgeliefert.
+
+<div class="annotation">
+Im Fall der oft verwendeten Intel-Prozessorfamilie und der C-Aufrufkonvention
+"cdecl" sieht dies so aus, dass die Argumente zuerst auf den Stack platziert
+werden, dann wird die "CALL" Anweisung aufgerufen, die zuerst die
+Rücksprungadresse ebenfalls auf den Stack gibt und danach zu der Adresse der
+Funktion verzweigt. Die Funktion kann auf die einzelnen Parameter zugreifen
+und speichert den Rückgabewert in ein Register. Danach wird die "RET" Anweisung
+ausgeführt, die sich vom Stack die Rücksprungadresse holt und zu dieser zurück
+verzweigt. Der Aufrufer setzt den Stackpointer zurück und entfernt damit
+implizit die Argumente vom Stack.
+</div>
+
+
+### Argumente {#functionarguments}
+
+Die Parameter einer Funktion in der Funktionsdeklaration werden auch als
+formale Parameter (engl. *formal parameters*) bezeichnet. Beim Aufruf der
+Funktion werden die tatsächlichen Parameter (engl. *actual parameter*) der
+Funktion übergeben. Die tatsächlichen Parameter werden auch Argumente
+(engl. *arguments*) oder oft auch aktuelle Parameter genannt.
+
+Es gibt prinzipiell zwei Arten der Übergabe von Parametern:
+
+- mittels Kopien als Werte (engl. *per-value*)
+- mittels Referenzen (engl. *per-reference*)
+
+Wir werden auf die beiden Arten jetzt genauer eingehen.
+
+#### Übergabe als Kopie
+
+Schauen wir uns dazu nochmals unser Programm `functions.cpp` an und im
+speziellen die Übergabe der Parameter an die Funktionen. In dieser Datei
+haben wir die folgenden Funktionen mit Parameterübergabe als
+Kopie verwendet:
+
+~~~{.cpp}
+double squared(double val) {
+    return val * val;
+}
+
+void print(string message) {
+    cout << message;
+}
+~~~
+
+In dieser Form -- ohne weitere syntaktische Angabe -- werden in \cpp die
+Argumente und der Rückgabewert immer per-value übergeben. Dass die Argumente
+per-value übergeben werden, hat die Auswirkung, dass diese Argumente innerhalb
+der Funktion verändert werden können und keinen Nebeneffekt für den Aufrufer
+zur Folge haben.
+
+Im konkreten Fall der Funktion `squared` bedeutet dies, dass innerhalb von
+`squared` der Parameter `val` geändert werden kann und dies keinerlei
+Auswirkung auf den Aufrufer hat. Ändere dazu deine Datei `functions.cpp`
+wie folgt ab:
+
+~~~{.cpp}
+double squared(double val) {
+    val = val * val;
+    return val;
+}
+
+int main() {
+    // ...
+    double val{5};
+    cout << squared(val) << endl;
+    cout << val << endl;
+}
+~~~
+
+Die Ausgabe wird folgendermaßen aussehen:
+
+~~~{.cpp}
+25
+5
+~~~
+
+Das bedeutet, dass mittels einer Übergabe als Kopie der Aufrufer von
+Nebeneffekten einer aufgerufenen Funktion geschützt ist. Dies ist
+logischerweise nur gültig, solange wir die Änderungen an dem Argument selbst
+betrachten und nicht über ein etwaig per Pointer referenziertes Speicherobjekt.
+Werden Pointer als Kopie übergeben, dann führen Änderungen am Pointer ebenfalls
+zu keinen Nebeneffekten. Änderungen an Speicherobjekten, auf die Pointer
+verweisen, werden vom Aufrufer der Funktion sehr wohl wahrgenommen:
+
+~~~{.cpp}
+void incr(double* pd) {
+    pd = nullptr;
+}
+
+int main() {
+    // ...
+    double counter{1};
+    double* pd{&counter};
+    incr(pd);
+    cout << ((pd == nullptr) ? 0 : *pd) << endl;
+}
+~~~
+
+Die Ausgabe wird wie erwartet der aktuelle Wert 1 der Variable `counter` sein.
+Ändern wir jetzt die Funktion `incr` wie folgt ab:
+
+~~~{.cpp}
+void incr(double* pd) {
+    ++*pd;
+}
+~~~
+
+Als Ausgabe erhalten wir jetzt natürlich 2.
+
+Das Übergeben der Argumente per-value ist semantisch gesehen wie
+die Initialisierung einer Variable mit einem Wert zu betrachten. Wie wir später
+noch sehen werden bedeutet dies, dass bei Instanzen von Klassen der
+Kopierkonstruktor aufgerufen wird.
+
+Wie schon erwähnt werden rohe Arrays als Parameter und rohe Arrays als
+Rückgabewert immer als Pointer auf das erste Arrayelement (per value)
+übergeben. Das hat Auswirkungen:
+
+- Die Angabe der Feldgrenze bei der Parameterangabe ist unerheblich und hat
+    außer zu Dokumentationszwecken keinerlei Auswirkung!
+
+    ~~~{.cpp}
+    // array_param.cpp
+    #include <iostream>
+
+    using namespace std;
+
+    void print(char* names[10]) {
+        cout << sizeof(names) << endl;
+    }
+
+    int main() {
+        char* names[10];
+        print(names);
+    }
+    ~~~
+
+    Die Ausgabe dieses Programmes ist von der entsprechenden Architektur
+    und im speziellen von der Größe eines Pointers abhängig! Ein System mit
+    4 Byte großen Zeigern liefert eben den Wert 4.
+    
+    Achtung auch die Änderung der Variable `names` wie folgt hat keine
+    Auswirkung auf die Übersetzung oder die Ausführung:
+
+    ~~~{.cpp}
+    char* names[5];
+    ~~~
+
+    Wir sehen, dass der Compiler hier keinerlei Überprüfungen vornimmt und aus
+    dieser Sicht auch nicht vornehmen kann.
+    
+- Damit einhergehend ergibt sich, dass man über keinerlei Information verfügt,
+    über wie viele Elemente das Array in der Funktion verfügt. Innerhalb von
+    `main` weiß dies der Compiler aber schon! Schreibe die Funktionen `print`
+    und `main` wie folgt um:
+
+    ~~~{.cpp}
+    void print(const char* names[10]) {
+        cout << sizeof(names) << endl;
+    }
+    
+    int main() {
+        const char* names[5] {"otto", "ulli", "susi"};
+        cout << sizeof(names) << endl;
+    }
+    ~~~
+
+    Als genauer Beobachter ist dir wahrscheinlich aufgefallen, dass die
+    Deklaration der Zeiger in der Parameterspezifikation von `print` als auch
+    in der Definition von `names` jetzt mit einem `const` versehen worden ist.
+
+    Das liegt daran, dass `names` mit einer Liste von C-String-Literalen
+    initialisiert worden ist. Diese sind vom Typ her ein Array von `const char`
+    Elementen und haben, in diesem Beispiel, jeweils den Typ `const
+    char[5]`. Damit es zu keiner Warnung seitens des Compilers kommt, wurde der
+    Typ von `names` entsprechend umgeändert. Damit einhergehend wurde auch der
+    Typ des Parameters der Funktion `print` geändert, auch wenn diese derzeit
+    nicht mehr aufgerufen wird.
+
+    Unter der Voraussetzung, dass ein Pointer auf unserem System die Größe von
+    4 Bytes aufweist, wird es zu folgender Ausgabe kommen:
+
+    ~~~{.sh}
+    20
+    ~~~
+
+    Das Array hat eine Größe von 5 Elementen mit je einem Pointer, woraus die
+    Ausgabe von 20 folgt.
+
+    Dies kann man sich zunutze machen, um über die Elemente des Arrays zu
+    iterieren. Hänge folgende Zeilen an:
+
+    ~~~{.cpp}
+    for (int i{}; i < sizeof(names) / sizeof(const char*); ++i)
+        cout << names[i] << endl;
+    ~~~
+
+    Durch die Division der Größe des Arrays durch die Größe eines einzelnen
+    Elementes kommt man eben zur Anzahl der Elemente in dem Array.
+
+    Die Ausgabe, die die Schleife erzeugt, wird folgendermaßen aussehen:
+
+    ~~~{.sh}
+    otto
+    ulli
+    susi
+    ~~~
+
+    Stimmt das? Wie viele Elemente haben wir in dem Array? Fünf Elemente, aber
+    nur drei Ausgaben. Das liegt daran, dass es sich bei den letzten beiden
+    Elementen um Null-Pointer handelt. Die Ausgabe eines Null-Pointers auf einen
+    C-String macht natürlich keinen Sinn und versetzt den Ausgabekanal `cout`
+    in einen Fehlerzustand. Das bewirkt, dass keine weiteren Ausgaben möglich
+    sind, bevor der Ausgabekanal wieder zurückgesetzt wurde. Dies kann man
+    leicht durch das Anfügen der folgenden Ausgabeoperation im Anschluss an
+    die Schleife überprüfen:
+
+    ~~~{.cpp}
+    cout << "Hello!" << endl;
+    ~~~
+
+    Es wird zu keiner Ausgabe kommen! Es bleibt also die Möglichkeit, entweder
+    die Ausgabe eines Null-Pointers zu unterbinden (z.B. mittels einer Abfrage)
+    oder eben den Fehlerzustand zurückzusetzen. Füge deshalb die folgende
+    Anweisung vor der Ausgabe von "Hello" ein und die Ausgabe wird durchgeführt
+    werden:
+
+    ~~~{.cpp}
+    cout.clear();
+    ~~~
+
+    Selbstverständlich wissen wir, dass dies durchaus einfacher gegangen wäre:
+
+    ~~~{.cpp}
+    for (auto n : names) {
+        if (n)
+            cout << n << endl;
+    }
+    ~~~
+
+    Auch hier darf man nicht vergessen, dass die beiden letzten Array-Elemente
+    jeweils einen Null-Pointer darstellen und daher den Ausgabekanal in einen
+    Fehlerzustand versetzen würden. Deshalb wurde in diesem Beispiel überprüft,
+    ob es sich um keinen Null-Pointer handelt.
+
+Will man das Array an die Funktion `print` übergeben, dann muss man die Anzahl
+der Elemente als Parameter mitgeben. Ändere daher die Funktionsdefinition wie
+folgt ab:
+
+~~~{.cpp}
+void print(const char* names[], int size) {
+    cout << sizeof(names) << endl;
+    cout << size << endl;
+}
+~~~
+
+Weiters muss noch ein entsprechender Aufruf hinzugefügt werden:
+
+~~~{.cpp}
+print(names, 3);
+~~~
+
+Hier haben wir nur die Anzahl der tatsächlich enthaltenen Elemente übergeben
+und damit wird auch die Ausgabe durch die Funktion `print` in unserem Fall
+erwartungsgemäß folgendermaßen aussehen:
+
+~~~{.sh}
+4
+3
+~~~
+
+Das Iterieren über die Elemente kann jetzt ganz leicht mit einer
+`for`-Zählschleife erreicht werden:
+
+~~~{.cpp}
+void print(const char* names[], int size) {
+    for (int i{}; i < size; ++i) {
+        cout << names[i] << endl;
+    }
+}
+~~~
+
+Beachte, dass eine "foreach" Schleife innerhalb der Funktion `print` aus den
+genannten Gründen nicht funktioniert. Der Compiler wird eine derartige Funktion
+`print` nicht einmal übersetzen:
+
+~~~{.cpp}
+void print(const char* names[], int size) {
+    for (auto n : names)
+        cout << n << endl;
+}
+~~~
+
+Damit sehen wir, dass es sinnvoll ist, anstatt der rohen Arrays entweder die
+Klasse `array` oder die Klasse `vector` der Standardbibliothek zu verwenden.
+
+#### Übergabe als Referenz
+
+Die zweite Art der Übergabe von Parametern ist "per-reference". Da wir zwei
+Arten von Referenzen in \cpp kennengelernt haben, gibt es auch beide Arten bei
+der Parameterübergabe.
+
+Mittels einer lvalue-Referenz kann man Daten einer Funktion übergeben und auch
+gleichzeitig aus dieser zurückliefern. Wir haben dies schon im Abschnitt
+\in[rvalueref] im Kontext der Besprechung der rvalue-Referenzen gesehen.
+
+Hier folgt nochmals ein direktes Beispiel, das die direkte Übergabe von Daten
+und das Zurückliefern zeigt:
+
+~~~{.cpp}
+// lvaluerefpar.cpp
+#include <iostream>
+
+using namespace std;
+
+void incr(int& counter) {
+    ++counter;
+}
+
+int main() {
+    int counter{};
+
+    incr(counter);
+    
+    cout << counter << endl;
+}
+~~~
+
+Im Gegensatz zur Übergabe per-value wird hier nicht der Wert der Variable
+`counter` als Kopie übergeben, sondern faktisch die Adresse der Variable.
+Innerhalb der Funktion wird überall, ganz im Sinne der Verwendung der Referenz,
+eine implizite Dereferenzierung durchgeführt. Damit bewirkt der
+Inkrementoperator auch eine Erhöhung der Variable `counter` aus der Funktion
+`main`, womit es eben zur Ausgabe 1 kommt.
+
+Die Übergabe per-reference sollte nur verwendet werden, wenn man Objekte in
+einer Funktion verändern und auch wieder zurückliefern möchte. Will man aus
+Performancegründen große Objekte ebenfalls als Referenz übergeben, dann sollte
+dies als konstante Referenz erfolgen.
+
+Es ist generell anzuraten Daten im Normalfall per-value zu übergeben, da
+Nebeneffekte vermieden werden und damit eine klarere Struktur des Programmes
+entsteht.
+
+Damit macht es in diesem konkreten Beispiel keinen Sinn die Variable `counter`
+per-reference zu übergeben.
+
+Die zweite Art der Übergabe per-reference, ist die Übergabe als
+rvalue-Referenz. Betrachten wir nochmals unser Beispiel von vorhin und fügen
+der Funktion `main` die folgende Anweisung hinzu:
+
+~~~{.cpp}
+incr(2);
+~~~
+
+Damit wird der Compiler das Programm nicht mehr übersetzen können, da es sich
+bei dem Zahlenliteral 2 um einen rvalue handelt. Erinnere dich: Kann eine
+Adresse ermittelt werden, dann ist es ein lvalue, außer die Deklaration
+kennzeichnet ein `const` Speicherobjekt.
+
+Um das Programm in dieser Form übersetzen zu können, füge die folgende
+Funktionsdefinition gleich hinter der Definition von `incr` an:
+
+~~~{.cpp}
+void incr(int&& counter) {
+    ++counter;
+}
+~~~
+
+Mit dieser zusätzlichen Definition wird der Compiler jetzt zufrieden sein, da
+wir jetzt eine zusätzliche Definition einer Funktion `incr` haben, die eine
+rvalue-Referenz als formalen Parameter hat und sich beim Aufruf einen rvalue
+erwartet. Das macht natürlich in unserem konkreten Fall absolut keinen Sinn, da
+die Erhöhung der lokalen Variable `counter` in der Funktion `incr` keinerlei
+Auswirkung hat! Damit sehen wir, dass die Verwendung von rvalue-Referenzen als
+formale Parameter eher selten Verwendung finden wird. Diese kommen
+hauptsächlich bei der Verwendung von benutzerdefinierten Datentypen zum
+Einsatz.
+
+Wir sehen hier außerdem, dass wir Funktionen genauso wie Operatoren überladen
+können und werden uns das Überladen von Funktionen noch im Abschnitt
+\in[functionoverloading] auf der Seite \at[functionoverloading] ansehen.
+
+Alternativ hätten wir den Compiler auch noch mit folgender Funktionsdefinition
+zufriedenstellen können:
+
+~~~{.cpp}
+void incr(const int& counter) {
+}
+~~~
+
+Auch dann hätte das Übersetzen problemlos funktioniert, da die gleichen Regeln
+zutreffen wie schon im Abschnitt \in[lvalueref] besprochen. Es ist
+offensichtlich, dass auch dieser Ansatz keine Lösung ist, da wir innerhalb der
+Funktion `incr` den Wert der lokalen Variable `counter` nicht mehr verändern
+können, da dieser als `const` markiert ist.
+
+#### Default-Argumente
+
+Will man für einen Parameter keinen Wert mitgeben, dann kann man einen
+Default-Wert bei der Deklaration mitgeben.
+
+~~~{.cpp}
+// defaultargs.cpp
+#include <iostream>
+
+using namespace std;
+
+int incr(int=0);
+
+int incr(int counter) {
+    return counter + 1;
+}
+
+int main() {
+    cout << incr() << endl;
+    cout << incr(1) << endl;
+}
+~~~
+
+Wir sehen bei diesem Beispiel, dass wir die Funktion sowohl mit als auch ohne
+Argument aufrufen können. Wird die Funktion ohne Argument aufgerufen, dann wird
+eben der Default-Wert verwendet. Damit kommt es zu folgender Ausgabe:
+
+~~~{.sh}
+1
+2
+~~~
+
+Wichtig ist, dass Default-Werte nur für die letzten Parameter eingesetzt werden
+können. Das bedeutet, dass nach einem Default-Parameter kein nicht
+Default-Parameter verwendet werden kann.
+
+Ein Default-Argument kann im gleichen Scope weder wiederholt noch geändert
+werden. Damit sind solche Deklarationen fehlerhaft:
+
+~~~{.cpp}
+int incr(int=0);
+int incr(int=0);  // darf nicht wiederholt werden
+int incr(int=1);  // darf nicht geändert werden
+~~~
+
+Die Default-Argumente werden zum Zeitpunkt des Funktionsaufrufes ausgewertet:
+
+~~~{.cpp}
+int getDefault();
+
+int incr(int=getDefault());
+~~~
+
+Das heißt, dass beim Aufruf von `incr` in diesem Fall zuerst die Funktion
+`getDefault` aufgerufen werden wird.
+
+#### Variable Anzahl an Parametern
+
+Es gibt in \cpp mehrere Möglichkeiten wie eine variable Anzahl an Argumenten
+übergeben werden kann:
+
+- Es gibt die Möglichkeit die Parameterliste mittels `...` abzuschließen. Das
+    bedeutet, dass eine variable Anzahl an beliebigen Parametern an die Funktion
+    übergeben werden kann. Diesen Ansatz werden wir nicht weiter betrachten, da
+    dieser nicht typsicher ist.
+
+- Weiters gibt es die Möglichkeit mittels Funktionstemplates eine typsichere
+    Übergabe von einer variablen Anzahl an Parametern zu erreichen. Dies werden
+    wir uns im Abschnitt \in[functiontemplates] ansehen.
+
+- Man kann Parameter eines bestimmten Typs mittels des schon bekannten Typs
+    `initializer_list` erreichen. Diesen Ansatz werden wir uns jetzt ansehen:
+
+    ~~~{.cpp}
+    // vararginitlist.cpp
+    #include <iostream>
+     
+    using namespace std;
+     
+    void log(initializer_list<string> messages) {
+        for (auto msg : messages) {
+            cout << msg << endl;
+        }
+    }
+     
+    int main() {
+        log({"testing", "warning", "error"});
+    }
+    ~~~
+
+    Wir sehen, dass wir auch hier eine variable Anzahl von Argumenten des
+    gleichen Typs haben.
+
+### Rückgabewert und Beendigung einer Funktion
+
+Der Rückgabewert einer Funktion ist analog zu der Parameterübergabe zu
+betrachten.
+
+Das Zurückliefern von Referenzen ist in bestimmten Situationen sinnvoll und
+wird oft in Zusammenhang mit benutzerdefinierten Datentypen eingesetzt. Ein
+bekanntes Beispiel kennen wir schon, nämlich bei der Verwendung des Operators
+`<<` im Zusammenhang mit der Ausgabe und dem Objekt `cout`. Der Operator
+liefert in diesem Fall eine Referenz auf die eigene Instanz, also `cout`,
+zurück. Damit können Methodenaufrufe verkettet werden:
+
+~~~{.cpp}
+cout << "abc" << "def" << endl;
+~~~
+
+Dies funktioniert so, dass `cout << "abc"` eine Referenz auf `cout`
+zurückliefert und hiermit für den Aufruf des Operators `<<` mit dem Operanden
+`"def"` zur Verfügung steht. Mit `endl` funktioniert dies wieder analog auch
+wenn dieser Rückgabewert in dem Beispiel keine weitere Verwendung findet.
+
+Es gibt mehrere Möglichkeiten wie eine Funktion beendet werden kann:
+
+- Es wird eine `return`-Anweisung ausgeführt so wie wir es schon öfters gesehen
+    haben.
+- Das Ende der Funktion mit der geschwungenen Klammer wird erreicht und der Typ
+    des Rückgabewertes ist mit `void` angegeben.
+- Es wird eine Exception (Ausnahme) geworfen. Das werden wir uns im Abschnitt
+    \in[exceptionfoundations] ansehen.
+- Innerhalb des Funktionsrumpfes wird ein Systemaufruf (engl. *system call*,
+    eingedeutscht Systemcall) für eine das Programm beendende Aktion
+    aufgerufen, wie zum Beispiel `exit()`. Mehr dazu siehe Abschnitt
+    \in[program].
+
+    Für derartige Funktionen, die nicht mehr aus der Funktion zurückspringen,
+    wie zum Beispiel `exit()`, kann man ein *Attribut* `[[noreturn]]`
+    voranstellen, das genau dies angibt. Der Vorteil liegt darin, dass
+    einerseits dieses Verhalten hiermit dokumentiert ist und andererseits der
+    Compiler einen effizienteren Code generieren kann. Dies sieht dann im Fall
+    der Funktion `exit` folgendermaßen aus:
+
+    ~~~{.cpp}
+    [[noreturn]] void exit(int);
+    ~~~
+
+    Sollte die Funktion trotzdem zurückspringen, dann ist das Verhalten nicht
+    definiert.
+
+    Attribute kann man syntaktisch gesehen weitgehend überall im Programmtext
+    anschreiben, allerdings sind nur ganz wenige Attribute im Standard
+    festgeschrieben.
+
+    <div class="c++14">
+    In \cppXIV wurde ein weiteres Attribut eingeführt, das es erlaubt
+    Definitionen als veraltet zu markieren. Damit wird der Compiler bei der
+    Verwendung eine Warnung erzeugen, wie das nachfolgende Beispiel zeigt:
+    </div>
+
+    ~~~{.cpp}
+    // deprecated.cpp
+    #include <iostream>
+
+    using namespace std;
+
+    [[deprecated]]
+    int x{1};
+
+    [[deprecated]]
+    int f(int x) {
+        return x;
+    }
+
+    int main() {
+        cout << f(x) << endl;
+    }
+    ~~~
+    
+
+### Lokale Variable {#localvar}
+
+Lokale Variablen werden in Funktionen genauso behandelt wie "normale" lokale
+Variablen. Interessant in diesem Zusammenhang ist, dass lokale Variablen als
+"statisch" deklariert werden können:
+
+~~~{.cpp}
+// staticvar.cpp
+#include <iostream>
+
+using namespace std;
+
+int nextid() {
+    static int lastid;
+
+    return ++lastid;
+}
+
+int main() {
+    for (int i{}; i < 3; ++i)
+        cout << nextid() << endl;
+}
+~~~
+
+Die Ausgabe wird folgendermaßen ausfallen:
+
+~~~{.sh}
+1
+2
+3
+~~~
+
+Eine mit `static` deklarierte lokale Variable behält ihren Wert über mehrere
+Funktionsaufrufe hinweg. Außerdem wird eine derartige Variable, im Gegensatz zu
+lokalen ohne `static`, immer initialisiert. Wird kein Wert als Initialisierung
+angegeben, dann wird der "Null-Wert" genommen.
+
+## Überladen von Funktionen {#functionoverloading}
+
+Prinzipiell haben wir schon gesehen, dass wir Funktionen überladen können. Das
+bedeutet, dass wir mehrere Funktionsdeklarationen mit dem gleichen Namen, aber
+unterschiedlichen Parametern haben können. Der Compiler wird in Abhängigkeit
+der Anzahl und der Typen der Argumente die richtige Funktion beim Aufruf
+auswählen:
+
+~~~{.cpp}
+// functionoverloading.cpp
+#include <iostream>
+
+using namespace std;
+
+void sayHello(char c) {
+    cout << "Hello " << c << "!" << endl;
+}
+
+void sayHello(const char* str) {
+    cout << "Hello " << str << "!" << endl;
+}
+
+void sayHello(string str) {
+    cout << "Hello " << str << "!" << endl;
+}
+
+int main() {
+    sayHello('!');
+    sayHello("World");
+    string name{"Bob"};
+    sayHello(name);
+}
+~~~
+
+Die Ausgabe wird natürlich folgendermaßen aussehen:
+
+~~~{.sh}
+Hello !!
+Hello World!
+Hello Bob!
+~~~
+
+Es ist sehr schön zu sehen, dass \cpp in Abhängigkeit des Typs des Arguments,
+jeweils die richtige Funktion zur Ausführung bringt.
+
+Die Regeln, die der Reihe nach angewandt werden, um die richtige Funktion auszuwählen,
+sind in etwa folgendermaßen:
+
+a. Gibt es eine exakte Übereinstimmung der Anzahl, Reihenfolge und Typen der
+   Argumente mit denen der Parameter der Funktionsdeklaration, dann wird die
+   entsprechende Funktion verwendet. Für das gerade gezeigte Beispiel trifft
+   diese Regel zu.
+
+b. Gibt es eine Übereinstimmung nach der Durchführung von Promotions, dann
+   wird die entsprechende Funktion verwendet. Promotions wurden schon im
+   Abschnitt \in[implicitconv] erklärt.
+
+c. Danach wird versucht mit einer Konvertierung (siehe Abschnitt
+   \in[implicitconv]) eine Funktion zu finden.
+
+d. Im Anschluss wird noch versucht mit einer benutzerdefinierten Konvertierung
+    zu einer Übereinstimmung zu kommen.
+
+e. Führten alle vorangegangen Versuche nicht zu einem Ergebnis, dann werden
+    noch Funktionsdeklarationen mit einer variablen Anzahl von Parametern auf
+    Basis von `...` herangezogen.
+
+Bei all diesen Regeln ist zu beachten, dass die Reihenfolge der
+Funktionsdeklarationen keine Rolle spielt. Weiters spielt der Typ des
+Rückgabewertes der Funktion keine Rolle.
+
+Außerdem werden Funktionen aus verschiedenen Scopes *nicht* für das Überladen
+in Betracht gezogen!  Wir haben schon im Abschnitt \in[scope] gesehen, dass
+Bezeichner des aktuellen Geltungsbereiches die Bezeichner der umschließenden
+Geltungsbereiche überschatten. Das kann durchaus zu überraschenden Ergebnissen
+führen:
+
+~~~{.cpp}
+// overloadingscope.cpp
+#include <iostream>
+
+using namespace std;
+
+int incr(int counter) {
+    cout << "int" << endl;
+    return counter + 1;
+}
+
+int incr(double counter) {
+    cout << "double" << endl;
+    return counter + 1;
+}
+
+int main() {
+    int incr(double counter);
+
+    incr(1);
+}
+~~~
+
+Die Ausgabe wird in diesem Fall der String `double` sein, obwohl es sich bei 1
+um ein Zahlenliteral vom Typ `int` handelt! Durch die Deklaration der Funktion
+`int incr(double)` steht nur diese Funktion in diesem Scope zur Verfügung. Es
+wird mittels einer Promotion `int` zu einem `double` implizit konvertiert und
+daher kann diese Funktion beim Aufruf verwendet werden.
+
+Hier noch einmal: Funktionen, die in verschiedenen Geltungsbereichen deklariert
+sind, überladen sich nicht! Besonders wichtig ist das im Zusammenhang mit
+Vererbung wie im Abschnitt \in[methodoverloading] gezeigt wird.
+
+Eine einfache Abhilfe in diesem konkreten Beispiel ist, dass die Funktion aus
+dem globalen Scope aufgerufen wird. Das kann ganz leicht erreicht werden indem
+der Bereichsauflösungsoperator `::` eingesetzt wird.  Ersetze dazu `incr(1)`
+durch `::incr(1)` und als Ausgabe wird daher `int` erscheinen.
+
+Auch wenn dies wahrscheinlich nicht oft vorkommen wird, hat dies jedoch eine
+wichtige Anwendung im Zusammenhang mit benutzerdefinierten Datentypen. Wir
+werden uns dies noch im Abschnitt \in[methodoverloading] ansehen.
+
+## Übergeben von Funktionen {#funcasparam}
+
+Manchmal macht es Sinn, eine Funktion an eine Funktion zu übergeben. Die
+übergebene Funktion kann innerhalb der Funktion aufgerufen werden. Damit kann
+man nicht nur einzelne Daten übergeben, sondern auch Verhalten mitübergeben.
+
+Es gibt die folgenden Möglichkeiten:
+
+- Pointer auf eine Funktion (siehe Abschnitt \in[pointerfunc])
+- Funktionsobjekte (siehe Abschnitt \in[funcobj])
+- Lambdafunktionen (siehe Abschnitt \in[lambdafunc])
+
+### Pointer auf Funktion {#pointerfunc}
+
+Die einfachste Möglichkeit ist, Funktionen direkt zu übergeben. In diesem Sinne
+wird die Übergabe einer Funktion genauso behandelt, wie die Übergabe eines rohen
+Arrays.
+
+Schauen wir uns vorerst folgendes kleines Programm an:
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+double add(double a, double b) {
+    return a + b;
+}
+
+double mul(double a, double b) {
+    return a * b;
+}
+
+int main() {
+    double (*f)(double, double);
+
+    f = add;
+    cout << f(3, 2) << endl;
+    f = mul;
+    cout << f(3, 2) << endl;
+}
+~~~
+
+Die Ausgabe sieht dann so aus:
+
+~~~{.sh}
+5
+6
+~~~
+
+- Zuerst werden zwei, vom Typ gleiche, Funktionen `add` und `mul` definiert, die die
+    übergebenen Parameter addieren beziehungsweise multiplizieren und das
+    Ergebnis jeweils zurückliefern.
+
+- Innerhalb von `main` wird zuerst eine Variable `f` definiert, die als Typ
+    einen Pointer auf eine Funktion darstellt. Diese Funktion, auf die `f`
+    zeigt, bekommt zwei Parameter von Typ `double` und liefert einen Wert vom
+    Typ `double` zurück.
+
+    Wichtig sind die Klammern um `*f`, da der Operator `()` eine höhere
+    Priorität hat als der Operator `*`!
+
+- Die Zuweisung von `add` auf `f` zeigt sehr schön, dass die Funktion `add` als
+    Pointer auf eine Funktion betrachtet wird. In \cpp werden solche Funktionen
+    als Pointer betrachtet, die einen Typ haben, der dem Prototyp der Funktion
+    entspricht.
+
+- Beim Aufrufen einer Funktion sehen wir, dass der Pointer direkt beim Aufruf
+    als normaler Funktionsaufruf verwendet werden kann.
+
+Da Funktionen in diesem Sinne als Pointer aufgefasst werden können, können
+diese Pointer auch an andere Funktionen übergeben werden.
+
+~~~{.cpp}
+using func = double (*)(double, double);
+
+double accumulate(initializer_list<double> list, func f) {
+    double res{};
+    for (auto elem : list) {
+        res = f(res, elem);
+    }
+    return res;
+}
+~~~
+
+Und innerhalb der Funktion `main` füge folgende Anweisung hinzu:
+
+~~~{.cpp}
+cout << accumulate({1.0, 2.0, 3.0, 4.0}, add) << endl;
+~~~
+
+Die Ausgabe ergibt in diesem Fall `10`. Wir sehen, dass wir das
+Verhalten der Funktion `accumulate` verändern können, indem wir verschiedene
+Funktionen übergeben.
+
+### Funktionsobjekt {#funcobj}
+
+Alternativ zu den Funktionszeigern besteht die Möglichkeit, Funktionsobjekte zu
+verwenden. Ein Funktionsobjekt ist an sich ein normales Objekt, das jedoch über einen
+Operator `operator()` verfügt. Das bedeutet, dass man Objekte mit einem
+solchen Operator wie eine normale Funktion aufrufen kann.
+
+Mittels der Standardbibliothek kann man leicht Funktionsobjekte anlegen:
+
+~~~{.cpp}
+// funcobj.cpp
+#include <iostream>
+#include <functional>
+
+using namespace std;
+
+double add(double a, double b) {
+    return a + b;
+}
+
+double mul(double a, double b) {
+    return a * b;
+}
+
+int main() {
+    function<double(double, double)> f;
+    f = add;
+    cout << f(3, 2) << endl;
+}
+~~~
+
+Soweit funktioniert das Beispiel genauso wie vorher. Wo ist jetzt der Vorteil?
+Prinzipiell kann mit diesen Objekten jede beliebige Funktionsart verwendet
+werden. In dem obigen Beispiel wurde `f` ein Pointer auf eine Funktion
+zugewiesen. Aber es ist auch möglich `f` eine Lambda-Funktion (siehe Abschnitt
+\in[lambdafunc]) oder eine Methode zuzuweisen.
+
+Weiters kann man auch einzelne oder alle Parameter mit Werten vorbelegen. Hänge
+folgende Zeilen an dein Programm an:
+
+~~~{.cpp}
+auto f2 = bind(f, 3, 2);
+cout << f2() << endl;
+~~~
+
+Auch hier ist die Ausgabe natürlich `5`. Willst du nicht alle Parameter
+mit Werten binden, sondern nur einzelne, dann funktioniert das folgendermaßen:
+
+~~~{.cpp}
+using namespace std::placeholders;  // _1, _2,...
+auto f3 = bind(f, _1, 2);
+cout << f3(3) << endl;
+~~~
+
+Du siehst, dass auf diese Weise der erste Parameter der "neuen" Funktion `f3`
+an den ersten Parameter der Funktion `f` gebunden wird, während der zweite
+Parameter von `f` mit dem fixen Wert 2 belegt wird.
+
+Hier folgt jetzt noch ein Beispiel, das zeigt wie man die Reihenfolge der
+Parameter beim Belegen ändern kann. Füge dazu folgende Funktion zu deinem
+Programm hinzu, das das Volumen eines Quaders bestehend aus den Seiten a, b und
+c berechnet:
+
+~~~{.cpp}
+double volume_cuboid(double a, double b, double c) {
+    cout << "a = " << a << ", b = " << b << ", c = "
+         << c << endl;
+    return a * b * c;
+}
+~~~
+
+Im `main` füge die beiden folgenden Zeilen hinzu:
+
+~~~{.cpp}
+auto f4 = bind(volume_cuboid, _2, 2, _1);
+f4(3, 4);
+~~~
+
+Das wird zu folgender Ausgabe führen, die klar zeigt, wie sich der Einfluss der
+Parameter `_1` und `_2` auf den Aufruf auswirkt:
+
+~~~{.sh}
+a = 4, b = 2, c = 3
+~~~
+
+Weiters kann man auch einen eigenen benutzerdefinierten Datentyp definieren, den man
+verwenden kann, um Funktionsobjekte zu verwenden. Dies werden wir uns im Abschnitt
+\in[classfuncobj] ansehen.
+
+
+### Lambda-Funktionen {#lambdafunc}
+
+Will man eine Funktion schreiben, die eigentlich nur an einer Stelle verwendet
+wird, dann kann man eine Lambdafunktion verwenden. Es handelt sich dabei um
+eine anonyme Funktion, um eine Funktion ohne Namen.
+
+~~~{.cpp}
+// lambdaexpr.cpp
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    auto values = {1, 2, 3, 4};
+    int sum{};
+    for_each(begin(values),
+             end(values),
+             [&sum](int val) { sum += val; });
+    cout << sum << endl;
+}
+~~~
+
+Dieses Programm wird als Ausgabe `10` liefern. Es funktioniert folgendermaßen:
+
+- `#include <algorithm>` inkludiert den Teil der Standardbibliothek, der die
+    Algorithmen enthält. Algorithmen sind ein wichtiger Teil der
+    Standardbibliothek und werden später noch detailliert besprochen werden.
+
+    In diesem konkreten Fall geht es darum die Funktion `for_each` zugreifbar
+    zu machen, die einen Iterator auf den Beginn von `values`, einen Iterator
+    auf das Ende von `values` und eine Lambdafunktion als Parameter
+    bekommt. Iteratoren sind ein weiterer wichtiger Bestandteil der
+    Standardbibliothek und werden ebenfalls später noch im Detail besprochen.
+
+    Diese Funktion `for_each` funktioniert so, dass sie für jedes Element von
+    `values` beginnend mit `begin(values)` bis exklusive `end(values)`, also
+    für alle Elemente von `values`, die Lambdafunktion aufruft.
+
+- In der Zeile 12 wird eine Lambdafunktion verwendet, die per Referenz auf die
+    lokale Variable `sum` zugreifen kann und weiters bei jedem
+    "Schleifendurchgang" das aktuelle Element als Parameter `val` bekommt. Im
+    Rumpf der Lambdafunktion wird das aktuelle Element zur Variable `sum`
+    aufsummiert.
+
+Eigentlich handelt es sich bei der Definition einer Lambdafunktion um einen
+Ausdruck. Das ist auch deshalb leicht zu erkennen, da die Lambdafunktion als
+Parameter an die Funktion `for_each` übergeben wird.
+
+Ein Lambdaausdruck wird von dem Compiler in ein Funktionsobjekt übersetzt
+und besteht syntaktisch aus den folgenden Teilen:
+
+a. Der erste Teil wird als "capture" (bedeutet so viel wie "erfassen")
+    bezeichnet und gibt an, auf welche Variable der Rumpf der Lambdafunktion
+    zugreifen kann. Dieser Teil ist an den eckigen Klammern zu erkennen und
+    muss angegeben werden.
+
+    Es gibt hier die folgenden Möglichkeiten:
+
+    - Es wird eine leere Capture-Liste verwendet. Das bedeutet, dass die
+        eckigen Klammern leer sind, also `[]`. Damit sind keine lokalen
+        Variablen aus dem umschließenden Kontext im Rumpf der Lambdafunktion
+        zugreifbar. Die einzige Möglichkeit Daten im Rumpf der Lambdafunktion
+        zu verwenden ist auf die Parameter zuzugreifen.
+    - Die Capture-Liste enthält nur das Zeichen `=`, also sieht dieser Teil so
+        aus: `[=]`. Das bedeutet, dass alle lokalen Variablen verwendet werden
+        können und diese als Kopie (per-value) zur Verfügung stehen.
+    - In der Capture-Liste ist nur das Zeichen `&` enthalten. Damit wird
+        ausgedrückt, dass alle lokalen Variablen als Referenz zur Verfügung
+        stehen.
+
+        Werden lokale Variablen als Referenz im Rumpf der Lambdafunktion
+        verwendet, dann ist zu beachten, dass diese Lambdafunktion nur
+        verwendet wird, wenn die lokalen Variablen noch existieren!
+
+        Das folgende Beispiel ist in diesem Sinne fehlerhaft:
+
+        ~~~{.cpp}
+        // lambdacapture.cpp
+        #include <iostream>
+        #include <vector>
+        #include <functional>
+
+        using namespace std;
+
+        int main() {
+            vector<function<string()>> v;
+            {
+                string name{"Bob"};
+                v.push_back([&name]() { return name; });
+            }
+            cout << v[0]() << endl;
+        }
+        ~~~
+
+        Beim Aufruf mittels `v[0]()` steht die lokale Variable `name` nicht
+        mehr zur Verfügung! Das Verhalten ist undefiniert!
+    - Die Capture-Liste enthält einzelne Namen von lokalen Variablen. Diese
+        stehen als Kopie zur Verfügung, wenn diesen nicht ein `&` vorangestellt
+        wird.
+
+        Beispiel: `[a, &b, c]`
+    - Die Capture-Liste beginnt mit einem `=` und es folgen weitere Namen von
+        lokalen Variablen. Das bedeutet, dass alle lokalen Variablen als Kopie
+        zur Verfügung stehen, außer die in der Liste angeführten Namen, die als
+        Referenz vorhanden sind.
+
+        Beispiel: `[=, a, b, c]`
+    - Als alternative zum vorhergehenden Punkt kann die Capture-Liste mit einem
+        `&` beginnen. Damit stehen alle lokalen Variablen als Referenz zur
+        Verfügung außer denjenigen Namen, die in der folgenden Liste angeführt
+        sind und als Kopie verwendet werden können.
+
+        Beispiel: `[&, a, b, c]`
+
+b. Danach folgt die Liste der Parameter wie man es von einer Funktion gewohnt ist.
+
+c. Anschließend kann ein optionales Spezifikationssymbol `mutable` folgen, das
+    angibt, dass die lokalen Variablen, die als Kopie zur Verfügung stehen
+    verändert werden können.
+
+    Die folgenden Anweisungen werden vom Compiler nicht übersetzt werden:
+
+    ~~~{.cpp}
+    string name{"Bob"};
+    auto f = [name]() { name = ""; };
+    ~~~
+
+    Ändert man den Lambdaausdruck ab, sodass dieser `mutable` enthält, kann der
+    Compiler dies übersetzen:
+
+    ~~~{.cpp}
+    auto f = [name]() mutable { name = ""; };
+    ~~~
+
+    Die Idee dieses Ansatzes ist, dass man normalerweise den Zustand (also die
+    Instanzvariablen) eines Funktionsobjektes nicht verändert, sondern diesen
+    gleich wie beim Anlegen des Objektes belässt. Aus diesem Grund ist dies die
+    Default-Einstellung von solchen generierten Funktionsobjekten indem der
+    Compiler einen Operator `operator()` generiert, der als `const`
+    gekennzeichnet ist und daher den Zustand nicht ändern kann. Wir werden uns
+    dies im Abschnitt \in[constmethod] ansehen.
+
+d. Optional kann ein `noexcept` folgen. Die Bedeutung dieses
+    Spezifikationssymbols werden wir im Abschnitt \in[noexceptfunc] kennenlernen.
+
+e. Optional kann der Rückgabetyp mittels `->` erfolgen.
+
+f. Dann folgt der Rumpf der Lambdafunktion in geschwungenen Klammern.
+
+<div class="c++14">
+\cppXIV geht einen Schritt weiter und erlaubt auch generische Lambdafunktionen!
+Das sind solche Lambdafunktionen, die auch generische Parameter
+erlauben. Darunter werden Parameter verstanden, die mittels `auto` deklariert
+werden. Siehe folgendes Beispiel.
+</div>
+
+~~~{.cpp}
+// lambdageneric.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    auto f = [](auto x) { return x; };
+    cout << f(1) << endl;
+    cout << f("abc") << endl;
+    cout << f(false) << endl;
+}
+~~~
+
+Sinnvoll einsetzen lässt sich diese Erweiterung in Verbindung mit Templates
+(siehe Abschnitt \in[genericlambdatemplates]).
+
+<div class="c++14">
+Weiters wurden in \cppXIV die Behandlung der Capture-Liste erweitert. In \cppXI
+werden die Parameter der Liste entweder als Kopie oder als (lvalue-)Referenz
+übergeben. Damit ist es nicht möglich einen rvalue in die Capture-Liste
+aufzunehmen. Diese Einschränkung wurde in \cppXIV aufgehoben, wie das
+folgende Beispiel zeigt.
+</div>
+
+~~~{.cpp}
+// lambdacaptureexpr.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    auto f = [x = 1]() { return x; };
+    cout << f() << endl;
+}
+~~~
+
+Interessant wird dies allerdings erst im Zusammenhang mit `move` oder bei
+der Verwendung von Funktionen in der Capture-Liste:
+
+~~~{.cpp}
+// lambdacapturemove.cpp
+#include <iostream>
+#include <memory>
+
+using namespace std;
+
+int main() {
+    std::unique_ptr<int> pi(new int(1));
+    auto f = [x = std::move(pi)]() { return *x; };
+    cout << f() << endl;
+    auto g = []() { return 0; };
+    auto h = [x = g()] { return x; };
+    cout << h() << endl;
+}
+~~~

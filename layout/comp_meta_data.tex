@@ -1,0 +1,32 @@
+\startcomponent comp_meta_data
+\product prod_book
+
+\useURL[author-email][mailto:guenter@ko-sek.at][][guenter@ko-sek.at]
+
+\setupfooter[style=\it]
+\setupfootertexts[\copyright\ Dr. Günter Kolousek \hskip 40mm \date\hfill
+  Version 0.12]
+\setuppagenumbering[location={header,right}, style=bold]
+
+% for the document info/catalog (reported by `pdfinfo', for example)
+\setupinteraction[state=start,  % make hyperlinks active, etc.
+  title={Modernes C++},
+  subtitle={Ein praxisorientierter Ansatz für Programmierer},
+  author={Günter Kolousek},
+  keyword={C++11, C++14, Qt},
+  color=linkcolor,
+  style={\tf\bold}]
+
+\setuphead[title][style={\ss\bfd},
+    before={\begingroup\setupbodyfont[14.4pt]},
+    after={\leftline{\ss\bfa Ein praxisorientierter Ansatz für Programmierer}
+         \leftline{\ss\tfa Günter Kolousek}
+         \bigskip\bigskip\endgroup}]
+
+% used commands
+\define\cpp{{\tt C++}\autoinsertnextspace}
+\define\cppXI{{\tt C++11}\autoinsertnextspace}
+\define\cppXIV{{\tt C++14}\autoinsertnextspace}
+\define\cppXy{{\tt C++1y}\autoinsertnextspace}
+
+\stopcomponent

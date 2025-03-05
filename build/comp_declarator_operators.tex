@@ -1,0 +1,1990 @@
+
+\startcomponent comp_declarator_operators
+\product prod_book
+
+\chapter{Pointer, Array, Referenz}
+\startdrawer
+
+In diesem Kapitel werden die einzelnen Deklaratoroperatoren beschrieben,
+mit denen neue Typen deklariert werden können:
+
+\startitemize[packed]
+\item
+  Pointer
+\item
+  Array
+\item
+  Referenzen
+\stopitemize
+
+Außerdem werden wir Möglichkeiten der Standardbibliothek kennenlernen,
+die den Umgang mit Pointern und Arrays erleichtern.
+\stopdrawer
+
+Die Inhalte dieses Kapitels, die die Pointer und die Arrays betreffen,
+sind für das Verständnis extrem wichtig. Trotzdem sind die sogenannten
+Smart-Pointer den normalen Pointern vorzuziehen und Referenzen können
+für viele Anwendungen verwendet werden, für die früher Pointer
+eingesetzt wurden.
+
+Arrays sollte man eigentlich in der normalen Anwendungsentwicklung wenn
+möglich gar nicht verwenden. Statt Arrays bietet die Standardbibliothek
+die Typen \type{vector} und \type{array} an.
+
+\section[pointer]{Pointer}
+
+Wie schon erwähnt, handelt es sich bei einem Pointer um ein
+Speicherobjekt, das eine Speicheradresse enthält. Allerdings gibt es
+einen wichtigen Unterschied zu einer reinen Adresse, nämlich, dass ein
+Pointer einen Typ hat. Dieser Typ legt fest, wie der Speicherinhalt zu
+interpretieren ist, auf den dieser Pointer zeigt. Damit kann \cpp auch
+dafür sorgen, dass keine Zugriffe mittels inkompatibler Typen erfolgen.
+
+In \cpp wird solch ein Pointer auf ein Objekt des Typs \type{T} als
+\type{T*} angeschrieben und, in Abgrenzung zu den Smart-Pointern, auch
+als roher Pointer (engl. {\em raw pointer}) bezeichnet.
+
+Im Zusammenhang mit Pointern gibt es zwei wichtige Operatoren:
+
+\startitemize[packed]
+\item
+  Der Operator \type{&} ermittelt die Adresse eines Objektes. Diese
+  Operation wird auch als Referenzieren (engl. {\em reference})
+  bezeichnet.
+\item
+  Der Operator \type{*} ermittelt den Wert eines Zeigers. Diese
+  Operation wird als Dereferenzieren (engl. {\em dereference})
+  bezeichnet.
+\stopitemize
+
+Diese beiden Zeichen \type{&} und \type{*} werden in Ausdrücken
+verwendet. Innerhalb von Deklarationen haben diese Zeichen \type{&} und
+\type{*} die Bedeutung der Deklaration einer Referenz (siehe Abschnitt
+\in[reference] auf der Seite \at[reference]) beziehungsweise die
+Bedeutung eines Pointers.
+
+Betrachte den nachfolgenden Quellcode und teste:
+
+\startcpp
+// pointer.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int i{1};
+    int* p{&i};
+
+    cout << "p == " << p << ", *p == " << *p
+         << ", i == " << i << endl;
+}
+\stopcpp
+
+Die Ausgabe sieht bei mir folgendermaßen aus, wobei der Wert von
+\type{p} bei dir sehr wahrscheinlich unterschiedlich sein wird:
+
+\startsh
+p == 0xbf88eea4, *p == 1, i == 1
+\stopsh
+
+Was ist passiert?
+
+\startitemize
+\item
+  Zuerst wird eine \type{int} Variable angelegt und mit \type{1}
+  initialisiert. Danach wird ein Pointer \type{p} vom Typ \type{int*}
+  (Pointer auf \type{int}) angelegt und mit der Adresse von \type{i}
+  initialisiert.
+\item
+  Danach wird die Adresse von \type{p}, der Wert der Speicherzelle auf
+  den \type{p} zeigt und der Wert von \type{i} ausgegeben. Die Adresse
+  wird offensichtlich in hexadezimaler Form ausgegeben. Da \type{p} auf
+  \type{i} zeigt, sind die beiden letzten Werte natürlich identisch.
+\stopitemize
+
+Füge jetzt die folgenden Zeilen anschließend an:
+
+\startcpp
+*p = 2;
+cout << "*p = 2;" << endl;
+cout << "p == " << p << ", *p == " << *p
+     << ", i == " << i << endl;
+\stopcpp
+
+Starte das Programm nochmals. Bei mir kommt es zu folgender Ausgabe:
+
+\startsh
+p == 0xbfc8e728, *p == 1, i == 1
+*p = 2;
+p == 0xbfc8e728, *p == 2, i == 2
+\stopsh
+
+Wir können folgendes bemerken:
+
+\startitemize[packed]
+\item
+  Die Adressen der Variable sind je Programmlauf unterschiedlich.
+\item
+  Ändere ich den Wert der Speicherzelle, auf die \type{p} zeigt, dann
+  ändert sich klarerweise in unserem Fall auch der Wert von \type{i}, da
+  \type{p} die Adresse von \type{i} enthält.
+\stopitemize
+
+Klar soweit? Gut, dann hänge die folgenden Zeilen wiederum hinten an:
+
+\startcpp
+int j{};
+p = &j;
+cout << "p = &j;" << endl;
+cout << "p == " << p << ", *p == " << *p << ", i == "
+     << i << ", j == " << j << endl;
+\stopcpp
+
+Starte das Programm und schaue dir die Ausgabe an.
+
+\startsh
+p == 0xbfb65988, *p == 1, i == 1
+*p = 2;
+p == 0xbfb65988, *p == 2, i == 2
+p = &j;
+p == 0xbfb65984, *p == 0, i == 2, j == 0
+\stopsh
+
+Interpretieren wir jetzt einmal die Ausgabe:
+
+\startitemize
+\item
+  Der erste Teil wurde schon besprochen. Wir können in der letzten
+  Ausgabe erkennen, dass die gespeicherte Adresse jetzt unterschiedlich
+  ist. Das ist klar, da die Variablen \type{i} und \type{j} sicher nicht
+  an derselben Adresse liegen werden.
+\item
+  Weiters sehen wir, dass der Wert der Speicherzelle, auf die \type{p}
+  zeigt, jetzt gleich dem Wert von \type{j} ist.
+\stopitemize
+
+Schließen wir das Beispiel jetzt noch ab, indem wir zeigen, dass die
+Typen der Pointer von \cpp auf Kompatibilität geprüft werden. Hänge dazu
+folgende Zeilen an und übersetze das Programm:
+
+\startcpp
+char c;
+p = &c;
+\stopcpp
+
+Ok, das lässt sich natürlich nicht übersetzen. Da der Typ von \type{p}
+eben \type{int*} ist und der Typ von \type{&c} eben \type{char*} ist.
+Das sind inkompatible Typen und deshalb wird dies vom Compiler
+zurückgewiesen. Beachte, dass ein \type{char} implizit in ein \type{int}
+konvertiert werden würde, aber dies trifft sinnvollerweise nicht auf
+Pointer zu: Ein Pointer auf ein \type{char} wird eben nicht implizit auf
+einen Pointer auf ein \type{int} konvertiert.
+
+Ersetze diese beiden Zeilen, die sich nicht übersetzen lassen, durch
+folgende Zeilen:
+
+\startcpp
+p = nullptr;
+cout << "p == " << p << endl;
+cout << "*p == " << *p << endl;
+\stopcpp
+
+Nach erfolgreicher Übersetzung kommt es beim Programmlauf zu folgender
+Ausgabe:
+
+\startsh
+p == 0
+Speicherzugriffsfehler
+\stopsh
+
+\startitemize
+\item
+  Zuerst sehen wir, dass der Wert von \type{p} mit \type{0} ausgegeben
+  wird. Das Schlüsselwort \type{nullptr} bezeichnet einen Pointer, der
+  die Adresse 0 gespeichert hat.
+\item
+  Danach erfolgt bei mir die Ausgabe \quotation{Speicherzugriffsfehler}.
+  Diese Ausgabe kann bei dir anders aussehen, aber eine Fehlermeldung
+  kommt auf jedem Fall, da kein Objekt an der Adresse 0 liegen kann.
+  Erfolgt ein Zugriff auf die Adresse 0 wird vom Prozessor der Zugriff
+  erkannt und der Prozess wird abgebrochen.
+\stopitemize
+
+Jetzt stellt sich vielleicht die Frage, ob man direkt den Wert \type{0}
+in eine Pointer-Variable speichern kann. Ja, das geht aus
+Kompatibilitätsgründen zu älteren Versionen von \cpp. Ich empfehle es
+aber nicht zu tun, da \type{nullptr} leichter zu lesen ist und der
+Compiler in anderen Fällen (überladenen Funktionen) keine Typfehler
+feststellen kann, wenn \type{0} verwendet wird.
+
+Meist werden Pointer in Zusammenhang mit dynamisch angeforderten
+Speicherobjekten verwendet. Dynamisch angeforderte Speicherobjekte
+werden am Heap mittels \type{new} angelegt und mittels \type{delete}
+wieder freigegeben. Solche Speicherobjekte haben die Lebenszeit
+\quotation{free store}.
+
+\startcpp
+p = new int{3};
+cout << "p = new int{3};" << endl;
+cout << "p == " << p << ", *p == " << *p << endl;
+delete p;
+\stopcpp
+
+Teste wieder. Bei mir kommt es zu folgender Ausgabe:
+
+\startsh
+p = new int{3};
+p == 0x9f32008, *p == 3
+\stopsh
+
+Wie funktionieren diese Anweisungen?
+
+\startitemize
+\item
+  Mit \mono{p = new int\{3\};} wird ein neues \type{int} von der
+  Speicherverwaltung am Heap angefordert und die Adresse davon
+  zurückgegeben. Diese Adresse wird dann in \type{p} gespeichert.
+\item
+  Mittels \type{*p} kann wiederum auf den Inhalt zugegriffen werden.
+\item
+  Mit \type{delete p} wird der angeforderte Speicher wieder freigegeben.
+\stopitemize
+
+\subsection[pointer-und-strukturen]{Pointer und Strukturen}
+
+Meist wird nicht ein kleines Objekt eines fundamentalen Datentyps am
+Heap abgelegt, sondern benutzerdefinierte Objekte. Wir haben mit
+\type{struct} schon eine Möglichkeit kennengelernt, einen
+benutzerdefinierten Typ zu definieren.
+
+Wollen wir als bekanntes Beispiel eine Person am Heap anlegen und über
+den Pointer auf ein Attribut der Klasse \type{Person} zugreifen, dann
+könnte das folgendermaßen aussehen:
+
+\startcpp
+// pointer_struct.cpp
+#include <iostream>
+#include <memory>
+
+using namespace std;
+
+struct Person {
+    string first_name;
+    string last_name;
+    int year_of_birth;
+};
+
+int main() {
+    Person* p{new Person{"Max", "Mustermann", 1990}};
+
+    cout << *p.first_name << endl;
+}
+\stopcpp
+
+Es war zwar gut gemeint, allerdings lässt sich das Programm nicht
+übersetzen. Das liegt an den Operatorprioritäten! Der Punktoperator hat
+höhere Priorität als der Sternoperator. Deshalb ist die Ausgabezeile
+folgendermaßen abzuändern:
+
+\startcpp
+cout << (*p).first_name << endl;
+\stopcpp
+
+Es ist offensichtlich, dass dies keine übersichtliche Lösung ist.
+Andererseits wird diese Art des Zugriffes häufig benötigt. Deshalb gibt
+es dafür den Operator \type{->}, der genau das erledigt:
+
+\startcpp
+cout << p->first_name << endl;
+\stopcpp
+
+\subsection[pointer-und-konstanten]{Pointer und Konstanten}
+
+Im Zusammenhang mit Pointern wollen wir uns auch noch die Verwendung des
+Schlüsselwortes \type{const} ansehen. Wir kennen die Verwendung von
+\type{const} schon in der Verwendung als \quotation{normale} Variablen,
+wie zum Beispiel in \mono{const double pi\{3.1415\};}, wodurch
+festgelegt wird, dass die Variable \type{pi} nicht mehr verändert werden
+kann und daher als Konstante funktioniert.
+
+Erstelle folgendes kleines Programm und versuche es zu übersetzen:
+
+\startcpp
+// const.cpp
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+int main() {
+    const double pi{atan(1)*4};
+    const double e{exp(1)};
+
+    double* p;
+    p = &pi;
+}
+\stopcpp
+
+Das wird nicht funktionieren, da \type{p} ein Pointer auf ein
+\type{double} ist und wir hier \type{p} einen Pointer auf ein
+\type{const double} zuweisen wollen. Das lässt der Compiler jedoch nicht
+zu, da es sonst möglich wäre, über \type{p} den Wert von \type{pi} --
+zum Beispiel mittels \type{*p = 1;} -- zu verändern. \type{pi} ist
+jedoch als \type{const} deklariert und darf daher seinen Wert nicht
+ändern, womit klar ist, dass dies nicht erlaubt ist und vom Compiler
+zurückgewiesen wird.
+
+Also müssen wir die Definition von \type{p} abändern:
+
+\startcpp
+const double* p;
+\stopcpp
+
+Damit lässt sich das Programm auch problemlos übersetzen, da \type{p}
+ein Pointer auf ein \type{const double} und dieser Pointer mit der
+Adresse von \type{pi} initialisiert worden ist. Eine Änderung von
+\type{pi} über \type{p} ist daher nicht möglich.
+
+Da der Pointer selber nicht konstant ist und wir in unserem Programm
+zwei Konstanten definiert haben, können wir auch \type{p} ändern:
+
+\startcpp
+p = &e;
+\stopcpp
+
+Manchmal will man jedoch, dass der Pointer \type{p} selbst nicht
+veränderbar ist. Füge deshalb folgende Zeilen hinzu und versuche wieder
+zu übersetzen:
+
+\startcpp
+double d1{1};
+double d2{2};
+double* const q;
+q = &d1;
+\stopcpp
+
+Das wird sich nicht übersetzen lassen, da \type{q} ein konstanter
+Pointer ist und eine Konstante initialisiert werden muss.
+
+So, damit unser Programm funktioniert, sind die letzten beiden Zeilen
+folgendermaßen abzuändern:
+
+\startcpp
+double* const q{&d1};
+\stopcpp
+
+\startannotation{Tipp}Am besten liest man die Deklarationen von rechts
+nach links!\stopannotation
+
+Eine Änderung von \type{q} auf \type{d2} ist damit natürlich nicht
+möglich, aber der Wert der Variable \type{d1} kann geändert werden:
+
+\startcpp
+*q = 2;
+cout << d1 << endl;
+\stopcpp
+
+Beide Varianten können auch kombiniert werden:
+
+\startcpp
+const double* const r{&e};
+\stopcpp
+
+Noch eine letzte Bemerkung zu der Platzierung der Symbole \type{*} oder
+\type{&}: Leerraum wird auch hier ignoriert, damit könnte man auch
+\mono{const double * const r\{& e\};} schreiben, aber das ist aus meiner
+Sicht nicht so gut zu lesen.
+
+\subsection[probleme-im-umgang-mit-rohen-pointern]{Probleme im Umgang
+mit rohen Pointern}
+
+Mehrere Probleme können im Zusammenhang mit Pointern auftreten:
+
+\startitemize
+\item
+  Das Verhalten von mehrmaligem Freigeben ist nicht definiert und führt
+  in der Regel zu einem Programmabsturz. Du kannst es selber
+  ausprobieren, indem du die Anweisung \type{delete p;} ein zweites Mal
+  in dein Programm einfügst. Das Programm bricht mit einer Fehlermeldung
+  ab!
+
+  Fügst du allerdings vor dem zweiten \type{delete p;} eine Anweisung
+  zum Setzen des Pointers auf \type{nullptr} ein: \type{p = nullptr},
+  dann wird das Programm nicht mehr abstürzen, da ein \type{delete} auf
+  einen Nullzeiger keine Wirkung hat. Das bedeutet, dass es sinnvoll
+  ist, nach dem Freigeben des Speichers den Pointer auf \quotation{Null}
+  zu setzen.
+\item
+  Wird auf ein \type{delete} vergessen kommt es in der Regel zu einem
+  Speicherleck (engl. {\em memory leak}), da das Speicherobjekt noch
+  nicht zurückgegeben worden ist, aber auch nicht mehr darauf
+  zugegriffen werden kann.
+
+  Schreibe dazu folgende Anweisungen in dein Programm:
+
+  \startcpp
+  {
+      int* q{new int{}};
+  }
+  \stopcpp
+
+  Es kommt zwar zu keiner zusätzlichen Ausgabe, aber es wird
+  demonstriert, wie ein Speicherleck zustande kommen kann. Die Variable
+  \type{q} ist eine lokale Variable in einem Block, da die Definition
+  von dieser innerhalb von geschwungenen Klammern stehen. Der Speicher
+  wird angefordert, aber nicht mehr freigegeben. Nach der geschlossenen
+  geschwungenen Klammer steht die Variable \type{q} nicht mehr zur
+  Verfügung, da sie den Geltungsbereich verlässt. Gleichzeitig wird
+  \type{q} auch automatisch wieder gelöscht, jedoch nicht der
+  Speicherbereich auf den \type{q} verweist. Damit kann auf diesen
+  Speicherbereich nicht mehr zugegriffen werden.
+
+  Damit kommt es in der Regel bei lang laufenden Programmen wie z.B. bei
+  Serveranwendungen zu Problemen, weil der verfügbare Speicher immer
+  weniger wird.
+\item
+  Es kann zu sogenannten hängenden Zeigern (engl. {\em dangling
+  pointer}) kommen, das sind Zeiger, die auf ein nicht mehr gültiges
+  Speicherobjekt verweisen. Das Verhalten ist in so einem Fall nicht
+  definiert, sondern implementierungsabhängig.
+
+  Schauen wir uns das an, indem wir folgenden Codeteil hinten an unser
+  Programm anhängen:
+
+  \startcpp
+  p = new int{1};
+  int* r{p};
+  cout << "*r == " << *r << endl;
+  delete p;
+  cout << "*r == " << *r << endl;
+  *r = 2;
+  cout << "*r == " << *r << endl;
+  \stopcpp
+
+  Die Ausgabe sieht bei mir folgendermaßen aus:
+
+  \startsh
+  *r == 1
+  *r == 0
+  *r == 2
+  \stopsh
+
+  Es ist zu sehen, dass \type{r} auf den schon freigegebenen
+  Speicherbereich verweist! Es gibt absolut keine Garantie, dass dieses
+  Programm in irgendeiner Weise funktioniert. Es kann sein, dass es
+  kurzzeitig so aussieht, als ob es fehlerfrei ist, aber das ist ein
+  schwerer Fehler, der entweder in weiterer Folge zum Absturz oder zu
+  falschen Ergebnissen führt!
+\stopitemize
+
+Wir sehen, dass es hier zu Problemen kommen kann. Eigentlich ist es so,
+dass es auf diese Art und Weise auch ganz sicher zu Problemen kommen
+wird! Daher biete ich einige Lösungen für diese Probleme an:
+
+\startitemize[a,packed][stopper=.]
+\item
+  Einfach Pointer nicht verwenden: zumindest nicht auf diese Weise.
+\item
+  In \cppXI gibt es in der Standardbibliothek sogenannte Smart-Pointer
+  (eingedeutscht von {\em smart pointer}). Diese kümmern sich um die
+  Speicherverwaltung. Wir werden diese im Abschnitt \in[smartpointer]
+  auf der Seite \at[smartpointer] besprechen.
+\item
+  Ersatz der Pointer durch Referenzen, wenn dies möglich ist.
+\item
+  Muss oder will man Pointer unbedingt verwenden, dann sollte man auf
+  das sogenannte RAII Prinzip zurückgreifen, dass später noch
+  beschrieben wird.
+\stopitemize
+
+\section[array]{Array}
+
+Ein Array (eingedeutscht von engl. {\em array}, deutsch {\em Feld}) hat
+einen bestimmten Typ und eine feste Größe. Es handelt sich bei diesem
+eingebauten Datentyp um ein low-level Werkzeug, das eigentlich nur zur
+Implementierung von Spezialdatenstrukturen verwendet werden sollte!
+
+Arrays werden mit der folgenden Syntax definiert:
+
+\startcpp
+char firstname[10];
+int results[100];
+\stopcpp
+
+Bei der Variable \type{firstname} handelt es sich um ein Array von 10
+\type{char} Elementen und bei \type{results} um ein Array von 100
+\type{int} Elementen.
+
+Initialisieren kann man Arrays ebenfalls mit der vereinheitlichten
+Initialisierung:
+
+\startcpp
+char firstname[]{'M', 'a', 'x', 0};
+\stopcpp
+
+In diesem Fall ist eine Längenangabe innerhalb der eckigen Klammern
+nicht notwendig, da der Compiler die Anzahl der Elemente selbstständig
+bestimmt. Beachte in diesem Beispiel bitte, dass ein abschließendes
+Nullzeichen angegeben wurde, da es sich sonst nicht um einen korrekten
+C-String handelt. Denke daran, dass dieses Nullzeichen das Ende eines
+C-Strings markiert.
+
+Allerdings geht es für ein Array von \type{char} auch einfacher:
+
+\startcpp
+char firstname[]{"Max"};
+\stopcpp
+
+Man kann auch die Längenangabe bei einem Array mitgeben, obwohl man eine
+Initialisierung vornimmt:
+
+\startcpp
+int coords[3]{1};
+\stopcpp
+
+Hier wird die Längenangabe mitgegeben, aber nur ein Element
+initialisiert. Die restlichen Elemente werden mit Nullelementen
+initialisiert.
+
+Hat man ein Array statisch angelegt wie gerade gezeigt, dann kann man
+über die Elemente eines solchen Arrays wie folgt iterieren:
+
+\startcpp
+// iterate_array.cpp
+
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int coords[3]{1};
+
+    for (int i{0}; i < sizeof(coords) / sizeof(int); ++i) {
+        cout << coords[i] << endl;
+    }
+}
+\stopcpp
+
+Einfacher geht es natürlich mit der \quotation{foreach}-Variante von
+\type{for}:
+
+\startcpp
+cout << endl;
+
+for (auto i : coords) {
+    cout << i << endl;
+}
+\stopcpp
+
+Solche Arrays liegen am Stack. Will man Arrays am Heap dynamisch
+anfordern, dann ist zum Anlegen der Operator \type{new[]} und zum
+Freigeben der Operator \type{delete[]} zu verwenden:
+
+\startcpp
+// array.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int* points{new int[10]};
+
+    for (int i{0}; i < 10; ++i) {
+        points[i] = i;
+    }
+
+    for (int i{0}; i < 10; ++i) {
+        cout << points[i] << ' ';
+    }
+
+    cout << endl;
+
+    delete[] points;
+}
+\stopcpp
+
+Damit kann man allerdings nicht mehr die Bestimmung der Anzahl der
+Elemente mittels des \type{sizeof} Operators verwenden und auch die
+\quotation{foreach}-Variante von \type{for} funktioniert nicht mehr!
+
+Dazu muss man Folgendes wissen: Ein Array wird von \cpp prinzipiell wie
+ein Pointer auf das erste Element behandelt. Damit ergeben sich etliche
+Fallstricke, über die man ganz nett stolpern kann:
+
+\startitemize
+\item
+  Wird ein Array an eine Funktion übergeben, dann wird in Wirklichkeit
+  nur der Pointer an die erste Stelle übergeben. Innerhalb der Funktion
+  kennt \cpp nur den Pointer! Wir haben dies schon bei der Funktion
+  \type{main} bei den Kommandozeilenargumenten gesehen, dass zusätzlich
+  die Anzahl der Arrayelemente übergeben wird.
+\item
+  Eine Zuweisung von Arrays bewirkt nur die Zuweisung des einen Pointers
+  auf den anderen Pointer! Das bedeutet, dass Arrays so nicht kopiert
+  werden können.
+\item
+  Vergleicht man zwei Arrays, dann werden nur die Pointer verglichen.
+  Arrays können nur so verglichen werden, dass man selbst über alle
+  Elemente iteriert und diese Elemente miteinander vergleicht.
+\stopitemize
+
+Das bedeutet allerdings nicht, dass ein Array und ein Pointer das
+gleiche sind. Schauen wir uns das an dem folgenden Beispiel an:
+
+\startcpp
+char firstname[]{"Max"};
+cout << firstname << endl;
+char* lastname{"Mustermann"};
+cout << lastname << endl;
+\stopcpp
+
+Die Definition mittels eines Pointers wird der Compiler unter Umständen
+mit einer Warnung versehen, die besagt, dass es sich um eine veraltete
+Konvertierung handelt. Abgesehen davon werden diese Anweisungen soweit
+erwartungsgemäß funktionieren.
+
+Hängt man allerdings die folgenden Zeilen an, dann wird der Unterschied
+deutlich:
+
+\startcpp
+firstname[0] = 'm';
+lastname[0] = 'm';
+\stopcpp
+
+Das Programm wird sich mit sich einem Zugriffsfehler beenden. Der Grund
+liegt daran, dass der Pointer \type{lastname} bei der Definition mit der
+Adresse auf den Beginn des C-String-Literals initialisiert wurde. Wie
+wir später noch genauer betrachten werden, handelt es sich bei einem
+C-String-Literal um ein nicht veränderbares Array von Zeichen. Daher
+wäre es vernünftiger gewesen \type{lastname} folgendermaßen zu
+definieren:
+
+\startcpp
+const char* lastname{"Mustermann"};
+\stopcpp
+
+Damit wäre einerseits die Warnung verschwunden und andererseits hätte
+der Compiler eine Fehlermeldung bei dem schreibenden Zugriff auf das
+Element mit dem Index 0 erzeugt (\type{lastname[0] = 'm'}).
+
+Schauen wir uns in diesem Zusammenhang die sogenannte Zeigerarithmetik
+{\em kurz} an. Tausche in deinem Programm die gesamte zweite \type{for}
+Schleife durch folgende Schleife aus:
+
+\startcpp
+for (int i{0}; i < 10; ++i) {
+    cout << *(points + i) << ' ';
+}
+\stopcpp
+
+Was passiert hier?
+
+\startitemize
+\item
+  \type{points} wird also als Zeiger auf das erste Element betrachtet.
+  Zu diesem Zeiger wird die ganze Zahl \type{i} hinzugezählt. Es werden
+  aber zu der Adresse \type{points} nicht \type{i} Bytes hinzugezählt,
+  sondern in unserem Fall \type{sizeof(int)} Bytes, da wir einen
+  \type{int*} Pointer haben. Damit verweist \type{points + 2} auf die
+  ganze Zahl mit dem Index 2.
+\item
+  Danach wird mit dem Dereferenzierungsoperator \type{*} der Wert dieser
+  Adresse genommen und ausgegeben. Damit funktioniert diese Schleife wie
+  die vorhergehende Variante.
+\stopitemize
+
+An sich kann man auch die Differenz von Pointern nehmen, wie z.B.
+\type{p2 - p1} und man bekommt die Anzahl der Elemente zurück, die
+zwischen diesen beiden Adressen liegen. Dazu müssen beide Pointer den
+gleichen Typ haben und \type{p2} größer als \type{p1} sein.
+
+Auf alle Zeichen von \type{firstname} könnten wir auch folgendermaßen
+zugreifen:
+
+\startcpp
+for (char* p{firstname}; *p != 0; ++p)
+    cout << *p;
+\stopcpp
+
+Hier nützen wir aus, dass ein C-String mit einem Nullzeichen
+abgeschlossen wird. Ansonsten funktioniert \type{++p} wie vorhin
+besprochen.
+
+Als Benutzer greift man {\bf immer} auf die Datentypen
+\type{std::vector} oder \type{std::array} zurück. Allerdings ist es
+wichtig das Konzept des Arrays verstanden zu haben, da viele Datentypen
+der Standardbibliothek mit Arrays arbeiten und Funktionen der
+Programmiersprache \type{C} nur mit solchen Arrays arbeiten. Solche
+Funktionen der Programmiersprache \type{C} können in \cpp ohne Probleme
+verwendet werden. Sie stehen in Headerdateien zur Verfügung, die in der
+Regel mit einem \quotation{c} beginnen wie bei der Headerdatei
+\type{cmath}.
+
+Eine offensichtliche Verwendung von Arrays haben wir schon bei der
+Verwendung von Kommandozeilenargumenten gesehen. Die
+Kommandozeilenparameter werden als Array von Pointern auf \type{char} an
+die Funktion \type{main} übergeben. Zusätzlich wird die Anzahl der
+Argumente als Parameter übergeben.
+
+\subsection[string-literale]{String-Literale}
+
+Dazu müssen wir uns außerdem ansehen welchen Typ C-String-Literale in
+\cpp
+haben. Der C-String-Literal \type{"C++"} hat den Typ
+\type{const char[4]}. Das bedeutet, dass es sich um ein Array mit 4
+Elementen vom Typ \type{char} handelt, die nicht verändert werden
+können. 4 Elemente deshalb, weil zu den drei vorhandenen Zeichen noch
+das abschließende Nullzeichen \type{'\0'} als Endekennung angehängt
+wird. So eine Endekennung ist notwendig, da keine explizite
+Längeninformation gespeichert wird.
+
+In einem String-Literal können die gleichen Escape-Sequenzen verwendet
+werden wie bei den Zeichenliteralen (im Abschnitt
+\in[characterliterals] beschrieben).
+
+String-Literale, die nur durch Whitespace getrennt sind, werden vom
+Compiler aneinandergehängt. Betrachte folgendes Beispiel:
+
+\startcpp
+// stringliterals.cpp
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    const char* alphabet;
+    alphabet = "abcdefghijklmnopqrstuvwxyz\n"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    cout << alphabet << endl;
+}
+\stopcpp
+
+Dieses Beispiel zeigt auch, dass natürlich ein Zeilenumbruch direkt in
+ein C-String-Literal mittels \type{\n} eingefügt werden kann. Bei der
+Ausgabe wirkt sich dieser Zeilenumbruch natürlich entsprechend aus.
+
+Weiters sieht man in diesem Beispiel, dass aufeinanderfolgende
+C-String-Literale vom Compiler zu einem C-String verkettet werden.
+
+Trotzdem gibt es eine einfachere, elegantere Möglichkeit, nämlich die
+rohen C-String-Literale (engl. {\em raw character strings}). Diese sehen
+so aus, dass dem C-String-Literal der Präfix \type{R} vorangestellt wird
+und der eigentliche Inhalt der Zeichenkette in ein rundes Klammernpaar
+eingeschlossen wird. Zur Veranschaulichung probiere es aus, indem du den
+folgenden Quelltext hinten an das Programm anhängst:
+
+\startcpp
+    alphabet = R"(abcdefghijklmnopqrstuvwxyz"\n
+ABCDEFGHIJKLMNOPQRSTUVWXYZ)";
+    cout << endl << alphabet << endl;
+\stopcpp
+
+Du siehst hier mehrere interessante Eigenheiten dieser rohen
+C-String-Literale:
+
+\startitemize[packed]
+\item
+  Es kommt ein doppeltes Hochkomma im String-Literal vor.
+\item
+  Das String-Literal erstreckt sich über zwei Zeilen.
+\item
+  Und es kommt das Escape-Zeichen im String vor, das keine Auswirkung
+  hat.
+\stopitemize
+
+Nicht schlecht, aber vielleicht stellst du dir jetzt die Frage, wie man
+in einen solchen String die Zeichenfolge \type{)"} packt, da diese ja
+das Ende des C-String-Literals kennzeichnet?
+
+Dafür gibt es eine erweiterte Syntax, sodass man die Begrenzungszeichen
+verändern kann, indem man der offenen runden Klammer eine Zeichenkette
+voranstellt, die der schließenden runden Klammer hinten ebenfalls
+angehängt wird. Schauen wir uns das praktisch an, indem du die folgenden
+Zeilen an dein Programm anhängst:
+
+\startcpp
+    alphabet = R"=(abcdefghijklmnopqrstuvwxyz)"\n
+ABCDEFGHIJKLMNOPQRSTUVWXYZ)=";
+    cout << endl << alphabet << endl;
+\stopcpp
+
+Es gibt allerdings auch noch andere Präfixe, die ähnlich den
+Zeichenliteralen funktionieren:
+
+\startitemize
+\item
+  \type{u8} bezeichnet einen UTF-8 String, wie z.B.
+  \type{u8"Müßiggang"}, wobei davon ausgegangen wird, dass die Umlaute
+  in UTF-8 kodiert sind. Alternativ kann auch UTF-8 kodierte Zeichen
+  mittels Escape-Zeichen einfügen:
+
+  \startcpp
+  cout << u8"Müßiggang" << endl;
+  cout << u8"M\xc3\xbcßiggang" << endl;
+  \stopcpp
+\item
+  \type{u} bezeichnet einen UTF-16 String und funktioniert analog zu
+  \type{u8}
+\item
+  \type{U} bezeichnet einen UTF-32 String mit analoger Funktionsweise zu
+  \type{u8} und \type{u}.
+\item
+  \type{L} bezeichnet einen \type{wchar_t} string.
+\stopitemize
+
+Jeder dieser Präfixe kann mit dem Präfix \type{R} kombiniert werden:
+\type{u8R}, \type{uR}, \type{UR} und \type{LR}.
+
+\subsection[initialisierung]{Initialisierung}
+
+Wir haben schon die Faustregel kennengelernt, dass immer initialisiert
+werden soll. Als Ausnahme kann das Anlegen eines großen Speicherobjektes
+angesehen werden, das {\em zuerst} befüllt wird und erst {\em danach}
+wieder gelesen wird. Es macht daher keinen Sinn, das Speicherobjekt
+zuerst zu initialisieren und danach zu befüllen:
+
+\startcpp
+// large_buffer.cpp
+#include <iostream>
+#include <chrono>
+
+using namespace std;
+
+int main() {
+    constexpr size_t max{100000};
+
+    auto start = chrono::system_clock::now();
+
+    for (int i{0}; i < max; ++i) {
+        long long buffer[max];
+    }
+
+    auto end = chrono::system_clock::now();
+    auto elapsed = chrono::duration_cast<chrono::milliseconds>(end - start);
+    cout << elapsed.count() << "ms" << endl;
+}
+\stopcpp
+
+Als Ausgabe erhalte ich:
+
+\startsh
+0ms
+\stopsh
+
+Hier verwende ich Möglichkeiten der Zeitmessung aus der
+Standardbibliothek. Wir werden uns dies in weiterer Folge später
+ansehen.
+
+Ändere jetzt den Quelltext so um, dass der Puffer {\em initialisiert}
+wird:
+
+\startcpp
+long long buffer[max]{};
+\stopcpp
+
+Die Ausgabe auf meinem Rechner sieht zum Beispiel so aus:
+
+\startsh
+2593ms
+\stopsh
+
+Man sieht, dass die zeitliche Differenz in Spezialfällen durchaus
+beachtlich ausfallen kann!
+
+\section[reference]{Referenz}
+
+Wie schon erwähnt, ist eine Referenz nichts anderes als ein anderer
+Namen für eine Speicherstelle.
+
+Schauen wir uns dazu noch einmal ein einfaches Beispiel an:
+
+\startcpp
+// lreference.cpp
+using namespace std;
+
+int main() {
+    int x{1};
+    int& r{x};
+
+    r = 2;
+    cout << "x = " << x << endl;
+}
+\stopcpp
+
+Da es sich bei \type{r} um eine Referenz also einen anderen Namen für
+die Speicherstelle von \type{x} handelt, wird bei einer Veränderung
+mittels \type{r} in Wirklichkeit der Wert von \type{x} verändert.
+
+Wir erkennen also, dass wir das Beispiel auch mit Hilfe von Zeigern
+programmieren hätten können:
+
+\startcpp
+int* p{nullptr};
+p = &x;
+*p = 3;
+cout << "x = " << x << endl;
+\stopcpp
+
+Es gibt allerdings ein paar nicht unbedeutende Unterschiede zwischen der
+Verwendung von Zeigern und Referenzen:
+
+\startitemize
+\item
+  Offensichtlich ist die Syntax verschieden: \type{r = 2;} im Vergleich
+  zu \type{*p = 3}!
+
+  Hier sieht man schön, dass die Syntax eines Pointers anders ist und
+  auch, dass Pointer umständlicher zu verwenden sind.
+\item
+  Ein Pointer kann zu verschiedenen Objekten zu verschiedenen
+  Zeitpunkten zeigen, während eine Referenz bei der Definition
+  initialisiert werden muss und in weiterer Folge nicht mehr verändert
+  werden kann.
+
+  Besteht also die Notwendigkeit, dass zu verschiedenen Zeiten auf
+  verschiedene Objekte zugegriffen werden muss, dann muss man sich für
+  Pointer entscheiden.
+\item
+  Ein Pointer kann den Nullwert haben, während eine Referenz immer
+  initialisiert werden muss. Damit muss man sich bei einer Referenz
+  keine Gedanken machen, ob diese initialisiert wurde oder nicht.
+
+  Aus diesem Gesichtspunkt betrachtet ist es sicherer, eine Referenz zu
+  verwenden.
+\item
+  Ein Zugriff über eine Referenz kann in bestimmten Fällen ohne
+  Indirektion erfolgen, da die Referenz nichts anderes als ein anderer
+  Name ist.
+
+  Die Indirektion über einen Pointer funktioniert folgendermaßen: Bei
+  einem Pointer muss zuerst auf den Wert des Pointers zugegriffen
+  werden, dann muss dieser Wert als Adresse interpretiert werden und
+  danach kann auf die Speicherstelle zugegriffen werden, die diese
+  Adresse hat und der Wert der Speicherstelle ausgelesen oder verändert
+  werden.
+
+  Ist die Performance das vorrangige Ziel, dann spricht das für die
+  Verwendung von Referenzen.
+
+  Bei Verwendung von Referenzen respektive Pointern bei der
+  Parameterübergabe an Funktionen gibt es diesbezüglich keinen
+  Unterschied!
+\item
+  Da es sich bei einer Referenz nicht um ein Objekt im Sinne einer
+  \quotation{normalen} Variablendefinition handelt, kann man keinen
+  Pointer auf eine Referenz haben und auch kein Array von Referenzen
+  anlegen!
+
+  Ist daher der Bedarf gegeben, dass man den Zugriff über eine doppelte
+  Indirektion herstellen muss oder muss man ein Array verwenden, dann
+  ist die Verwendung von Pointern obligatorisch.
+\stopitemize
+
+Es gibt prinzipiell zwei Arten von Referenzen:
+
+\startitemize
+\item
+  lvalue Referenz (engl. {\em lvalue reference}) ist eine Referenz auf
+  einen lvalue. Das haben wir uns gerade angesehen.
+\item
+  rvalue Referenz (engl. {\em rvalue reference}) ist eben eine Referenz
+  auf einen rvalue.
+\stopitemize
+
+\subsection[lvalueref]{lvalue Referenz}
+
+Eine lvalue Referenz kann entweder ohne \type{const} oder mit
+\type{const} auftreten.
+
+Wird die lvalue Referenz ohne \type{const} verwendet, d.h. so wie wir
+das bis jetzt betrachtet haben, dann muss diese Referenz mit einem
+lvalue des entsprechenden Typs initialisiert werden. Das bedeutet, dass
+der Compiler die folgende Deklaration beanstanden wird:
+
+\startcpp
+int* q{nullptr};
+int& r1{0};
+int& r2{q};
+\stopcpp
+
+Bei \type{r1} wird nicht mit einem lvalue initialisiert und bei
+\type{r2} stimmt der Typ der Referenz von \type{r2} (\type{int}) nicht
+mit dem Typ des lvalue (\type{int*}) überein!
+
+Bei einer lvalue Referenz mit \type{const} muss der Initialisierer nicht
+ein lvalue sein und nicht einmal mit dem Typ übereinstimmen. In solchen
+Fällen wird vom Compiler folgendermaßen vorgegangen:
+
+\startitemize[a,packed][stopper=.]
+\item
+  Zuerst wird eine implizite Konvertierung durchgeführt, sodass die
+  Typen übereinstimmen.
+\item
+  Dann wird der erhaltene Wert in einer temporären Variable abgelegt.
+\item
+  Diese temporäre Variable wird zur Initialisierung der Referenz
+  verwendet. Die Lebenszeit solch einer temporären Variable endet, wenn
+  die Referenz den Geltungsbereich verlässt.
+\stopitemize
+
+Schauen wir uns dazu die folgenden Codezeilen an:
+
+\startcpp
+{
+    const int& r{1};
+    cout << r << endl;
+}
+\stopcpp
+
+Die temporäre Variable, die intern angelegt wird, wird bei der
+geschlossenen geschwungenen Klammer des Blockes wieder entfernt.
+
+lvalue Referenzen werden oft im Zuge von \quotation{foreach} Schleifen
+verwendet. Hänge den folgenden Code hinten an die Datei an:
+
+\startcpp
+string long_names[]{"maxi", "mini", "otto"};
+
+for (const auto& name : long_names) {
+    cout << name << endl;
+}
+\stopcpp
+
+\startitemize
+\item
+  Zuerst wird ein Array von \type{string} Objekt angelegt, wobei jedes
+  einzelne \type{string} Objekt aus einem C-String-Literal erzeugt wird.
+\item
+  Der interessante Teil betrifft die Laufvariable. Prinzipiell teilen
+  wir dem Compiler mit, dass er den Typ selbst eruieren soll, aber wir
+  wollen den Wert der Laufvariable nicht ändern (\type{const}) und
+  außerdem wollen wir, dass eine lvalue Referenz verwendet wird.
+
+  Das bewirkt, dass die Strings nicht kopiert werden, sondern lediglich
+  das \type{string} Objekt aus dem Array direkt verwendet wird. Bei
+  wirklich langen Namen erspart man sich sehr viel an Speicher, der
+  zuerst angefordert, dann kopiert und am Ende des Schleifendurchganges
+  wieder freigegeben werden muss. Das wird sich in der Regel auch in der
+  Laufzeit entsprechend auswirken.
+\stopitemize
+
+\subsection[rvalueref]{rvalue Referenz}
+
+Eine rvalue Referenz referenziert einen rvalue, der entsteht, wenn ein
+temporäres Objekt im Zuge der Auswertung eines Ausdrucks entsteht. Auch
+eine rvalue Referenz muss bei der Definition initialisiert werden,
+nämlich mit einem rvalue!
+
+Schauen wir uns dazu einmal folgendes Programm an, das vorerst ohne
+Referenz auskommt:
+
+\startcpp
+// rreference.cpp
+#include <iostream>
+
+using namespace std;
+
+string f() {
+    return "f()"; 
+}
+
+int main() {
+    string res{f()};
+    cout << res << endl;
+}
+\stopcpp
+
+Das Interessante ist, welche Objekte beim Aufruf der Funktion \type{f}
+erzeugt werden:
+
+\startitemize[a][stopper=.]
+\item
+  Zuerst wird bei der \type{return}-Anweisung aus dem C-String-Literal
+  ein temporäres Objekt vom Typ \type{string} angelegt.
+\item
+  Dann wird dieses Objekt an den Aufrufer zurückgegeben. Dazu muss eine
+  Kopie erstellt werden, die in der Funktion \type{main} auf der rechten
+  Seite der Zuweisung \type{res = f()} zur Verfügung steht.
+\item
+  Beim Ausführen der Initialisierung muss das zurückgegebene temporäre
+  Objekt wiederum in das Zielobjekt \type{res} kopiert werden.
+\stopitemize
+
+Es steht dem Compiler frei mittels Optimierungen temporäre Objekte zu
+vermeiden, aber ohne temporäre Objekte geht es in diesem Fall nicht.
+Besonders den letzten Schritt wird ein Compiler wegoptimieren, wodurch
+faktisch nur mehr zwei Kopieraktionen über bleiben. Wir werden uns das
+im Zuge der Behandlung des Kopierkonstruktors im Abschnitt
+\in[copyandmove] noch genauer ansehen.
+
+Ändere jetzt den Typ von \type{res} auf \type{string&} um:
+
+\startcpp
+string& res{f()};
+\stopcpp
+
+Der Compiler wird das Programm nicht mehr übersetzen, da es sich bei dem
+Wert des Ausdruckes von \type{f()} nicht um einen lvalue sondern um eine
+lvalue-Referenz handelt!
+
+Ändere das Programm so ab, dass eine rvalue-Referenz als Typ von
+\type{res} verwendet, also \type{string&&} wird:
+
+\startcpp
+string&& res{f()};
+\stopcpp
+
+Das Programm funktioniert wieder wie zuvor! Warum also rvalue-Referenzen
+verwenden und nicht einfach \mono{string res\{f()\};}? Wir haben schon
+gesehen, dass bis zu drei Mal kopiert werden muss. Handelt es sich um
+ein großes Objekt, dann können diese Kopieraktionen durchaus ins Gewicht
+fallen. Verwendet man eine rvalue-Referenz, dann kann der Compiler in
+diesem Fall eine Kopieraktion durch eine Verschiebeaktion austauschen.
+Bei einer Verschiebeaktion wird der Inhalt des Objektes nicht kopiert,
+sondern in das neue Objekt verschoben. Wir werden uns das noch genauer
+im Abschnitt \in[copyandmove] ansehen.
+
+Damit erkennen wir, dass es für \cpp Sinn macht sowohl lvalue-Referenzen
+als auch rvalue-Referenzen im Repertoire zu haben:
+
+\startitemize
+\item
+  Eine nicht-konstante lvalue-Referenz bezieht sich auf ein Objekt, das
+  vom Benutzer beschrieben werden kann.
+\item
+  Eine konstante lvalue-Referenz verweist auf eine Konstante, die aus
+  Sicht des Benutzers der Referenz nicht veränderbar ist.
+\item
+  Eine rvalue-Referenz bezieht sich auf ein temporäres Objekt, das
+  verändert werden kann, da es nicht mehr benützt wird. Ein temporäres
+  Objekt kann nicht mehr benützt werden, da es keine Möglichkeit gibt
+  auf dieses Objekt in weiterer Folge zuzugreifen. Damit können die
+  Daten, die in diesem Objekt gespeichert sind, verschoben werden und
+  müssen nicht kopiert werden.
+\stopitemize
+
+Verwenden wir explizit rvalue-Referenzen, dann kann der Compiler
+Verschiebeaktionen durchführen, wenn diese möglich sind. Manchmal ist es
+jedoch so, dass wir wissen, dass ein Verschieben möglich ist, der
+Compiler dies jedoch nicht erkennen kann. In so einem Fall müssen wir
+dem Compiler die entsprechenden Informationen liefern.
+
+Nehmen wir einmal an, dass wir eine ganz \quotation{normale} Funktion
+zum Vertauschen der Argumente schreiben wollen. Solch eine Funktion wird
+oft \quotation{swap} genannt.
+
+\startcpp
+#include <iostream>
+
+using namespace std;
+
+void swap(string& a, string& b) {
+    string tmp{a};
+    a = b;
+    b = tmp;
+}
+
+int main() {
+    string s1{"foo"};
+    string s2{"bar"};
+
+    cout << "s1 = " << s1 << endl;
+    cout << "s2 = " << s2 << endl;
+    swap(s1, s2);
+    cout << "s1 = " << s1 << endl;
+    cout << "s2 = " << s2 << endl;
+}
+\stopcpp
+
+Die Ausgabe schaut wie erwartet folgendermaßen aus:
+
+\startsh
+s1 = foo
+s2 = bar
+s1 = bar
+s2 = foo
+\stopsh
+
+Die Funktion \type{swap} bekommt ihre beiden Parameter als Referenz,
+womit auch in gewisser Weise die Funktion zwei Werte zurückgeben kann.
+Der eigentliche Rückgabewert wurde hier nicht verwendet. Damit
+einhergehend kommen auch keine Kopieraktionen bei der Übergabe der
+beiden Parameter zustande.
+
+Das klingt gut, aber leider kommt es sehr wohl zu Kopieraktionen, da bei
+der Initialisierung der Variable \type{tmp} die erste Kopieraktion
+durchgeführt wird, bei der Zuweisung an \type{a} und danach an \type{b}
+die nächsten beiden Kopieraktionen!
+
+Wenn man sich überlegt, dass wir eigentlich die Variablen nicht kopieren
+wollen, sondern nur deren Inhalte verschieben, dann müssen wir unsere
+Funktion auf die Verwendung von rvalue-Referenzen umstellen:
+
+\startcpp
+void swap(string& a, string& b) {
+    string tmp{static_cast<string&&>(a)};
+    a = static_cast<string&&>(b);
+    b = static_cast<string&&>(tmp);
+}
+\stopcpp
+
+Diese Umstellung bewirkt, dass nicht mehr die Inhalte der Strings
+kopiert werden, sondern die Inhalte verschoben werden:
+
+\startitemize
+\item
+  Nach der Initialisierung der Variable \type{tmp} hat die Variable
+  \type{a} keinen Inhalt mehr, da dieser zur Variable \type{tmp}
+  verschoben wurde.
+
+  Das wird vom Compiler deshalb durchgeführt, da die Variable \type{a}
+  explizit zu einer rvalue-Referenz konvertiert wird. Damit kann der
+  Compiler eine spezielle Operation zur Initialisierung von \type{tmp}
+  aufrufen, die die Klasse \type{string} zur Verfügung stellt und die
+  Verschiebe-Operation durchführt.
+
+  Wie diese spezielle Verschiebe-Operation genau aussieht und wie man
+  eine solche selber programmieren kann, werden wir uns im Abschnitt
+  \in[copyandmove] noch detailliert ansehen.
+\item
+  Bei den Zuweisungen zu den Variablen \type{a} und \type{b}
+  funktioniert dies ähnlich, nur dass diese Variablen nicht
+  initialisiert werden, sondern zugewiesen. Aufgrund der Konvertierung
+  zu einer rvalue-Referenz kann der Compiler eine spezielle Operation
+  zur Zuweisung aufrufen, die die Klasse \type{string} ebenfalls zur
+  Verfügung stellt und wiederum die Verschiebe-Operation durchführt.
+\stopitemize
+
+Damit kommt diese Funktion ohne aufwändige Kopieroperationen aus! Das
+ist nun einmal nicht so schlecht, allerdings ist die Notation nicht
+gerade einfach und eingängig. Deshalb stellt die Standardbibliothek eine
+Funktion \type{move} im Header \type{<utility>} (wird schon von
+\type{<iostream>} inkludiert) zur Verfügung, die nichts anderes macht,
+als die Konvertierung in eine rvalue-Referenz vorzunehmen:
+
+\startcpp
+void swap(string& a, string& b) {
+    string tmp{move(a)};
+    a = move(b);
+    b = move(tmp);
+}
+\stopcpp
+
+Damit schaut die Funktion schon viel übersichtlicher aus und bewirkt
+genau das Gleiche! Vielleicht könnte man meinen, dass damit die
+Performance leidet, da zusätzliche Funktionen aufgerufen werden, aber
+dem ist nicht so! Die Funktionen werden vom Compiler aufgerufen und
+nicht zur Laufzeit. Solche Funktionen werden wir uns detailliert im
+Abschnitt \in[functiontemplates] ansehen.
+
+Aber es geht eigentlich noch viel einfacher, weil eine solche Funktion
+\type{swap} schon im Header \type{utility} vorhanden ist, die mit
+prinzipiell {\em allen} Typen umgehen kann. Auch so etwas werden wir uns
+im Abschnitt \in[functiontemplates] noch genauer ansehen.
+
+Damit du die eingebaute Funktion \type{swap} verwenden kannst, brauchst
+du nur die Definition der selbst geschriebenen Funktion \type{swap} aus
+deinem Programm löschen!
+
+\section[smartpointer]{Smart-Pointer}
+
+Smart-Pointer stellen eine Möglichkeit dar, mit den besprochenen
+Problemen beim Umgang mit rohen Pointer, zu handhaben. Diese
+Smart-Pointer haben den Zweck, sich um die Speicherverwaltung zu kümmern
+und sicherzustellen, dass der Speicher genau zum richtigen Zeitpunkt
+wieder freigegeben wird.
+
+Smart-Pointer stellen also eine Abstraktionsschicht zur Verfügung, die
+die Freigabe des Speichers in die Implementierung des Smart-Pointers
+verlagert. Das Prinzip ist, dass der Speicher freigegeben wird, wenn die
+Variable des Smart-Pointers den Block verlässt, in dem diese definiert
+wird.
+
+Die Standardbibliothek von \cppXI stellt verschiedene Arten von
+Smart-Pointer zur Verfügung, die wir uns in Folge ansehen werden.
+
+\subsection[unique_ptr]{\type{unique_ptr}}
+
+Zuerst wollen wir uns dem sogenannten \quotation{eindeutigen
+Smart-Pointer} \type{unique_ptr} (engl. {\em unique pointer}) zuwenden,
+den wir ab jetzt einfach mit Unique-Pointer bezeichnen wollen.
+
+Dieses \quotation{unique} bedeutet, dass dieser Smart-Pointer für das
+Speicherobjekt auf das dieser verweist, die Verantwortung übernimmt. Der
+Smart-Pointer \quotation{besitzt} das Speicherobjekt. Das bedeutet, dass
+dieser Smart-Pointer die Verantwortung über die korrekte Entfernung des
+Speicherobjektes übernimmt. Weiters gibt es exakt eine Kopie von dieser
+Art von Smart-Pointer zu einer Zeit. Was dies genau bedeutet werden wir
+uns jetzt ansehen.
+
+Schauen wir uns dazu vorerst das einfachste Beispiel an und gehen die
+verschiedenen Aspekte nach und nach durch.
+
+Zuerst wollen wir den Fall durchspielen, dass vergessen wurde den
+Speicher freizugeben. Unter Verwendung von \type{unique_ptr} kann dies
+nicht mehr passieren:
+
+\startcpp
+// smartpointer.cpp
+#include <iostream>
+#include <memory>
+
+using namespace std;
+
+int main() {
+    {
+        unique_ptr<int> pi{new int{1}};
+    }
+}
+\stopcpp
+
+Es ist klar, dass dieses Programm keine besondere Funktionalität hat,
+trotzdem folgt hier eine Erklärung der Funktionsweise:
+
+\startitemize
+\item
+  Zuerst wird die Headerdatei \type{memory} eingebunden, die die
+  verschiedenen Arten der Smart-Pointer zur Verfügung stellt.
+\item
+  Dann wird innerhalb von \type{main} ein Block erzeugt, der uns zeigen
+  soll, dass der Speicher wieder freigegeben wird.
+\item
+  Innerhalb dieses Blockes wird ein \type{unique_ptr} angelegt, der auf
+  einen \type{int} verweisen kann. Zusätzlich wird dieser mit einem
+  Pointer auf ein neu am Heap angelegtes \type{int}-Objekt
+  initialisiert. Damit übernimmt dieser Smart-Pointer die Kontrolle über
+  das Speicherobjekt.
+\item
+  Beim Verlassen des Blockes endet die Lebenszeit des Smart-Pointers und
+  es wird dieser entfernt. Beim Entfernen des Smart-Pointers wird eine
+  spezielle Funktion (der Destruktor, siehe später) aufgerufen, der den
+  Speicher des Speicherobjektes wieder freigibt. Damit gibt es keine
+  Möglichkeit mehr, das Freigeben des Speichers zu
+  \quotation{vergessen}.
+\stopitemize
+
+Natürlich kann man argumentieren, dass man \quotation{eh nicht
+vergisst}. Ja, aber schwieriger wird es, wenn Pointer an Funktionen
+übergeben werden oder von Funktionen zurückgeliefert werden. Es müsste
+nämlich geklärt sein, wer für sich für das Speicherobjekt verantwortlich
+fühlt und sich letztendlich um die Freigabe des Speichers kümmert.
+
+Bevor wir uns allerdings noch genauer mit den verschiedenen
+Möglichkeiten des Einsatzes von Smart-Pointer auseinandersetzen, wollen
+wir uns vorerst die Frage stellen, wie man eigentlich auf das
+referenzierte Speicherobjekt zugreift. Die Antwort ist einfach: Wie bei
+einem normalen Pointer!
+
+Füge einfach die nachfolgende Ausgabezeile direkt hinter der Definition
+des \type{unique_ptr} an und probiere es aus:
+
+\startcpp
+cout << *pi << endl;
+\stopcpp
+
+Wir sehen, dass der Operator \type{*} offensichtlich auch für
+Smart-Pointer überladen wurde, damit diese sich wie echte Pointer
+verhalten.
+
+Wer ist nun für die Freigabe eines Speicherobjektes am Heap
+verantwortlich? Schauen wir uns vorerst dazu die folgende Situation für
+normale Pointer an:
+
+\startcpp
+void use_ptr(int* pi) {
+    cout << *pi << endl;
+}
+
+int* pi{new int{2}};
+use_ptr(pi);
+\stopcpp
+
+Die Frage ist, wer sich um die Freigabe des Speichers kümmern soll? Die
+Funktion \type{use_ptr} oder der Aufrufer? Was wenn beide den Speicher
+wieder freigeben oder wenn keiner den Speicher freigibt. Was passiert,
+wenn die Funktion den Speicher freigibt, aber der Aufrufer noch auf den
+Speicher zugreifen will?
+
+Weiters könnte es sein, dass die Funktion \type{use_ptr} eine Kopie des
+übergebenen Pointers anlegt und diesen später weiterverwendet? Das
+betrifft hauptsächlich die Situation, wenn es sich bei der Funktion um
+eine Methode (engl. {\em method}, in \cpp meist {\em member function}
+genannt) handelt.
+
+Damit kommen wir zur eigentlichen Fragestellung, nämlich, wer die
+Eigentümerschaft über den Pointer erhält: Der Aufrufer oder die
+aufgerufene Funktion? Die Antwort kann natürlich je nach Anwendungsfall
+unterschiedlich sein. Es muss lediglich klar sein, wer die Verantwortung
+hat und derjenige Teil muss sich um die Freigabe kümmern. Und nach einer
+Freigabe darf der andere Teil nicht mehr auf das Speicherobjekt
+zugreifen.
+
+Auch hier kann man \type{unique_ptr} einsetzen!
+
+Schaue dir dazu die folgende naheliegende Lösung an:
+
+\startcpp
+// unique_ptr.cpp
+#include <iostream>
+#include <memory>
+
+using namespace std;
+
+void use_ptr(unique_ptr<int> upi) {
+    cout << *upi << endl;
+}
+
+
+int main() {
+    unique_ptr<int> upi{new int{1}};
+    use_ptr(upi);
+}
+\stopcpp
+
+Diese Lösung lässt sich jedoch, aus gutem Grund, nicht übersetzen. Das
+liegt daran, dass man \type{unique_ptr} nicht kopieren kann. Könnte man
+Unique-Pointer kopieren, dann wäre in diesem Fall kein Unterschied zu
+einem normalen Pointer gegeben! Und damit einhergehend wäre wiederum
+nicht klar, wer die Verantwortung für diesen Pointer hätte.
+
+Eine einfache Lösung ist, keine Kopie des Smart-Pointers übergeben zu
+wollen, sondern eine Referenz. Wird eine Referenz übergeben, dann
+bedeutet das, dass die Adresse des Smart-Pointers an die Funktion
+übergeben wird. Damit lässt sich das Beispiel jetzt übersetzen:
+
+\startcpp
+void use_ptr(unique_ptr<int>& upi) {
+\stopcpp
+
+Die Bedeutung dieser Änderung ist, dass der Aufrufer weiterhin die
+Verantwortung über den Smart-Pointer behält.
+
+Was jedoch, wenn der Aufrufer die Kontrolle über den Smart-Pointer an
+die Funktion übergeben will? In diesem Fall muss man folgendermaßen
+vorgehen:
+
+\startcpp
+void use_ptr(unique_ptr<int> upi) {
+    cout << *upi << endl;
+}
+
+
+int main() {
+    unique_ptr<int> upi{new int{1}};
+    use_ptr(move(upi));
+    cout << ((upi.get() == nullptr) ? 0 : *upi) << endl;
+}
+\stopcpp
+
+Was passiert?
+
+\startitemize
+\item
+  Zuerst sehen wir, dass die Funktion den eigentlichen Unique-Pointer
+  wieder ohne Referenz erhält. Das bedeutet, dass eine Kopie am Stack
+  übergeben wird. Allerdings haben wir gesehen, dass man einen
+  Unique-Pointer nicht als Kopie übergeben kann.
+\item
+  Im Aufruf der Funktion sehen wir, dass der Unique-Pointer jetzt in
+  einen Aufruf der Funktion \type{move()} gekapselt ist. Damit wird aus
+  dem lvalue \type{upi} vom Typ \type{unique_ptr<int>} ein rvalue vom
+  Typ \type{unique_ptr<int>&&}. Damit kann der Inhalt, also der rohe
+  Pointer, in den Parameter \type{upi} der Funktion \type{use_ptr}
+  verschoben werden.
+\item
+  In der Funktion \type{use_ptr} ist das Argument \type{upi} jetzt im
+  Besitz des verschobenen rohen Pointers. Am Ende der Funktion endet
+  auch die Lebenszeit des Argumentes \type{upi} und damit wird auch der
+  Speicher freigegeben auf den der rohe Pointer verweist.
+\item
+  Die Ausgabe wird folgendermaßen aussehen:
+
+  \startsh
+  1
+  0
+  \stopsh
+
+  Das liegt eben daran, dass der rohe Pointer in den Parameter der
+  Funktion verschoben worden ist. Bei dieser Verschiebe-Operation wurde
+  der alte rohe Pointer auf den Wert \type{nullptr} gesetzt. Mittels
+  \type{get} erhält man den rohen Pointer.
+\stopitemize
+
+Der Typ \type{unique_ptr} kennt noch weitere Methoden und überladene
+Methoden.
+
+Leider kann es noch zu folgendem Problem kommen, dass Exceptions
+auftreten und Speicher nicht freigegeben wird, obwohl man Unique-Pointer
+verwendet:
+
+\startcpp
+void use_ptr(unique_ptr<Game> a, unique_ptr<Game> b);
+
+// Verwendung:
+use_ptr(unique_ptr<Game>{new Game{1}},
+        unique_ptr<Game>{new Game{2}});
+\stopcpp
+
+Bei Game soll es sich um einen benutzerdefinierten Datentyp handeln, der
+über einen Konstruktor verfügt. Wir gehen davon aus, dass dieser
+Konstruktor unter Umständen auch eine Exception werfen kann.
+
+Das Problem liegt wiederum darin, dass der Compiler die Ausdrücke
+auswerten darf wie er möchte. Das bedeutet, dass es zu folgender
+Auswertungsreihenfolge kommen könnte:
+
+\startitemize[a,packed][stopper=.]
+\item
+  Speicher für das erste \type{Game}-Objekt anfordern
+\item
+  Konstruktor für \mono{Game\{1\}} ausführen
+\item
+  Speicher für das zweite \type{Game}-Objekt anfordern
+\item
+  Konstruktor für \mono{Game\{2\}} ausführen
+\item
+  \type{unique_ptr<Game>} für erstes \type{Game}-Objekt anlegen
+\item
+  \type{unique_ptr<Game>} für zweites \type{Game}-Objekt anlegen
+\item
+  \type{use_ptr} aufrufen
+\stopitemize
+
+Jetzt könnte es sein, dass zum Beispiel beim Anfordern des Speichers für
+das zweite \type{Game}-Objekt eine Exception geworfen wird oder der
+Konstruktor \mono{Game\{2\}} eine Exception wirft. Dann ist ein
+Speicherleck entstanden, da das erste \type{Game}-Objekt nicht mehr
+freigegeben worden ist.
+
+Es gibt prinzipiell zwei Lösungen:
+
+\startitemize
+\item
+  Man zerlegt diesen Aufruf der Funktion \type{use_ptr} in mehrere
+  Anweisungen:
+
+  \startcpp
+  unique_ptr<Game> game1{1};
+  unique_ptr<Game> game2{2};
+  use_ptr(move(game1), move(game2));
+  \stopcpp
+\item
+  Ab \cppXIV gibt es noch die Funktion \type{make_unique}, die
+  folgendermaßen verwendet werden kann und diese Probleme nicht
+  aufweist:
+
+  \startcpp
+  use_ptr(make_unique<Game>(1), make_unique<Game>(2));
+  \stopcpp
+
+  Steht noch kein \cppXIV Compiler zur Verfügung, dann kann man diese
+  Funktion als Template leicht selber definieren:
+
+  \startcpp
+  template<typename T, typename... Args>
+  std::unique_ptr<T> make_unique(Args&&... args) {
+      return {new T(std::forward<Args>(args)...)};
+  }
+  \stopcpp
+\stopitemize
+
+\subsection[shared_ptr]{\type{shared_ptr}}
+
+Komplizierter wird die Situation, wenn man die Verantwortung über den
+Speicher aufteilen muss, da keinem Objekt die klare Verantwortung
+zugewiesen werden kann. Das bedeutet, dass der Besitz eines Speichers
+aufgeteilt wird. Aus genau diesem Grund wird so ein Smart-Pointer als
+Shared-Pointer bezeichnet.
+
+Angelegt werden kann ein Shared-Pointer wie ein Unique-Pointer:
+
+\startcpp
+// shared_ptr.cpp
+#include <iostream>
+#include <memory>
+
+int main() {
+    shared_ptr<int> spi{new int{1}};
+}
+\stopcpp
+
+Die Unterschiede werden allerdings erst dann sichtbar, wenn
+Shared-Pointer kopiert werden:
+
+\startcpp
+cout << spi.use_count() << endl;
+{
+    shared_ptr<int> spi2{spi};
+    cout << spi2.use_count() << endl;
+}
+cout << spi.use_count() << endl;
+\stopcpp
+
+Die Ausgabe wird folgendermaßen aussehen:
+
+\startsh
+1
+2
+1
+\stopsh
+
+Was bedeutet diese Ausgabe und was passiert in dem Programm?
+
+\startitemize
+\item
+  Die erste Ausgabe bedeutet, dass es einen Akteur gibt, der auf die
+  ganze Zahl 1 zugreifen kann, die am Heap liegt. Anders ausgedrückt: Es
+  gibt genau einen Besitzer dieses Speicherobjektes.
+\item
+  Danach wird innerhalb eines Blockes eine weitere lokale Shared-Pointer
+  Variable \type{spi2} angelegt und mit einer Kopie von \type{spi}
+  initialisiert. Du siehst, dass man Shared-Pointer sehr wohl kopieren
+  kann.
+\item
+  Die nachfolgende Ausgabe von 2 zeigt uns an, dass es jetzt 2 Besitzer
+  dieses Speicherobjektes gibt. Diese Ausgabe zeigt uns, dass mit dem
+  Initialisieren von \type{spi2} durch eine Kopie von \type{spi} erkannt
+  worden ist, dass die Anzahl der Besitzer um eins erhöht hat.
+\item
+  Die letzte Ausgabe zeigt uns, dass es nur mehr einen Besitzer gibt.
+  Das bedeutet, dass es mit dem Entfernen der lokalen Variable
+  \type{spi2} auch einen Besitzer weniger gibt.
+\stopitemize
+
+Analog zu Unique-Pointern ist es so, dass das Speicherobjekt freigegeben
+wird, wenn es keine Besitzer mehr gibt!
+
+Zusätzlich zum Kopieren von Shared-Pointern ist es auch möglich diese zu
+verschieben, wie wir es schon von den Unique-Pointern kennen. Weiters
+gibt es, wie bei Unique-Pointer, die gewohnten überladenen Operatoren
+und auch weitere Methoden.
+
+Ab \cppXI gibt es, analog zu \type{make_unique} in \cppXIV, eine
+Funktion \type{make_shared}, die ähnliche Funktionalität hat:
+
+\startcpp
+auto point = make_shared<double>(2.5);
+\stopcpp
+
+Zusätzlich zu dem Vorteil, dass die Verwendung dieser Funktion für
+sicheres Verhalten auch im Falle von Exceptions sorgt, ist diese auch
+von der Performance dem expliziten Anlegen mittels
+\mono{shared_ptr<double>\{new double\{2.5\}\}} vorzuziehen.
+
+Wenn wir uns die Implementierung benutzerdefinierter Datentypen wie
+Klassen ansehen, dann bekommen die Shared-Pointer mehr an Bedeutung.
+
+Wie wird jedoch diese Funktionalität implementiert? Im Standard ist
+keine Implementierung vorgeschrieben, aber die gängigen
+Implementierungen verwenden einen Referenzzähler, der die Anzahl der
+Referenzen zählt.
+
+Es kann ein Problem im Zusammenhang mit Shared-Pointern geben, nämlich,
+wenn es einen Zyklus in der Verwendung gibt. Schauen wir uns dazu
+folgendes Beispiel an:
+
+\startcpp
+// shared_ptr_cycle.cpp
+struct Engine;
+
+struct Ship {
+    shared_ptr<Engine> engine;
+    ~Ship() {
+        cout << "Ship destructed" << endl;
+    }
+};
+
+struct Engine {
+    shared_ptr<Ship> ship;
+    ~Engine() {
+        cout << "Engine destructed" << endl;
+    }
+};
+
+int main() {
+    {
+        shared_ptr<Ship> ship{new Ship};
+        shared_ptr<Engine> engine{new Engine};
+        cout << ship.use_count() << ", "
+             << engine.use_count() << endl;
+        ship->engine = engine;
+        engine->ship = ship;
+        cout << ship.use_count() << ", "
+             << engine.use_count() << endl;
+    }
+    Ship ship2;
+}
+\stopcpp
+
+Wir finden hier eine neue syntaktische Notation: Man kann innerhalb
+eines \type{struct} auch Funktionen anschreiben, die in diesem Fall
+Methoden genannt werden (siehe Abschnitt \in[memberfunctions]). Eine
+spezielle Methode ist der Destruktor, den wir erstmals im Abschnitt
+\in[storageobject] kennengelernt haben und innerhalb einer Klasse (hier
+\type{struct}) mittels einer Tilde \type{~} gekennzeichnet ist. Dieser
+Destruktor wird eben aufgerufen, wenn das Objekt entfernt wird und ist
+dafür da, noch benutzerdefinierte Aufräumaktionen durchzuführen. Genauer
+werden wir uns dies noch im Abschnitt \in[constructor] ansehen.
+
+Nach dem Verlassen des Blockes werden wir ein Speicherleck haben, das
+auch sehr schön in der Ausgabe zu erkennen ist:
+
+\startsh
+1, 1
+2, 2
+Ship destructed
+\stopsh
+
+Diese Ausgabe kommt alleinig von der Instanzvariable \type{ship2}! Wie
+kommt es jetzt dazu, dass weder \type{ship} noch \type{engine} entfernt
+werden?
+
+Nach dem Anlegen der beiden Shared-Pointer \type{ship} und \type{engine}
+stehen die Referenzzähler jeweils auf 1. Nach den beiden Zuweisungen
+haben die Referenzzähler beide den Wert 2. Beim Verlassen des Blockes
+werden die beiden Shared-Pointer entfernt, aber die referenzierten
+Objekte vom Typ \type{Ship} und \type{Engine} verweisen noch immer über
+Shared-Pointer aufeinander. Also werden die Referenzzähler noch beide
+den Wert 1 aufweisen und damit werden auch die beiden Objekte vom Heap
+nicht gelöscht werden!
+
+Auf diese beiden Objekt kann jedoch nicht mehr zugegriffen werden und
+damit erkennen wir, dass es zu einem Speicherleck gekommen ist. Schuld
+daran ist der Zyklus über die beiden Shared-Pointer!
+
+Was kann dagegen getan werden? Der Zyklus muss entfernt werden! Wir
+werden die Klasse \type{Engine} wie folgt umbauen, indem wir den
+\type{shared_ptr} in einen \type{weak_ptr} umändern:
+
+\startcpp
+struct Engine {
+    weak_ptr<Ship> ship;
+    ~Engine() {
+        cout << "Engine destructed" << endl;
+    }
+};
+\stopcpp
+
+Jetzt sieht die Ausgabe dazu folgendermaßen aus:
+
+\startsh
+1, 1
+1, 2
+Ship destructed
+Engine destructed
+Ship destructed
+\stopsh
+
+Hier ist sehr schön, die Auswirkung des Weak-Pointers zu erkennen:
+Dieser bewirkt keine Erhöhung des Referenzzählers der
+\type{Ship}-Instanz! Das bedeutet, dass dieser nur ein
+\quotation{schwacher} Pointer (engl. {\em weak pointer}) ist.
+
+Damit ergibt sich allerdings auch, dass man sich bei einem Weak-Pointer
+nicht sicher sein kann, ob dieser noch auf ein Speicherobjekt verweist
+oder nicht:
+
+\startcpp
+#include <memory>
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    weak_ptr<int> wpi;
+    {
+        auto spi = make_shared<int>(1);
+        wpi = spi;
+    }
+    cout << *wpi << endl;
+    }
+\stopcpp
+
+Das wird {\em nicht} übersetzen, da \type{weak_ptr} keinen überladenen
+Operator \type{*} hat! Das macht auch gar keinen Sinn, da nicht sicher
+ist, dass das referenzierte Objekt noch existiert.
+
+Um auf das Speicherobjekt über einen Weak-Pointer zuzugreifen, muss man
+sich sicher sein, dass dieses noch existiert. Dafür bietet
+\type{weak_ptr} die Methode \type{lock} an, die einen Shared-Pointer
+zurückliefert, der auf das Speicherobjekt referenziert, wenn es eines
+gibt, anderenfalls wird ein \quotation{Null}-Shared-Pointer
+zurückgeliefert.
+
+Tauschen wir jetzt bei unserem Beispiel den falschen Ausdruck
+\type{*wpi} durch \type{*(wpi.lock())} aus. Es wird jetzt übersetzen,
+aber das Programm wird vermutlich abstürzen! Das liegt daran, dass zu
+diesem Zeitpunkt das Speicherobjekt nicht mehr existiert, da \type{spi}
+nicht mehr existiert. Damit liefert \type{lock} einen Shared-Pointer
+zurück, der einen Null-Shared-Pointer entspricht. Ändere daher die
+Ausgabe so ab, dass diese folgendermaßen aussieht:
+
+\startcpp
+cout << wpi.lock().get() << endl;
+\stopcpp
+
+Die Methode \type{get()} eines \type{shared_ptr} liefert den rohen
+Pointer auf das Speicherobjekt zurück. Die Ausgabe davon wird \type{0}
+sein, ein Null-Pointer eben. Beachte, dass der von \type{lock()}
+zurückgelieferte Shared-Pointer ein temporäres Objekt ist, das am Ende
+des vollständigen Ausdruckes wieder gelöscht wird.
+
+\section[die-klasse-array]{Die Klasse \type{array}}
+
+Wie schon erwähnt, ist es nicht sinnvoll rohe Arrays zu verwenden.
+Besser ist es auf die Möglichkeiten der Standardbibliothek
+zurückzugreifen.
+
+Prinzipiell kann die Klasse \type{vector} verwendet werden, die jedoch
+über einen gewissen Overhead verfügt, da diese Klasse über zusätzliche
+Features verfügt, wie zum Beispiel, dass die Größe verändert werden
+kann. Das bedeutet, dass diese Klasse Sinn macht, wenn man einen
+Container benötigt, dessen Größe sich ändern kann.
+
+Will man jedoch lediglich eine einfache, sichere Möglichkeit, um auf
+Arrays eines bestimmten Typs zuzugreifen, dann bietet sich an, die
+Klasse \type{array} aus der Standardbibliothek zu verwenden.
+
+\startcpp
+#include <iostream>
+#include <array>
+
+using namespace std;
+
+int main() {
+    array<int, 10> arr;
+    cout << "size: " << arr.size() << endl;
+}
+\stopcpp
+
+Wir sehen hier, dass es bei einem \type{array} notwendig ist, die Größe
+des Arrays als Template-Argument in die spitzen Klammern mit
+aufzunehmen. Das liegt daran, dass Templates vom Compiler direkt zur
+Übersetzungszeit umgesetzt werden und es damit de facto keinen Overhead
+im Vergleich zu einem rohen Array gibt!
+
+Der Zugriff auf die einzelnen Elemente erfolgt genauso wie bei einem
+rohen Array oder einem Vektor:
+
+\startcpp
+for (auto i : arr) {
+    cout << i << " ";
+}
+\stopcpp
+
+Die Ausgabe kann folgendermaßen aussehen:
+
+\startsh
+size: 10
+-1079045240 134514728 1 65535 -1217703472 -1220706901
+-1219111904 -1220706922 1 134514939
+\stopsh
+
+Hier sieht man, dass die Elemente einer Instanz von \type{array}
+ebenfalls nicht initialisiert werden. Der Grund sind wiederum
+Performanceüberlegungen. Initialisierung eines \type{array}s geht wieder
+mit der einheitlichen Initialisierung:
+
+\startcpp
+array<int, 10> arr2{1, 2, 3};
+cout << "size: " << arr2.size() << endl;
+   
+for (auto i : arr2) {
+    cout << i << " ";
+}
+\stopcpp
+
+Die diesbezügliche Ausgabe sieht dann folgendermaßen aus:
+
+\startsh
+size: 10
+1 2 3 0 0 0 0 0 0 0
+\stopsh
+
+Wir sehen, dass jetzt die ersten drei Feldelemente mit den angegebenen
+Werten aus der einheitlichen Initialisierung initialisiert sind und der
+Rest des Arrays mit Nullwerten aufgefüllt wurde.
+
+Der Zugriff über die Notation \type{[]} ist ebenfalls sehr effizient,
+überprüft aber genauso wenig auf die Feldgrenzen wie dies auch bei der
+Klasse \type{vector} nicht überprüft worden ist:
+
+\startcpp
+cout << endl;
+
+cout << arr2[10000] << endl;
+\stopcpp
+
+Diese Codezeile wird mit großer Wahrscheinlichkeit zu einem Absturz
+aufgrund eines Speicherzugriffsfehlers führen. Teste!
+
+Ändere jetzt diese Zeile wie folgt ab:
+
+\startcpp
+cout << arr2.at(10000) << endl;
+\stopcpp
+
+Auch hier wird es zu einem Absturz kommen, allerdings mit einer
+Exception vom Typ \type{std::out_of_range}, die leicht abgefangen werden
+kann:
+
+\startcpp
+try {
+    cout << arr2.at(10000) << endl;
+} catch (const out_of_range& ex) {
+    cout << "error 'out of range': " << ex.what() << endl;
+}
+\stopcpp
+
+Exception werden wir uns im Abschnitt \in[exceptionfoundations] noch
+detailliert ansehen.
+
+Man könnte unter Umständen argumentieren, dass man sowieso die \type{[]}
+Notation verwenden könnte, da beide Fälle zu einem Abbruch geführt
+haben. Dies ist jedoch nicht so, da es zwei gravierende Unterschiede
+gibt:
+
+\startitemize
+\item
+  Der Abbruch über einen Adressbereichsfehler ist nicht abzufangen.
+\item
+  Ein nicht korrekter Zugriff muss nicht unbedingt zu einem
+  Adressbereichsfehler führen! Schauen wir uns diesen Fall an:
+
+  \startcpp
+  cout << arr[10] << endl;
+  \stopcpp
+
+  Diese Anweisung gibt bei mir in diesem Fall einfach die Zahl 1 aus,
+  obwohl der Zugriff nicht korrekt ist! Selbstverständlich kann es auch
+  zu einer beliebigen anderen Ausgabe kommen oder auch einen Absturz
+  nach sich ziehen. Eine Änderung zu \type{arr.at(10)} hätte dies
+  erkannt!
+\stopitemize
+
+Ein weiterer Vorteil an Instanzen von \type{array} ist, dass diese -- im
+Gegensatz zu rohen Arrays -- leicht kopiert und verglichen werden
+können:
+
+\startcpp
+if (arr == arr2)
+    cout << "arr == arr2" << endl;
+else
+    cout << "arr != arr2" << endl;
+
+arr = arr2;
+
+if (arr == arr2)
+    cout << "arr == arr2" << endl;
+else
+    cout << "arr != arr2" << endl;
+\stopcpp
+
+Diese Anweisungen werden zu folgender erwarteter Ausgabe führen:
+
+\startsh
+arr != arr2
+arr == arr2
+\stopsh
+
+\stopcomponent

@@ -1,0 +1,224 @@
+
+\startcomponent comp_stl1
+\product prod_book
+
+\chapter{Einführung in die Standardbibliothek}
+\section[überblick]{Überblick}
+
+Die Standardbibliothek von \cpp ist sehr umfangreich! In diesem
+Abschnitt werden wir einen Überblick bekommen und die wesentlichen
+Prinzipien verstehen werden.
+
+Grob kann man die Standardbibliothek in verschiedene Kategorien
+gliedern. Hier folgen die Kategorien gruppiert im Überblick:
+
+\subsection[sprachunterstützung]{Sprachunterstützung,}
+
+In diese Kategorie fallen Header, die direkt als Ergänzung der
+Programmiersprache \cpp zuzuordnen sind. Wichtige Headerdateien sind:
+
+\startitemize
+\item
+  \type{<limits>}: Diese Headerdatei haben wir schon kennengelernt, da
+  diese uns wichtige Informationen über die Implementierung der
+  arithmetischen Datentypen liefert.
+\item
+  \type{<cstdint>}: Auch diese Headerdatei kennen wir bereits. Diese
+  stellt weitere Typen für ganze Zahlen mit definierter Größe zur
+  Verfügung.
+\item
+  \type{<typeinfo>}: In \type{<typeinfo>} ist eine gewisse Unterstützung
+  enthalten, um zur Laufzeit Information über die Typen von
+  Speicherobjekten zu ermitteln.
+\item
+  \type{<exception>}: Hier sind Funktionen und Typen enthalten, die für
+  das Excpetion-Handling nützlich und notwendig sind.
+\item
+  \type{<initializer_list>}: Diese Headerdatei kennen wir ebenfalls
+  schon: Sie stellt den Typ \type{initializer_list} zur Verfügung.
+\stopitemize
+
+\subsection[utility]{Utility}
+
+Diese Kategorie enthält sinnvolle Funktionen, die oft benötigt werden
+und allgemeiner Natur sind. Hier gibt es die folgenden wichtigen
+Headerdateien:
+
+\startitemize[packed]
+\item
+  \type{<utility>}
+\item
+  \type{<tuple>}
+\item
+  \type{<bitset>}
+\item
+  \type{<memory>}
+\item
+  \type{<functional>}
+\item
+  \type{<ration>}
+\item
+  \type{<chrono>} und \type{<ctime>}
+\stopitemize
+
+\subsection[mehrsprachigkeit]{Mehrsprachigkeit}
+
+xxx
+
+\subsection[strings]{Strings}
+
+xxx
+
+\subsection[ein--und-ausgabe]{Ein- und Ausgabe}
+
+xxx
+
+\subsection[container-algorithmen-iterator]{Container, Algorithmen,
+Iterator}
+
+xxx
+
+\subsection[numerik]{Numerik}
+
+xxx
+
+\subsection[reguläre-ausdrücke]{Reguläre Ausdrücke}
+
+xxx
+
+\subsection[unterstützung-für-thread-basierte-nebenläufige-anwendungen]{Unterstützung
+für Thread-basierte, nebenläufige Anwendungen}
+
+xxx
+
+\section[sortieren]{Sortieren}
+
+Schauen wir uns folgendes Beispiel an, das es erlaubt beliebige
+Sequenzen zu sortieren, ohne \type{begin} und \type{end} verwenden zu
+müssen:
+
+\startcpp
+// sorting.cpp
+#include <iostream>
+#include <algorithm>
+
+namespace Estd {
+    using namespace std;
+
+    template <typename T>
+    void sort(T& seq) {
+        std::sort(begin(seq), end(seq));
+    }
+}
+
+using namespace Estd;
+
+int main() {
+    int nums[]{3, 5, 2, 1, 4};
+
+    sort(nums);
+
+    for (auto n : nums) {
+        cout << n << ' ';
+    }
+    cout << endl;
+}
+\stopcpp
+
+\section[vector]{vector}
+
+Die schon bekannte Möglichkeit ist, eine Instanz von \type{vector} zu
+verwenden, wie wir diese schon kennengelernt haben. Ein \type{vector}
+unterscheidet sich von einem rohen Array dadurch, dass es in der Größe
+veränderbar ist.
+
+Wir wollen wir uns jetzt die Funktionsweise und wichtige Funktionen der
+Klasse genauer ansehen. Ein \type{vector} hat eine aktuelle Größe und
+eine Kapazität, die die Größe des reservierten Speicherbereiches angibt:
+
+\startcpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main() {
+    vector<int> v{1, 2};
+    cout << "size: " << v.size() << endl;
+    cout << "capacity: " << v.capacity() << endl;
+}
+\stopcpp
+
+Die Ausgabe könnte folgendermaßen aussehen:
+
+\startsh
+size: 2
+capacity: 2
+\stopsh
+
+Da zwei Elemente, nämlich die Zahlen 1 und 2, im Vektor enthalten sind,
+ist die aktuelle Größe 2. Weiters ist die Kapazität ebenfalls 2.
+
+Hängen wir in weiterer Folge diese Codezeilen an:
+
+\startcpp
+v.push_back(3);
+
+cout << "push_back(3)" << endl;
+cout << "size: " << v.size() << endl;
+cout << "capacity: " << v.capacity() << endl;
+\stopcpp
+
+Die Ausgabe sieht bei mir jetzt folgendermaßen aus:
+
+\startsh
+size: 2
+capacity: 2
+push_back(3)
+size: 3
+capacity: 4
+\stopsh
+
+Damit sind im Moment die Zahlen 1, 2 und 3 im Vektor enthalten und
+hiermit beträgt die aktuelle Gräße ebenfalls 3. Nach der Initialisierung
+mit den beiden Werten 1 und 2 hat der Vektor \type{v} nur einen
+Speicherbereich vom Betriebssystem angefordert, der in der Lage war 2
+Elemente aufzunehmen. Dann haben wir ein weiteres Element hinten
+angehängt und hiermit hat der Vektor einen neuen Speicherbereich
+anfordern müssen. Offensichtlich hat der Vektor den Speicherbereich
+doppelt so groß angefordert.
+
+Testen wir weiter durch Anfügen der folgenden Codezeilen:
+
+\startcpp
+v.push_back(4);
+v.push_back(5);
+cout << "push_back(4)" << endl;
+cout << "push_back(4)" << endl;
+cout << "size: " << v.size() << endl;
+cout << "capacity: " << v.capacity() << endl;
+\stopcpp
+
+Die zusätzliche Ausgabe sieht bei mir folgendermaßen aus:
+
+\startsh
+push_back(4)
+push_back(4)
+size: 5
+capacity: 8
+\stopsh
+
+Hier sehen wir sehr deutlich, dass der Vektor in diesem Schritt wieder
+einen doppelt so großen Speicherbereich angefordert hat. Prinzipiell
+hängt die Vorgehensweise von der Implementierung der Standardbibliothek
+durch den Hersteller zusammen, aber diese Art ist sehr sinnvoll. Wird
+ein neues Element zum Vektor hinzugefügt, das in den bestehenden
+Speicherbereich nicht abgelegt werden kann, dann muss der Vektor einen
+neuen Speicherbereich vom Betriebssystem anfordern, die alten Inhalte in
+den neuen Speicherbereich kopieren und den alten Speicherbereich dem
+Betriebssystem zurückgeben.
+
+Damit dieser Vorgang nicht bei jedem Anfügen erfolgen muss, erhöht der
+Vektor die zusätzliche Größe in der konkreten auf die doppelte Größe.
+
+\stopcomponent

@@ -1,0 +1,887 @@
+
+
+# Einstieg in \cpp{}
+
+<div class="drawer">
+Dieses Kapitel gibt einen Überblick über die imperative Programmierung mit \cpp
+und führt die wichtigsten syntaktischen Elemente ein. Am Ende bist du in der
+Lage einfache text-orientierte Programme zu schreiben.
+
+Folgende Konzepte werden *überblicksmäßig* beschrieben:
+
+- Programmgerüst und Kommentare
+- Einfache Ausdrücke und Anweisungen
+- Variable und Datentypen: Strings, ganze Zahlen, Gleitkommazahlen
+- Präprozessoranweisungen, Namensräume
+- Verarbeitung der Kommandozeilenparameter
+- Ein- und Ausgabe über die Standardkanäle
+- Zusammengesetzte Anweisungen: Bedingte Anweisung, Auswahl- und
+    Schleifenanweisungen
+</div>
+
+## Das minimales Programm {#minimal_program}
+
+Jedes \cpp Programm muss *genau* eine Funktion haben, die den Bezeichner
+(Namen, engl. *identifier*) `main` heißt. Diese Funktion `main` wird
+ausgeführt, wenn das Programm gestartet wird. Für das kürzeste \cpp Programm
+sieht diese Funktion `main` aus wie im nachfolgenden Quelltext zu
+ersehen:\index{main}\index{main+ohne Parameter}
+
+~~~{.cpp #minimalCpp}
+int main() {
+}
+~~~
+
+Schreibe diesen Text in eine Datei mit dem Namen `minimal.cpp` und übersetze
+diese Datei in ein ausführbares Programm `minimal` bzw.\ `minimal.exe` unter
+Windows.
+
+Eine Funktion ist in \cpp so aufgebaut, dass zuerst der Typ
+des Rückgabewertes angegeben wird, danach der Name der Funktion, gefolgt
+von der Parameterliste in runden Klammern und am Ende folgt der Rumpf
+der Funktion in geschwungenen Klammern.
+
+Der Typ des Rückgabewertes der Funktion `main` muss `int`
+sein. `int` ist eine Typangabe für ganze Zahlen (engl. *integer*) in
+\cpp. Es ist für die Funktion `main` allerdings nicht erforderlich,
+dass sie tatsächlich einen Wert zurückliefert. Wir kommen etwas später
+darauf zu sprechen.
+
+Bei `int` handelt es sich weiter um ein Schlüsselwort (engl. *keyword*). Ein
+Keyword ist eingebaut und kann nicht als Bezeichner verwendet werden.
+
+Die Parameterliste ist in dieser von uns derzeit verwendeten Form für die
+Funktion `main` leer und auch die Rumpf dieser Funktion ist derzeit noch leer.
+Damit wird dieses Programm bei der Ausführung auch überhaupt nichts bewirken.
+
+Die geschwungenen Klammern haben in \cpp die Bedeutung, dass mehrere einzelne
+Anweisungen zusammengefasst werden. In dem konkreten Fall einer
+Funktionsdefinition bedeutet das, dass die Anweisungen innerhalb der
+geschwungenen Klammern den Rumpf der Funktion bilden.
+
+Die meisten Anweisungen werden in \cpp oft mit einem Strichpunkt
+(engl. *semicolon*) abgeschlossen. Die leere Anweisung ist einfach ein
+einzelner Strichpunkt. Das folgende Programm besitzt ebenfalls keine
+Funktionalität, da im Rumpf der Funktion `main` nur eine leere Anweisung steht:
+
+~~~{.cpp #minimalCpp}
+int main() {
+    ;
+}
+~~~
+
+Nun kann das Programm gestartet werden und wir werden sehen, dass es hier zu
+keiner Ausgabe kommt, das wir uns ja erwartet haben, da unser Programm
+keinerlei Anweisungen enthält.
+
+Es ist zu erwähnen, dass in \cpp sogenannte Whitespace-Zeichen wie ein
+einzelnes Leerzeichen, Leerzeilen und Tabulatorzeichen ignoriert werden.
+Davon ausgenommen sind natürlich Whitespace-Zeichen in Strings.
+
+Damit im Rumpf der Funktion `main` irgendetwas steht, schreiben wir
+zwei Kommentare hinein:
+
+~~~{.cpp #minimalCpp}
+int main() {
+    // das ist ein einzeiliger Kommentar
+    /* und dieser Kommentar erstreckt sich
+       über mehrere Zeilen.
+    */
+}
+~~~
+
+Einzeilige Kommentare werden mit den Zeichen `//` eingeleitet und enden mit dem
+Ende der Zeile. Jedes beliebige Zeichen kann in einen einzeiligen Kommentar
+geschrieben werden.
+
+Mehrzeilige Kommentare beginnen mit `/*` und enden mit `*/` und können mit
+Ausnahme von `*/` jede beliebige Zeichenkombination enthalten.  `*/` darf nicht
+enthalten sein, da diese Zeichenkombination den mehrzeiligen Kommentar beendet.
+Damit sind keine verschachtelten mehrzeilige Kommentare möglich.
+
+## Rückgabewert der Funktion `main`
+
+Jetzt erinnern wir uns daran, dass die Funktion `main` einen Rückgabewert
+`int` haben muss und dass dieser bei `main` nicht angegeben werden muss.
+
+Damit stellen sich drei Fragen:
+
+- Wie kann man auf den Rückgabewert zugreifen?
+
+    Es hängt davon ab, wie das Programm, das den Rückgabewert zurückliefert
+    gestartet worden ist. Das kann einerseits durch ein "normales" Programm
+    (z.B. auch in \cpp geschrieben) oder durch eine Shell erfolgen.
+
+    Für unser Ausprobieren ist es am einfachsten den Rückgabewert nach
+    dem Ausführen unseres Programmes durch die Shell abzufragen. Dieses
+    Zugreifen auf den Rückgabewert erfolgt je Betriebssystem und Shell
+    unterschiedlich. Eine Kurzanleitung ist im Anhang im Abschnitt
+    \in[access_exit_code] auf der Seite \at[access_exit_code] zu finden.
+
+- Wie kann eine Funktion einen Rückgabewert zurückgeben?
+
+    Eine Funktion kann einen Wert mittels des Schlüsselwortes `return`
+    zurückgeben:
+
+    ~~~{.cpp #minimalCpp}
+    int main() {
+        return 0;
+    }
+    ~~~
+
+    In diesem Fall wird 0 zurückgegeben. Das bedeutet, dass der Exit-Code
+    in der Shell dann ebenfalls 0 beträgt. Der Wert 0 wird in der Regel
+    als Erfolg gedeutet, während alle anderen Werte je Anwendung unterschiedliche
+    Bedeutung zugewiesen wird.
+
+- Welchen Wert erhält man, wenn man keinen Wert von `main` zurückgibt?
+
+    Durch Ausprobieren kannst du leicht herausfinden, dass defaultmäßig 0
+    zurückgeliefert wird.
+
+
+## Hello World {#helloworld}
+
+Jetzt nehmen wir die nächste Hürde und schreiben das klassische "Hello World"
+Programm in eine Datei `hello.cpp`:
+
+~~~{.cpp}
+#include <iostream>
+
+int main() {
+    std::cout << "Hello, world!" << std::endl;
+}
+~~~
+
+Nach dem Übersetzen und dem Ausführen des Programmes, kommt es zu folgender
+erwarteter Ausgabe:
+
+~~~{.sh}
+$ hello
+Hello, world!
+~~~
+
+Das Zeichen `$` gefolgt von einem Leerzeichen sind meine definierten
+Promptzeichen, die bei dir durchaus anders aussehen können. Der Prompt ist das
+Zeichen deiner Shell, dass sie auf eine Eingabe wartet. Oft wird im Prompt auch
+noch das aktuelle Verzeichnis oder zusätzliche Information angezeigt. Bei mir
+ist sind es lediglich die beiden Zeichen, damit du siehst was eingegeben wird
+und was die Ausgabe ist.
+
+Ok, und was passiert eigentlich im Programm?
+
+- In Zeile 1 wird eine sogenannte Header-Datei eingebunden. In Header-Dateien
+    sind Deklarationen enthalten. Im Fall der Header-Datei `iostream` sind
+    unter anderem die Definition von `cout` und `endl` enthalten.
+    Allerdings sind diese in einem Namensraum (engl. *namespace*) `std`
+    enthalten auf hier mittels `::` zugegriffen wird.
+	Als einfache Regel gilt: Alle Bezeichner
+    der Standardbibliothek von \cpp sind im Namensraum `std` enthalten.
+
+- In der Zeile 4 wird auf das Objekt `cout` im Namensraum `std` mittels des
+    Operators `::` (engl. *scope resolution operator*) zugegriffen, der den
+    Bereichs auflöst.
+
+- In Zeile 4 wird weiters mittels des Operators `<<` die C-String-Konstante
+	`"Hello World!"` (engl. *C string literal*) ausgegeben.
+
+    Bei `std::cout` handelt es sich um ein Objekt, das den `stdout`
+    Kanal repräsentiert. Alle Daten, die in diesen Kanal geschrieben werden,
+    werden auf der Shell zur Ausgabe gebracht, wenn das Programm mittels
+	einer Shell gestartet worden ist.
+
+    Der Operator `::` liefert wieder ursprüngliche Objekt `cout` zurück,
+    sodass wiederum der Operator `<<` verwendet werden kann. Dies wird
+    ausgenützt, um einen Zeilenumbruch zu erzwingen, da danach der Manipulator
+    `std::endl` (*end line*, Zeilenende) an die Ausgabe gesendet wird.
+
+- Die Zeile 4 beinhaltet genau eine einfache Anweisung, die mit einem
+    Strichpunkt (*semicolon*) abgeschlossen sein muss.
+
+<div class="drawer">
+Präprozessor
+  : Der Präprozessor (engl. *preprocessor*) wird in C-basierten Sprachen dazu
+    verwendet, Textersetzungen vorzunehmen bevor der eigentliche Compiler
+    den Quellcode bekommt. Der Präprozessor liest die Präprozessordirektiven,
+    die immer mit dem Hashzeichen `#` beginnen und führt diese aus.
+    Die Präprozessordirektive `#include` liest die angegebene Datei
+    ein und fügt sie an der Stelle dieser Präprozessordirektive ein.
+    Der Compiler bekommt damit einen Quellcode, der auch den Inhalt
+    der eingebundenen Datei enthält.
+
+Namensraum
+  : Ein *Namensraum* (engl. *namespace*)ist ein Behälter, der Bezeichner
+    beinhalten kann, die unabhängig von Bezeichnern außerhalb dieses Behälters
+    sind. Ein Beispiel aus dem täglichen Leben wären die Vorwahlen von
+    Telefonnummern. Eine Vorwahl dient als Behälter für die nachfolgende
+    Rufnummer, sodass es zu keinem Konflikt mit einer gleichen Rufnummer aber
+    einer anderen Vorwahl kommt.
+
+Bezeichner
+  : Unter einem *Bezeichner* \index{Bezeichner}(engl. *identifier*
+    \index{identifier}) versteht man den Namen einer Funktion, einer Klasse,
+    einer Variable,... Bezeichner bestehen in \cpp aus Buchstaben, Ziffern
+	und Unterstrichen `_`, wobei ein Bezeichner nicht mit einer Ziffer beginnen
+    darf. Groß- und Kleinbuchstaben werden unterschieden.
+
+Deklaration
+  : Als *Deklarartion* \index{Deklaration} (engl. *declaration*) gibt man dem
+	Compiler bekannt, dass einem Bezeichner ein gewisser Typ zugeordnet ist.
+	Deklarationen können in \cpp weitgehend überall vorkommen, aber sie müssen
+	vor der Verwendung platziert sein.
+
+Definition
+  : Bei einer *Definition* \index{Definition}\index{Deklaration+Definition}
+    handelt es sich um eine Deklaration, die gleichzeitig dem Bezeichner
+    einen Speicherbereich zuteilt.
+</div>
+
+
+## Eingabe und Ausgabe {#greetme_program}
+
+Bis jetzt haben wir lediglich Ausgaben getätigt, nun werden wir uns auch
+mit der Eingabe beschäftigen.
+
+Um Daten einzugeben existiert das Objekt `std::cin`, das den Kanal `stdin`
+repräsentiert und die Eingabe zur Laufzeit des Programmes ermöglicht genauso
+wie `std::cout` die Ausgabe zur Laufzeit ermöglicht. Schreiben wir gleich
+einmal ein Programm `greetme.cpp`, das eine Abwandlung unseres "Hello World"
+Programmes darstellt. Es soll den Benutzer nach seinem Namen fragen und ihn
+danach nett begrüßen:
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    string name;
+    cout << "Ihr Name bitte: ";
+    cin >> name;
+    cout << "Nett Sie zu sehen, " << name << "!" << std::endl;
+}
+~~~
+
+Übersetze das Programm wie gewohnt und starte es, du wirst nach deinem
+Namen gefragt und danach wird der Begrüßungstext ausgegeben:
+
+~~~{.sh}
+$ greetme
+Ihr Name bitte: Maxima
+Nett Sie zu sehen, Maxima!
+$
+~~~
+
+Gut was ist hier Neues zu finden?
+
+- Die Zeile 3 legt fest, dass alle Bezeichner aus dem Namensraum `std` ab jetzt
+    nicht mehr mit dem Bereichsauflösungsoperator `::` qualifiziert werden
+    müssen, sondern einfach verwendet werden können.
+
+- Einerseits wird hier zum erstenmal eine Variable definiert. In Zeile 6 wird
+    `name` als eine neue Variable definiert, die den Typ `string` hat. `string`
+    ist ein \cpp Typ, der eine Zeichenkette repräsentiert, aber im Gegensatz zu
+    den C-Strings ein Objekttyp ist.
+
+	In der folgenden Zeile `cout << "Ihr Name bitte: ";` siehst du wieder eine
+	C-String-Konstante. Bei einem C-String handelt es sich um eine Folge
+	von Zeichen, die mit einem Nullzeichen (`'\0'`) abgeschlossen ist und durch
+	eine Adresse im Speicher referenziert wird. Eine C-String-Konstante ist
+	eine Möglichkeit, wie ein C-String im Quelltext angegeben werden kann.
+
+	Wir werden uns den Objekttyp `string` später genauer ansehen und auch die
+	Unterschiede zu einem C-String herausarbeiten. `string` müsste eigentlich
+	mittels `#include <string>` eingebunden werden, um benützt zu werden,
+	allerdings wird dies schon durch die Headerdatei `iostream` erledigt.
+
+- Weiters wird diese Variable `name` mittels des `>>` Operators aus dem
+    Objekt `cin` befüllt. Da es sich bei dem Typ von `name` um einen
+    `string` handelt, werden die eingegebenen Zeichen so wie sie sind
+    in dieser Variable abgelegt.
+
+So weit, so gut. Vielleicht hast du es schon ausprobiert einen vollständigen
+Namen mit Vornamen und Nachnamen einzugeben, dann wirst du folgendes Verhalten
+festgestellt haben:
+
+~~~{.sh}
+Ihr Name bitte: Maxima Muster
+Nett Sie zu sehen, Maxima!
+~~~
+
+Was passiert hier? Der Operator `>>` liest maximal bis zum ersten Leerzeichen
+und damit erhalten wir in unserem Fall nur den Vornahmen! Ändern wir
+daher das Programm nochmals um, sodass der Vorname als auch der Nachname
+eingegeben werden kann (Datei `greetme2.cpp`):
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    string first_name;
+    string last_name;
+    cout << "Ihr Name bitte: ";
+    cin >> first_name;
+    cout << "Ihr Nachnamename bitte: ";
+    cin >> last_name;
+    cout << "Nett Sie zu sehen, " << first_name
+         << " " << last_name << "!" << std::endl;
+}
+~~~
+
+In diesem Programm lesen wir einfach zwei Strings ein und speichern diese
+in zwei Variablen ab, die danach mit einem Leerzeichen getrennt ausgegeben
+werden:
+
+~~~{.sh}
+Ihr Name bitte: Max Muster
+Nett Sie zu sehen, Max Muster!
+~~~
+
+Diese Lösung hat allerdings einen Nachteil, dass nämlich jetzt wirklich
+zwei Namen eingegeben werden müssen. Probiere einfach einmal aus, nur
+den Vornamen einzugeben und du wirst bemerken, dass das Programm nach der
+ersten Eingabe noch auf eine zweite wartet!
+
+Was ist zu tun?
+
+- Einerseits kann natürlich das Programm abgebrochen werden. Das kann in
+    der Regel mit der Tastenkombination `CTRL+C` erreicht werden. In diesem
+    Fall bricht aber das Programm eben ab und es wird zu keiner Ausgabe
+    kommen.
+
+- Die zweite Möglichkeit besteht darin, dem Programm mitzuteilen, dass die
+    Eingabe beendet ist, d.h. dass der Eingabekanal für diese Operation
+    geschlossen wird. Das kann unter Linux oder Mac OSX mittels der
+    Tastenkombination `CTRL+D` und unter Windows mittels `CTRL+Z`
+    erreicht werden. D.h. nach der erfolgreichen Eingabe des ersten
+    Wertes wird
+
+Aber sind wir uns einmal ehrlich, bei beiden Varianten handelt es sich
+eigentlich um keine vernünftigen Lösungen.
+
+Verändern wir deshalb das Programm nochmals (Datei `greetme3.cpp`):
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    string name;
+    cout << "Ihr Name bitte: ";
+    getline(cin, name);
+    cout << "Nett Sie zu sehen, " << name << "!" << std::endl;
+}
+~~~
+
+In diesem Programm verwenden wir die Funktion `getline`, die sowohl den
+Eingabekanal `cin` als auch eine Variable vom Typ `string` mitbekommt.  Die
+Funktionsweise ist, dass die gesamte Zeile in die Variable `name` eingelesen
+wird. Beachte, dass in \cpp es möglich ist Parameter zu übergeben, die in
+der Funktion verändert werden, wie dies bei `name` zu sehen ist und die
+Funktion `getline` handhabt.
+
+Weiters siehst du auch, dass diese Funktion `getline` anscheinend in
+der Headerdatei `iostream` enthalten ist, da der Compiler keinen Fehler
+meldet.
+
+Durch diese Lösung ist natürlich auch keine Aufteilung in Vorname und Nachname
+mehr möglich, dafür sind aber auch mehrere Namensteile wie mehrere Vornamen
+oder Doppelnamen möglich. Probiere es einfach aus!
+
+<div class="drawer">
+Es könnte sein, dass die Behandlung von Sonderzeichen unter Umständen nicht
+korrekt funktioniert. Das liegt daran, dass dein System wahrscheinlich nicht
+richtig konfiguriert ist. Kontrolliere deine Systemeinstellungen!
+</div>
+
+## Ganze Zahlen und `if` {#agetest_program}
+
+Im nächsten Schritt wollen wir uns mit einem weiteren grundlegenden Datentyp,
+nämlich den ganzen Zahlen beschäftigen und die erste Kontrollstruktur die `if`
+Anweisung einsetzen.
+
+Schreiben wir jetzt ein Programm, das das Alter des Benutzers abfragt und
+danach eine Altersüberprüfung vornimmt. Ist das Alter unter 18 Jahren, dann
+soll ausgegeben werden, dass der Benutzer noch nicht volljährig ist ansonsten,
+dass er volljährig ist.
+
+Schreibe deshalb folgendes Programm `agetest.cpp`:
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int age;
+
+	cout << "Wie alt sind Sie? ";
+    cin >> age;
+	
+    if (age < 18) {
+        std::cout << "Sie sind noch minderjährig!" << endl;
+    } else {
+        std::cout << "Sie sind volljährig!" << endl;
+    }
+}
+~~~
+
+Probiere das Programm jetzt aus und dann werden wir es besprechen.
+
+Fertig? Dann schauen wir uns das einmal an:
+
+- Zuerst sehen wir, dass wir eine Variable `age` vom Typ `int` (Abkürzung für
+    *integer*, ganze Zahl) definieren.  D.h. wir drücken aus, dass wir
+    eine Variable mit dem Namen "age" wollen, die ganze Zahlen speichern kann.
+
+- Weiters sehen wir, dass wir den Operator `>>` nicht nur zur Eingabe von
+	Strings sondern auch zur Eingabe von ganzen Zahlen verwenden
+	können. D.h. der Benutzer gibt eine Zeichenkette ein und `>>` wandelt diese
+	in eine ganze Zahl, wenn dies möglich ist (mehr dazu später).
+
+	Weiters gehen wir davon aus, dass der Benutzer nur erlaubte Eingaben
+	tätigt. Wir werden uns später noch eingehend damit auseinandersetzen, wie
+	man mit fehlerhaften Eingaben umgehen kann.
+
+- Weiters sehen wir danach die erste zusammengesetzte Anweisung, nämlich die
+    Bedingungsanweisung, die die Bedingung nach dem Schlüsselwort `if`
+    (dt. wenn, falls) in runden Klammern enthält. Ist die Bedingung wahr, dann
+    werden die direkt folgenden Anweisungen des ersten Anweisungsblockes (in
+    den geschwungen Klammern) ausgeführt, anderenfalls die Anweisung
+    nach dem Schlüsselwort `else` (dt. anderenfalls).
+
+    Bedingungen setzen sich meist aus Vergleichsoperatoren und logischen
+    Operatoren zusammen.
+
+    An Vergleichsoperatoren stehen uns für Zahlen die üblichen Kandidaten
+    `<`, `<=`, `==`, `>=` und `>` zur Verfügung.
+
+	Die logischen Operatoren werden wir später noch besprechen.
+
+	Ein `else` Teil ist nicht notwendig. Dieser kann auch weggelassen werden.
+	Damit kann das Programm auch ohne Verwendung von `else` Teilen
+	umgeschrieben werden. Dies ist zwar nicht so elegant und lesbar, aber
+	möglich. Die entsprechenden Bedingungsanweisungen sehen danach
+	folgendermaßen aus:
+
+	~~~{.cpp}
+	if (age < 18) {
+        std::cout << "Sie sind noch minderjährig!" << endl;
+    }
+
+    if (age >= 18) {
+        std::cout << "Sie sind volljährig!" << endl;
+    }
+	~~~
+
+- Die Anweisungen in einer zusammengesetzten Anweisung wie der `if`
+    Anweisung müssen prinzipiell in geschwungenen Klammern geschrieben
+    werden, wie wir es schon gesehen haben.
+
+    Es gibt allerdings eine Ausnahme: Handelt es sich jeweils nur um eine
+    einzelne Anweisung, dann können die geschwungenen Klammern entfallen, d.h.
+    die Verzweigungsanweisung kann in diesem Fall auch folgendermaßen
+    geschrieben werden:
+
+    ~~~{.cpp}
+    if (age < 18)
+        std::cout << "Sie sind noch minderjährig!" << endl;
+    else
+        std::cout << "Sie sind volljährig!" << endl;
+    ~~~
+
+	Das bedeutet, dass Anweisungen innerhalb von geschwungenen Klammern
+	überall dort verwendet werden können wo auch eine einzelne Anweisung steht.
+
+    Ich empfehle diese Vorgangsweise aber *nicht*: Fügst du später weitere
+    Anweisungen ein, dann kann man leicht darauf vergessen die geschwungenen
+    Klammern hinzuzufügen und das Programm entweder nicht übersetzen
+    oder nicht richtig funktionieren.
+
+
+Wie sieht es aus, wenn wir eine feinere Unterscheidung haben wollen:
+
+ Altersgruppe    von   bis
+--------------  ----- -----
+    Kind          0    <14
+ Jugendlicher    14    <18
+ Erwachsener     18     -
+
+In diesem Fall erweitern wir die Bedingungsanweisung um einen "`else if`"
+Teil:
+
+~~~{.cpp}
+if (age < 14) {
+    std::cout << "Du bist noch ein Kind." << endl;
+} else if (age < 18) {
+    std::cout << "Sie sind ein Jugendlicher!" << endl;
+} else {
+    std::cout << "Sie sind volljährig!" << endl;
+}
+~~~
+
+D.h. es können beliebig viele Bedingungen mittels "`else if`" nach dem
+ersten "`if`" angehängt werden. Das abschließende "`else`" ist wiederum
+optional.
+
+
+## Rechnen mit Zahlen
+
+Nehmen wir einmal an, wir wollen ein einfaches Programm schreiben, das einfach
+nur zwei Zahlen einliest, die erste Zahl durch die Zweite dividiert und das
+Ergebnis ausgibt.
+
+Eine sehr einfache Problemstellung, aber trotzdem können wir hier wieder
+einiges über \cpp lernen. Beginnen wir gleich einmal mit dem folgenden
+Programm, das wir in einer Datei `div.cpp` abspeichern:
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    int num1;
+    int num2;
+    int res;
+
+    cout << "Die erste Zahl: ";
+    cin >> num1;
+    cout << "Die zweite Zahl: ";
+    cin >> num2;
+
+    cout << "Das Ergebnis ist: " << res << endl;
+}
+~~~
+
+Was gibt es hier wieder Neues? Eigentlich gar nichts. Aber starte einmal das
+Programm, gib beliebige Werte für die beiden Zahlen ein und schaue dir die
+Ausgabe an. Sie wird in *etwa* folgendermaßen aussehen und wird bei dir
+vermutlich ein anderes Ergebnis anzeigen.
+
+~~~{.sh}
+$ div
+Die erste Zahl: 1
+Die zweite Zahl: 2
+Das Ergebnis ist: -1218654208
+~~~
+
+Die Variabel `res` wurde **nicht** initialisiert, d.h. es wird kein Wert in
+diese Variable geschrieben. Was ist aber der Wert von `res` nach der
+Definition?  Die Variable enthält den Wert, den der Speicherinhalt zu dieser
+Zeit repräsentiert. D.h. es vom aktuellen Bitmuster des Speicherinhaltes
+abhängig.
+
+Die Variable `res` ist eine lokale Variable, da diese innerhalb der Funktion
+`main` definiert wurde. Merke: Lokale Variable, die einen fundamentalen
+Datentyp (eingebaute Datentypen wie ganze Zahlen, Gleitkommazahlen,...)
+besitzen werden in \cpp **nie** automatisch initialisiert.  Wir werden später
+noch auf die fundamentalen Datentypen eingehen.
+
+Was können wir also machen?  Wir könnten nach der Definition der Variable
+`res` dieser einen Wert zuweisen:
+
+~~~{.cpp}
+int res;
+
+res = 0;
+~~~
+
+Ok, das ändert aber nichts daran, dass diese Variable am Beginn noch immer
+nicht initialisiert wurde. Gut, dann lernen wir gleich wie man eine Variable
+in \cppXI korrekt initialisiert:
+
+~~~{.cpp}
+int res{0};
+~~~
+
+D.h. der Initialsierungswert wird in geschwungenen Klammern nach dem
+Variablennamen geschrieben. In diesem konkreten Fall ist der Effekt gleich
+wie wenn man die Variable nicht initialisiert und ihr dann einen Wert
+zuweist. Verwendet man jedoch komplexe Objekte, dann kann dies zu einem
+Performanceverlust führen.
+
+<div class="thumb">
+Lokale Variable **immer** initialisieren!
+
+Es gibt eigentlich nur eine Ausnahme von dieser Regel: Hat das zu
+initialisierende Objekt einen hohen Initialisierungsaufwand und wird es
+zuerst beschrieben, dann kann man die Initialisierung weglassen.
+Siehe XXX.
+</div>
+
+Allerdings geht es mit der vereinheitlichten Initialisierung in diesem Fall
+noch einfacher:
+
+~~~{.cpp}
+int res{};
+~~~
+
+Du siehst, dass du die `0` weglassen kannst. In diesem Fall wird die Variable
+mit dem "Nullwert" initialisiert, falls es sich um einen sogenannten
+fundamentalen Datentyp handelt.
+
+Es besteht auch die Möglichkeit den Wert direkt bei der Definition der Variable
+anstatt der geschwungenen Klammern mit einem `=` Zeichen zu initialisieren:
+
+~~~{.cpp}
+int res = 0;
+~~~
+
+Das hat den gleichen Effekt. Trotzdem empfehle ich die Form mit den
+geschwungenen Klammern, die als einheitliche Initialisierung (engl. *uniform
+initialization*) bezeichnet wird und in \cppXI zum Sprachstandard hinzugekommen
+ist. Der Vorteil dieser Form ist, dass diese weitgehend *überall* in \cpp
+zur Initialisierung verwendet werden kann (im Kontrast zu der Form mit `=`).
+
+Ändern wir jetzt das Programm so ab, dass es die gewünschte Division
+durchführt. Füge dazu direkt nach der Eingabe der zweiten Zahl folgende
+Anweisung in das Programm ein:
+
+~~~{.cpp}
+res = num1 / num2;
+~~~
+
+Damit wird die erste Zahl durch die zweite Zahl dividiert.
+Wie leicht zu sehen ist, handelt es sich bei dem Operator `/` um den
+Divisionsoperator wie dies in vielen Programmiersprachen üblich ist. Schaut man
+sich das Programm jetzt an, dann sieht man unschwer, dass die Initialisierung
+der Variable `res` jetzt nicht mehr nötig wäre. Wir lassen das Programm
+trotzdem in dieser Form, da wir unsere Faustregel beachten!
+
+Weiters wird der Variable `res` mittels des Zuweisungsoperators `=` ein Wert
+zugewiesen. Es handelt sich hier **nicht** um eine Initialisierung, sondern
+um eine Zuweisung. Das ist wichtig für das weitere Verständnis von \cpp.
+
+Als ein Ausdruck (engl. *expression*) wird eine syntaktisches Konstrukt
+bezeichnet, das zu einem Wert ausgewertet werden kann. `num1 / num2` ist danut
+eub Ausdruck. In \cpp ist `res = num1 / num2` ebenfalls ein Ausdruck, da der
+Wert dieses Ausdruckes das Ergebnis der Division ist. Dieser Ausdruck
+beinhaltet eben einen weiteren Ausdruck, nämlich `num1 / num2`, der wiederum
+zwei Ausdrücke beinhaltet, nämlich `num1` und `num2`.
+
+Gleichzeitig ist `res = num1 / num2;` auch eine Anweisung und muss daher mit
+einem Strichpunkt abgeschlossen werden.
+
+ Die anderen grundlegenden arithmetischen Operatoren sind `+`, `-` und
+`*`. \cpp kennt selbstverständlich die üblichen Regeln zur Punkt- und
+Strichrechnung, wobei Klammern gesetzt werden können, um eine beliebige
+Berechnungsreihenfolge herzustellen (z.B. `a * (b + c)`).
+
+Jedem Operator ist nicht nur eine Priorität zugewiesen, die die Reihenfolge der
+Berechnung festlegt, sondern auch eine Assoziativit. `a + b + c` wird von links
+nach rechts ausgerechnet (links assoziativ) und ist damit gleichwertig zu `(a +
+b) + c`. Damit muss man die Klammern bei diesem speziellen Ausdruck nicht
+verwenden, sie sind in diesem Fall redundant.
+
+So, übersetze das Programm wieder und probiere es aus:
+
+~~~{.sh}
+Die erste Zahl: 6
+Die zweite Zahl: 3
+Das Ergebnis ist: 2
+~~~
+
+Das Ergebnis erwartet man sich natürlich. Probiere das Programm gleich nochmals
+mit den Werten 3 und 2 aus. Das Ergebnis 1 ist natürlich nicht richtig.
+
+Na, da könnte man argumentieren, dass dies auf diese Art gar nicht möglich
+ist, da die Variable `res` den Typ `int` hat. Da wir in unserem konkreten
+Fall diese Variable gar nicht benötigen, werden wir diese einfach
+wieder entfernen und durch die Ausgabeanweisung auf die folgende Art umbauen:
+
+~~~{.sh}
+cout << "Das Ergebnis ist: " << num1 / num2 << endl;
+~~~
+
+Wie du siehst brauchen wir in diesem Fall die Variable `res` nicht mehr und
+können auch die Definition aus dem Quelltext löschen.
+
+Die Ausgabe ist noch immer 1, wenn man 3 durch 2 dividiert. Das bedeutet,
+dass der Typ des Ergebnisses `int` ist, wenn zwei `int` Zahlen dividiert
+(oder eine andere Operation) werden. Das ist eine allgemeine Regel von
+\cpp, dass der Wert des Ergebnisses immer dem Wert der Operanden entspricht
+wenn diese den gleichen Typ haben (bei fundamentalen Datentypen).
+
+Dann wollen wir das Programm gleich nochmals starten und diesmal das
+Ergebnis der Division der Zahlen 1 und 0 ermitteln. Das Ergebnis
+wird in etwa folgendermaßen aussehen (die Fehlermeldung wird vermutlich
+unterschiedlich aussehen):
+
+~~~{.sh}
+$ div
+Die erste Zahl: 1
+Die zweite Zahl: 0
+fish: Job 1, 'div' durch Signal SIGFPE (Fliesskomma-Ausnahmefehler) beendet
+~~~
+
+Es ist klar, dass man eine Zahl nicht durch 0 dividieren kann, da dies
+mathematisch nicht definiert ist. Das interessante ist, dass der Prozess
+zwanghaft beendet worden ist!
+
+Wir haben gesehen, dass in unserem Fall für die Division von Zahlen der
+Datentyp `int` nicht die richtige Wahl ist. Dann stellen wir einfach
+unser Programm um, indem wir den Datentyp `double` (Gleitkommazahl, in \cpp
+eine Zahl mit Nachkommastellen in doppelter Genauigkeit) verwenden:
+
+~~~{.cpp}
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    double num1;
+    double num2;
+
+    cout << "Die erste Zahl: ";
+    cin >> num1;
+    cout << "Die zweite Zahl: ";
+    cin >> num2;
+
+    cout << "Das Ergebnis ist: " << num1 / num2 << endl;
+}
+~~~
+
+Übersetze das Programm wieder und teste es mit den Zahlen 3 und 2:
+
+~~~{.sh}
+$ div
+Die erste Zahl: 3
+Die zweite Zahl: 2
+Das Ergebnis ist: 1.5
+~~~
+
+Jetzt erhalten wir unser erwartetes Ergebnis. Nebenbei sehen wir, dass in \cpp,
+wie in Programmiersprachen üblich, der Punkt als Kommazeichen verwendet wird.
+Wir sehen weiterhin, dass sowohl die Variable `num1` als auch die Variable
+`num2` den Datentyp `double` besitzen und hiermit das Ergebnis ebenfalls den
+Datentyp `double` hat. Damit bekommen wir als Ergebnis eine Zahl mit Nachkommastellen.
+
+Testen wir das Programm wieder mit den Werten 1 und 0 dann kommt es zu
+folgendem Verhalten:
+
+~~~{.cpp}
+$ div
+Die erste Zahl: 1
+Die zweite Zahl: 0
+Das Ergebnis ist: inf
+~~~
+
+Es kommt zu keinem Programmabbruch! Stattdessen ergibt die Division durch
+0 einen eigenen Wert, der als "inf", das für infinity (dt. unendlich)
+in der Ausgabe erscheint. Bei Division von -1 durch 0 ergibt sich "-inf".
+
+Wir sehen, dass es für Gleitkommazahlen einen eigenen Wert gibt, der
+anzeigt, dass eine Division durch 0 keinen definierten Wert hat. Mehr dazu
+später.
+
+
+##  {#todo}
+
+
+- Danach sehen wir einen weiteren neuen Datentyp `char`, der angibt, dass
+    die Variable `op` (Abkürzung für engl. `operator`) ein einzelnes
+    Zeichen aufnehmen kann.
+
+So, jetzt übersetze das Programm und probiere es aus! Unter Umständen wirst
+du bemerken, dass es auch möglich ist, gleich bei der ersten Eingabeaufforderung
+eine gesamte Rechnung anzugeben, wie im nachfolgenden Beispiel zu sehen
+ist:
+
+~~~{.sh}
+$ add
+Die erste Zahl: 1+2
+Die gewünschte Operation [+,-,*,/]: Die zweite Zahl:
+~~~
+
+Auch darauf werden wir noch genauer eingehen. Hier ein kurzer Überblick:
+
+a. Das erste Lesen von `cin` liest eine  Gleitkommazahl ein, also in unserem
+    konkreten Beispiel die Zahl 1. Wir sehen, dass es nicht notwendig ist
+    explizit ein Komma anzugeben. Die restlichen Zeichen verbleiben im
+    Eingabekanal.
+b. Danach wird die nächste Ausgabe getätigt und der Benutzer zur Eingabe des
+    Operators aufgefordert.
+c. Im Anschluss wird wieder aus dem Eingabekanal  gelesen, der jedoch schon ein
+    Zeichen, nämlich das Zeichen '`+`' enthält. Dadurch muss nicht mehr auf
+    eine Eingabe gewartet werden und das Programm kann einfach fortfahren.
+
+Natürlich ist das normalerweise nicht gewünscht, aber die korrekte Behandlung
+solcher Situation wie auch die Behandlung von Fehlern werden wir uns
+ebenfalls später ansehen.
+
+Jetzt gehen wir jedoch weiter vor und werden das Programm so erweitern, dass
+es die gewünschte Funktion erfüllt. Füge den folgenden Teil vor der letzten
+geschwungenen Klammer ein:
+
+~~~{.cpp}
+    switch (op) {
+        case '+':
+            res = num1 + num2;
+            break;
+        case '-':
+            res = num1 - num2;
+            break;
+        case '*':
+            res = num1 * num2;
+            break;
+        case '/':
+            res = num1 / num2;
+            break;
+    }
+    cout << "Das Ergebnis ist: " << res << endl;
+~~~
+
+Hier lernen wir eine neue zusammengesetzte Anweisung kennen, die `switch`
+Anweisung. Diese ist dafür gedacht, dass man eine Auswahl treffen kann. Hier
+wird in Abhängigkeit des Inhaltes der Variable `op` zu einem der Fälle
+(engl. *case*) verzweigt. In diesem Fall kommt eine weitere einfache
+Anweisung, die `break` Anweisung vor. Diese bewirkt, dass die Ausführung
+direkt nach der `switch` Anweisung weitergeführt wird und nicht ide
+Anweisungen des nachfolgenden `case` abgearbeitet werden.
+
+Würden die `break` Anweisungen entfernt werden, dann würde als Ergebnis
+immer das Ergebnis der Division ermittelt werden. Man spricht davon, dass
+
+
+- while schleife
+- for schleife
+
+
+## Zusammenfassung
+
+- Jede Funktion in \cpp besitzt den Typ eines Rückgabwertes, einen
+    Namen, eine Liste von Parametern und einen Funktionsrumpf. Der
+    Funktionsrumpf besteht aus Anweisungen, die durch `{` und `}`
+    eingeschlossen sind.
+- Einfache Anweisungen und Deklarationen werden mit einem Strichpunkt
+    abgeschlossen.
+- Jedes \cpp Programm besitzt genau eine Funktion `main`, die einen `int`
+    zurückliefert. Parameter müssen keine angegeben werden.
+- Kommentare können einzeilig oder mehrzeilig sein:
+    - Einzeilige Kommentare werden durch `//` eingeleitet und bewirken, dass
+        der Rest der Zeile als Kommentar betrachtet wird.
+    - Mehrzeilige Kommentare beginnen mit `/*` und enden mit `*/` und
+        können nicht verschachtelt sein.
+- Öfters verwendete Deklarationen sind meist in Headerdateien enthalten, die
+    mittels `#include <...>` eingebunden werden können. Es handelt sich
+    um eine Präprozessoranweisung, die die angegebene Datei an der Stelle
+    dieser Präprozessoranweisung als Text einsetzt. Der Präprozessor wird
+    vor dem eigentlichen Compiler automatisch aufgerufen.
+- Auf den Standardausgabekanal kann mittels `std::cout` zugegriffen werden.
+    Um diese im Programm verwenden zu können, muss die Präprozessoranweisung
+    `#include <iostream>` davor ausgeführt werden.
+- Das eigentliche Schreiben auf den Standardausgabekanal erfolgt mit dem
+    Operator `<<`, z.B. `std::cout << "Hello";`. Es können mehrere Ausgaben
+    hintereinander in einer Anweisung getätigt werden. Ein Zeilenumbruch
+    erfolgt mittels `std::endl`. Ein Beispiel:
+    `std::cout << "Hello" << 007 << std::endl;`
+- Variable in \cpp haben immer einen Typ. In diesem Kapitel haben wir
+    ganze Zahlen (`int`), Gleitkommazahlen (`double`) und Strings
+    (`std::string`) kennengelernt.
+- Der Zugriff auf den Standardeingabekanal erfolgt mittels `std::cin`.
+- Das Lesen vom Standardeingabekanal erfolgt mit dem Operator `>>`, z.B.:
+    `std::cin >> name;`
