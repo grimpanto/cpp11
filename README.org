@@ -3,4 +3,6 @@
 I have written this little book about C++ mainly for teaching purposes. The
 beginnings of this work date back about 10 years ago. So, it's not up to
 date with the current C++ standards, but anyway, it's still usable in
-one way or another. Please note the license.
+one way or another.
+
+Please note the license.
