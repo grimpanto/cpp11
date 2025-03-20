@@ -1,8 +1,11 @@
 * C++11
 
 I have written this little book about C++ mainly for teaching purposes. The
-beginnings of this work date back about 10 years ago. So, it's not up to
+beginnings of this work date back more than 10 years ago. So, it's not up to
 date with the current C++ standards, but anyway, it's still usable in
 one way or another.
+
+Here, you will find the built [[build/prod_book.pdf][prod_book.pdf]] and the corresponding examples
+in the following directory [[exammples][examples]].
 
 Please note the license.
