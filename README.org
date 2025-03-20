@@ -6,6 +6,6 @@ date with the current C++ standards, but anyway, it's still usable in
 one way or another.
 
 Here, you will find the built [[build/prod_book.pdf][prod_book.pdf]] and the corresponding examples
-in the following directory [[exammples][examples]].
+in the following directory [[examples][examples]].
 
 Please note the license.
